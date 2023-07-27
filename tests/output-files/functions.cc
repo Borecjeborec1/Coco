@@ -3,8 +3,8 @@
 #include "./lib/types.hh"
 
 // All functions with its argument templates goes here
-template < typename rewv, typename eznr>
-auto add(rewv a, eznr b) { 
+template < typename qtbn, typename qxns>
+auto add(qtbn a, qxns b) { 
 return (a + b); }; 
  
 
@@ -14,12 +14,14 @@ int main(){
 auto result = add(JSNumber(5), JSNumber(3)) ; 
 
 std::cout << result.toString() << std:: endl; 
-auto multiply = [](auto a, b) { return (a * b);  } ; 
+auto multiply = [](auto a, auto b) { 
+return (a * b);  
+ }  ; 
 
 auto product = multiply(JSNumber(2), JSNumber(4)) ; 
 
 std::cout << product.toString() << std:: endl; 
-auto divide = [a, b] { (a / b) } ; 
+auto divide = [](auto a, auto b) { return (a / b); }  ; 
 
 auto quotient = divide(JSNumber(10), JSNumber(2)) ; 
 

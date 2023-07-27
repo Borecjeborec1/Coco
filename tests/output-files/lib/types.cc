@@ -111,8 +111,6 @@ JSString JSString::operator[](const JSNumber &index) const {
     throw std::out_of_range("Index out of range");
 }
 
-JSNumber JSString::length() const { return JSNumber(value.length()); }
-
 JSString JSString::slice(JSNumber start, JSNumber end) const {
   return JSString(value.substr(start.toDouble(), end.toDouble()));
 }
@@ -212,4 +210,8 @@ JSNumber JSString::charCodeAt(JSNumber index) const {
     return JSNumber(static_cast<JSNumber>(value[index.toDouble()]));
   else
     throw std::out_of_range("Index out of range");
+}
+
+bool JSString::includes(const JSString &substring) const {
+  return value.find(substring.toString()) != std::string::npos;
 }

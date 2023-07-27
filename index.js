@@ -23,30 +23,42 @@ exports.init = async (_inputFile, _outputFile = "") => {
 
 
 exports.build = async () => {
-  const code = fs.readFileSync(settings.input, "utf-8")
-  const ast = acorn.parse(code);
-  const res = generateWholeCode(ast)
-  await fs.writeFileSync(settings.output, res)
+  try {
+    const code = fs.readFileSync(settings.input, "utf-8")
+    const ast = acorn.parse(code);
+    const res = generateWholeCode(ast)
+    await fs.writeFileSync(settings.output, res)
+    return true
+  } catch (er) {
+    console.log("build error: " + er)
+    return false
+  }
 }
 
 exports.compile = async () => {
+  try {
 
-  const compileCommand = `g++ ${settings.output} -std=c++17 ./lib/types.cc -O3 -s -o ${settings.binaryFile} `;
+    const compileCommand = `g++ ${settings.output} -std=c++17 ./lib/types.cc -O3 -s -o ${settings.binaryFile} `;
 
-  await new Promise((resolve, reject) => {
-    exec(compileCommand, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Compilation failed: ${error.message}`);
-        reject(error);
-      } else if (stderr) {
-        console.error(`Compilation error: ${stderr}`);
-        reject(new Error(stderr));
-      } else {
-        console.log('Compilation successful');
-        resolve();
-      }
+    await new Promise((resolve, reject) => {
+      exec(compileCommand, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Compilation failed: ${error.message}`);
+          reject(error);
+        } else if (stderr) {
+          console.error(`Compilation error: ${stderr}`);
+          reject(new Error(stderr));
+        } else {
+          // console.log('Compilation successful');
+          resolve();
+        }
+      });
     });
-  });
+    return true
+  } catch (er) {
+    console.log("compile error: " + er)
+    return false
+  }
 
 }
 

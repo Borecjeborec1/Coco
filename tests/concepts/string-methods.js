@@ -16,4 +16,3 @@ const charAt = str.charAt(4);
 console.log(charAt);
 
 const includes = str.includes('World');
-console.log(includes);

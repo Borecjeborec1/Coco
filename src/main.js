@@ -34,16 +34,6 @@ function generateWholeCode(ast) {
         fcDefinitons.push(`${returnType} ${funcName}(${params}) { \n${body}}; \n`)
         return "";
       }
-      case 'FunctionExpression': {
-        const parameters = ast.params.map(param => generateCpp(param)).join(', ');
-        const body = generateCpp(ast.body);
-        return `[](auto ${parameters}) { ${body} }`;
-      }
-      case 'ArrowFunctionExpression': {
-        const arrowParameters = ast.params.map(param => generateCpp(param)).join(', ');
-        const arrowBody = generateCpp(ast.body);
-        return `[${arrowParameters}] { ${arrowBody} }`;
-      }
       case 'BlockStatement':
         return ast.body.map(generateCpp).join('\n');
       case 'VariableDeclaration': {
@@ -55,7 +45,6 @@ function generateWholeCode(ast) {
       case 'Identifier':
         return ast.name;
       case 'Literal': {
-        console.log("INITING TYPE::: " + typeof ast.value)
         if (typeof ast.value === 'string') {
           return `JSString("${ast.value}")`;
         } else if (typeof ast.value === 'number') {
@@ -86,13 +75,11 @@ function generateWholeCode(ast) {
         return `${callee}(${args})`;
       }
       case 'FunctionExpression':
-        return `[](${ast.params.map(generateCpp).join(', ')}) { \n${generateCpp(ast.body)} \n } `;
+        return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(', ')}) { \n${generateCpp(ast.body)} \n } `;
       case 'ArrowFunctionExpression': {
-        if (ast.body.type === 'BlockStatement') {
-          return `[](${ast.params.map(generateCpp).join(', ')}) { \n${generateCpp(ast.body)} \n } `;
-        } else {
-          return `[](${ast.params.map(generateCpp).join(', ')}) { return ${generateCpp(ast.body)}; } `;
-        }
+        if (ast.body.type === 'BlockStatement')
+          return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(', ')}) { \n${generateCpp(ast.body)} \n } `;
+        return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(', ')}) { return ${generateCpp(ast.body)}; } `;
       }
       case 'MemberExpression': {
         if (ast.object.type === 'Identifier' && ast.object.name === 'Math') {

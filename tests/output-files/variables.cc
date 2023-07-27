@@ -8,13 +8,7 @@
 
 // Main Function (Have to be the only main function)
 int main(){
-  auto x = JSNumber(10) ; 
+  auto x = JSNumber(21) ; 
 
-auto PI = JSNumber(3.14) ; 
-
-auto y = JSString("Hello") ; 
-
-std::cout << x.toString() << std:: endl; 
-std::cout << y.toString() << std:: endl; 
   return 0;
 }  

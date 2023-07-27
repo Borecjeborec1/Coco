@@ -43,16 +43,16 @@ public:
   bool operator>(const JSNumber &other) const;
   bool operator>=(const JSNumber &other) const;
   JSNumber operator%(const JSNumber &other) const;
-  // Method to parse back to double
   double toDouble() const { return value; }
 };
 
 class JSString : public JSValue {
 private:
   std::string value;
+  JSNumber _length;
 
 public:
-  JSString(const std::string &val) : value(val) {}
+  JSString(const std::string &val) : value(val), _length(value.length()) {}
 
   std::string toString() const override { return value; }
 
@@ -61,7 +61,7 @@ public:
   bool operator!=(const JSString &other) const;
   JSString operator[](const JSNumber &index) const;
 
-  JSNumber length() const;
+  const JSNumber &length = _length;
   JSString slice(JSNumber start, JSNumber end) const;
   JSString substring(JSNumber start, JSNumber end) const;
   JSString substr(JSNumber start, JSNumber length) const;
@@ -77,6 +77,7 @@ public:
   JSString trimEnd() const;
   JSString charAt(JSNumber index) const;
   JSNumber charCodeAt(JSNumber index) const;
+  bool includes(const JSString &substring) const;
 };
 
 class JSArray : public JSValue {

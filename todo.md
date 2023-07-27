@@ -6,10 +6,12 @@
 - objects
 - classes
 - length > length()
-- includes
 - +/- prefixes
 - lambda functions
+- bool dont have .toString when printing
+- array methods
 
 #### FINISHED
 - -std=c++17 
 - array
+- string includes
