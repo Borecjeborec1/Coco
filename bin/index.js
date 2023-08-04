@@ -24,8 +24,8 @@ async function main(args) {
   const inputFile = args[0];
   await coco.init(inputFile, args[1]);
   await coco.build();
-  await coco.compile();
-  await coco.run();
+  // await coco.compile();
+  // await coco.run();
 
 }
 

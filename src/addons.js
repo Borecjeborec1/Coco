@@ -1,13 +1,5 @@
 const fs = require("fs")
 const path = require('path');
-function isMethodOfArray(callee) {
-  let arrayMethods = ['concat', 'every', 'filter', 'find', 'findIndex', 'forEach', 'includes', 'indexOf', 'join', 'lastIndexOf', 'map', 'pop', 'push', 'reduce', 'reduceRight', 'reverse', 'shift', 'slice', 'some', 'sort', 'splice', 'toLocaleString', 'toString', 'unshift'];
-  return callee.type === 'MemberExpression' &&
-    callee.object.type === 'Identifier' &&
-    callee.object.name === 'Array' &&
-    callee.property.type === 'Identifier' &&
-    arrayMethods.includes(callee.property.name);
-}
 
 function valueType(ast) {
   switch (ast.type) {
@@ -43,12 +35,18 @@ function getCppType(jsType) {
   }
 }
 
-let testIncludesString = `#include "./lib/types.hh"`
 
-function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes = testIncludesString) {
+function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes = ["iostream"]) {
+  let allIncludes = ""
+  for (let i in includes) {
+    allIncludes += `#include <${includes[i]}>\n`
+  }
   return `
-// All includes goes here
-${includes}
+// All new includes goes here
+${allIncludes}
+
+// All JSMethods goes here
+${fs.readFileSync(path.join(__dirname, "./lib/JS_Functions.hh"), "utf-8")}
 
 // All functions with its argument templates goes here
 ${generateTemplates(usedTypenames)}
@@ -88,4 +86,4 @@ function generateTemplates(typenames) {
 
 
 
-module.exports = { isMethodOfArray, valueType, getCppType, joinCppParts, generateTypename }
+module.exports = { valueType, getCppType, joinCppParts, generateTypename }

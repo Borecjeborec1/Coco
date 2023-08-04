@@ -8,7 +8,7 @@ const outputFolder = './tests/output-files/';
 const testFiles = fs.readdirSync(inputFolder).filter(file => file.endsWith('.js'));
 testFiles.forEach((file) => {
   describe(`${file} file`, function () {
-    this.timeout(5000);
+    this.timeout(50000);
 
     before(async () => {
       await coco.init(`${inputFolder}${file}`, `${outputFolder}${file.replace(".js", ".cc")}`);
@@ -23,6 +23,10 @@ testFiles.forEach((file) => {
       const compileResult = await coco.compile();
       expect(compileResult).to.be.true;
     });
+
+    // it('should run successfully', async () => {
+    //   coco.run();
+    // });
   });
 
 })

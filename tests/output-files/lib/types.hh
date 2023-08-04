@@ -1,12 +1,14 @@
 #ifndef TYPES_HH
 #define TYPES_HH
 
-#include <iostream>
 #include <string>
-#include <cmath>
 #include <vector>
+#include <cctype>
+#include <regex>
+#include <cmath>
 
 class JSString;
+class JSArray;
 
 class JSValue {
 public:
@@ -19,9 +21,9 @@ private:
   double value;
 
 public:
-  JSNumber(double val) : value(val) {}
+  JSNumber(double val);
 
-  std::string toString() const override { return std::to_string(value); }
+  std::string toString() const override;
 
   JSString toFixed(JSNumber fractionDigits) const;
   JSString toPrecision(JSNumber precision) const;
@@ -52,9 +54,8 @@ private:
   JSNumber _length;
 
 public:
-  JSString(const std::string &val) : value(val), _length(value.length()) {}
-
-  std::string toString() const override { return value; }
+  JSString(const std::string &val);
+  std::string toString() const override;
 
   JSString operator+(const JSString &other) const;
   bool operator==(const JSString &other) const;
@@ -65,10 +66,9 @@ public:
   JSString slice(JSNumber start, JSNumber end) const;
   JSString substring(JSNumber start, JSNumber end) const;
   JSString substr(JSNumber start, JSNumber length) const;
-  JSString replace(const std::string &search,
-                   const std::string &replacement) const;
-  JSString replaceAll(const std::string &search,
-                      const std::string &replacement) const;
+  JSString replace(const JSString &search, const JSString &replacement) const;
+  JSString replaceAll(const JSString &search,
+                      const JSString &replacement) const;
   JSString toUpperCase() const;
   JSString toLowerCase() const;
   JSString concat(const JSString &other) const;
@@ -78,6 +78,15 @@ public:
   JSString charAt(JSNumber index) const;
   JSNumber charCodeAt(JSNumber index) const;
   bool includes(const JSString &substring) const;
+  bool startsWith(const JSString &searchString) const;
+  bool endsWith(const JSString &searchString) const;
+  JSArray split(const JSString &separator) const;
+  JSNumber indexOf(const JSString &searchValue) const;
+  JSNumber lastIndexOf(const JSString &searchValue) const;
+  JSString padStart(JSNumber targetLength, const JSString &padString) const;
+  JSString padEnd(JSNumber targetLength, const JSString &padString) const;
+  JSArray match(const JSString &regexp) const;
+  JSNumber search(const JSString &regexp) const;
 };
 
 class JSArray : public JSValue {
@@ -86,48 +95,21 @@ private:
 
 public:
   JSArray() {}
-
-  template <typename... Args> JSArray(Args... args) { (push(args), ...); }
-
+  template <typename T> JSArray(T value) { push(value); }
   ~JSArray() {
-    // Clean up memory allocated for JSValue objects
     for (JSValue *value : elements) {
       delete value;
     }
-  }
+  };
 
-  std::string toString() const override {
-    std::string result = "[";
-    for (size_t i = 0; i < elements.size(); ++i) {
-      if (i > 0) {
-        result += ", ";
-      }
-      result += elements[i]->toString();
-    }
-    result += "]";
-    return result;
-  }
+  std::string toString() const override;
+  void pop();
+  JSNumber size() const;
 
-  template <typename T> void push(const T &value) {
-    elements.push_back(new T(value));
-  }
-
-  void pop() {
-    if (!elements.empty()) {
-      delete elements.back();
-      elements.pop_back();
-    }
-  }
-
-  JSValue *get(size_t index) const {
-    if (index >= 0 && index < elements.size()) {
-      return elements[index];
-    } else {
-      throw std::out_of_range("Index out of range");
-    }
-  }
-
-  size_t size() const { return elements.size(); }
+  void push(const JSString &value);
+  void push(const JSNumber &value);
+  void push(const std::string &value);
+  void push(const double value);
 };
 
 #endif // TYPES_HH
