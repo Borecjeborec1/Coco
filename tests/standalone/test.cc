@@ -2,9 +2,7 @@
 // All new includes goes here
 #include <iostream>
 
-
 // All JSMethods goes here
-
 
 #include <string>
 #include <cmath>
@@ -69,15 +67,23 @@ double JS_parseFloat(const std::string &str) {
 }
 /////////////////////////// NUMBER METHODS END ///////////////////////////////
 
-
 // All functions with its argument templates goes here
-
- 
+template <typename eqio, typename ayys> auto add(eqio a, ayys b) {
+  return (a + b);
+};
 
 // Main Function (Have to be the only main function)
-int main(){
-  auto x = static_cast<double>(21) ; 
+int main() {
+  auto x = static_cast<double>(21);
 
-std::cout << JS_toString(x) << '\n';
+  auto y = static_cast<double>(12);
+
+  auto z = add(x, y);
+
+  std::cout << z << '\n';
+
+  auto num = static_cast<double>(123);
+
+  std::cout << JS_toString(JS_valueOf(num)) << '\n';
   return 0;
-}  
+}
