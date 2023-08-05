@@ -10,6 +10,7 @@
 - var vs let
 - testing even the output of c++ to match the nodejs
 - escape characters
+- this!
 
 #### FINISHED
 - -std=c++17 

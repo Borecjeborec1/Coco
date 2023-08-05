@@ -12,8 +12,8 @@ console.log("Substr:", str.substr(7, 5).toString()); // Output: "world"
 console.log("Replace:", str.replace("world", "Universe").toString()); // Output: "Hello, Universe!"
 console.log("ReplaceAll:", str.replaceAll("l", "L").toString()); // Output: "HeLLo, worLd!"
 
-console.log("ToUpperCase:", str.toUpperCase().toString()); // Output: "HELLO, WORLD!"
-console.log("ToLowerCase:", str.toLowerCase().toString()); // Output: "hello, world!"
+console.log("ToUpperCase:", str.toUpperCase()); // Output: "HELLO, WORLD!"
+console.log("ToLowerCase:", str.toLowerCase()); // Output: "hello, world!"
 
 const otherString = " Welcome";
 console.log("Concat:", str.concat(otherString).toString()); // Output: "Hello, world! Welcome"

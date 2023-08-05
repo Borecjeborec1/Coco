@@ -1,4 +1,4 @@
-let { valueType, getCppType, joinCppParts, generateTypename } = require("./addons.js")
+let { joinCppParts, generateTypename } = require("./addons.js")
 
 const STRING_FUNCTIONS = {
   'charAt': { name: 'JS_charAt', argCount: 1 },
@@ -40,8 +40,8 @@ const NUMBER_FUNCTIONS = {
   'toLocaleString': { name: 'JS_toLocaleString', argCount: 0 },
   'isFinite': { name: 'JS_isFinite', argCount: 1 },
   'isNaN': { name: 'JS_isNaN', argCount: 1 },
-  'parseInt': { name: 'JS_parseInt', argCount: 2 },
-  'parseFloat': { name: 'JS_parseFloat', argCount: 1 },
+  // 'parseInt': { name: 'JS_parseInt', argCount: 2 },
+  // 'parseFloat': { name: 'JS_parseFloat', argCount: 1 },
 };
 
 
@@ -52,7 +52,7 @@ const BOOLEAN_FUNCTIONS = {
 
 
 
-const customFunctions = { ...BOOLEAN_FUNCTIONS, ...NUMBER_FUNCTIONS, ...STRING_FUNCTIONS }
+const BUILTIN_JS_FUNCTIONS = { ...BOOLEAN_FUNCTIONS, ...NUMBER_FUNCTIONS, ...STRING_FUNCTIONS }
 
 function generateWholeCode(ast) {
 
@@ -65,13 +65,10 @@ function generateWholeCode(ast) {
 
   function generateCpp(ast) {
     try {
-      console.log("Heyo:: " + ast.type)
-      if (!ast.type) {
-        console.log(ast.type)
-      }
+      // console.log("Translating:: " + ast.type)
     } catch (er) {
       console.log("er no type: " + er)
-      return false
+      return ""
     }
     switch (ast.type) {
       case "Program":
@@ -85,8 +82,7 @@ function generateWholeCode(ast) {
           return `${paramType} ${paramName}`;
         }).join(", ");
         const body = generateCpp(ast.body);
-        const returnType = getCppType(ast.returnType) || "auto";
-        fcDefinitons.push(`${returnType} ${funcName}(${params}) { \n${body}}; \n`)
+        fcDefinitons.push(`auto ${funcName}(${params}) { \n${body}}; \n`)
         return "";
       }
       case "BlockStatement":
@@ -101,7 +97,7 @@ function generateWholeCode(ast) {
         return ast.name;
       case "Literal": {
         if (typeof ast.value === 'string') {
-          return `std::string(${ast.value})`;
+          return `std::string("${ast.value}")`;
         } else if (typeof ast.value === 'number') {
           return `static_cast<double>(${ast.value})`;
         } else if (typeof ast.value === "boolean") {
@@ -125,12 +121,24 @@ function generateWholeCode(ast) {
       case "ReturnStatement":
         return `return ${generateCpp(ast.argument)}; `;
       case "CallExpression": {
-        let callee = generateCpp(ast.callee);
-        let args = ast.arguments.map(generateCpp).join(", ");
-        if (customFunctions.hasOwnProperty(callee.split("(")[0].replace("JS_", ""))) // Ensure that 'JS_toString(variable) ()' wont happen
-          return `${callee}`;
+        const callee = generateCpp(ast.callee);
 
-        return `${callee}(${args})`;
+        const isMemberExpression = ast.callee.type === 'MemberExpression';
+        console.log(callee, isMemberExpression)
+        if (isMemberExpression && ast.callee.property && ast.callee.object) {
+          let jsFunction = BUILTIN_JS_FUNCTIONS[ast.callee.property.name];
+          let variableName = ast.callee.object.name || generateCpp(ast.callee.object) // Ensure that nested methods get called right
+          if (jsFunction) {
+            const { name, argCount } = jsFunction;
+            if (ast.arguments && ast.arguments.length > 0) {
+              const args = ast.arguments.slice(0, argCount).map(generateCpp).join(', ');
+              return `${name}(${variableName}, ${args})`;
+            } else {
+              return `${name}(${variableName})`;
+            }
+          }
+        }
+        return `${callee}(${ast.arguments.map(generateCpp).join(', ')})`;
       }
       case "FunctionExpression":
         return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(", ")}) { \n${generateCpp(ast.body)} \n } `;
@@ -140,21 +148,10 @@ function generateWholeCode(ast) {
         return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(", ")}) { return ${generateCpp(ast.body)}; } `;
       }
       case 'MemberExpression': {
-        const object = generateCpp(ast.object);
-        const property = generateCpp(ast.property);
+        const objectCode = generateCpp(ast.object);
+        const propertyCode = generateCpp(ast.property);
 
-        if (customFunctions.hasOwnProperty(property)) {
-          const customFunction = customFunctions[property];
-          const argCount = customFunction.argCount;
-          if (ast.arguments) {
-            const args = ast.arguments.slice(0, argCount).map(generateCpp).join(', ');
-            const argsWithMutate = argCount > 0 ? `, ${object}` : '';
-            return `${customFunction.name}(${args}${argsWithMutate})`;
-          } else {
-            return `${customFunction.name}${argCount > 0 ? `(${object})` : ''}`;
-          }
-        }
-        return `${object}.${property}`;
+        return `${objectCode}.${propertyCode}`;
       }
       case "IfStatement": {
         let result = `if (${generateCpp(ast.test)}) { \n${generateCpp(ast.consequent)} \n } `;
@@ -180,8 +177,8 @@ function generateWholeCode(ast) {
           let value = generateCpp(property.value);
           return `{${key}, ${value} } `;
         }).join(", ");
-        return `std:: map < std:: string, ${valueType(ast.properties[0].value)}> { ${properties}
-  } `;
+        // return `std:: map < std:: string, ${valueType(ast.properties[0].value)}> { ${properties}} `;
+        return
       }
       case "Property":
         return `${generateCpp(ast.key)}: ${generateCpp(ast.value)} `;
@@ -281,7 +278,8 @@ function generateWholeCode(ast) {
       case "RestElement": {
         const argName = generateCpp(ast.argument);
         const paramName = argName.startsWith("&") ? argName.substring(1) : argName;
-        return `std:: vector < ${getCppType(ast.argument.elements[0].type)}> ${paramName} _vector(${argName}); \n`;
+        return
+        // return `std:: vector < ${getCppType(ast.argument.elements[0].type)}> ${paramName} _vector(${argName}); \n`;
       }
       default:
         console.log(`Unsupported AST node type: ${ast.type} `);

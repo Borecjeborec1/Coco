@@ -1,40 +1,9 @@
 const fs = require("fs")
 const path = require('path');
 
-function valueType(ast) {
-  switch (ast.type) {
-    case 'Literal':
-      return ast.value === null ? 'std::nullptr_t' :
-        typeof ast.value === 'string' ? 'std::string' :
-          typeof ast.value === 'number' ? 'double' :
-            typeof ast.value === 'boolean' ? 'bool' :
-              'unsupported';
-    case 'ArrayExpression':
-      return `std::vector<${valueType(ast.elements[0])}>`;
-    case 'ObjectExpression':
-      return 'std::map<std::string, ' + valueType(ast.properties[0].value) + '>';
-    default:
-      return 'unsupported';
-  }
+function loadLibFiles() {
+  return fs.readFileSync(path.join(__dirname, "./lib/JS_Functions.hh"), "utf-8")
 }
-
-function getCppType(jsType) {
-  switch (jsType) {
-    case 'string':
-      return 'std::string';
-    case 'number':
-      return 'double';
-    case 'boolean':
-      return 'bool';
-    case 'void':
-      return 'void';
-    case 'any':
-      return 'auto';
-    default:
-      return jsType;
-  }
-}
-
 
 function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes = ["iostream"]) {
   let allIncludes = ""
@@ -46,7 +15,7 @@ function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes
 ${allIncludes}
 
 // All JSMethods goes here
-${fs.readFileSync(path.join(__dirname, "./lib/JS_Functions.hh"), "utf-8")}
+${loadLibFiles()}
 
 // All functions with its argument templates goes here
 ${generateTemplates(usedTypenames)}
@@ -61,11 +30,11 @@ int main(){
 }
 
 function generateTypename() {
-  let letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+  const LENGTH = 4
+  const LETTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
   let typename = ""
-  let len = 4
-  while (typename.length < len) {
-    typename += letters[Math.floor(Math.random() * letters.length)]
+  while (typename.length < LENGTH) {
+    typename += LETTERS[Math.floor(Math.random() * LETTERS.length)]
   }
   return typename
 }
@@ -86,4 +55,4 @@ function generateTemplates(typenames) {
 
 
 
-module.exports = { valueType, getCppType, joinCppParts, generateTypename }
+module.exports = { joinCppParts, generateTypename }
