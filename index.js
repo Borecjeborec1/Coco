@@ -14,7 +14,7 @@ exports.init = async (_inputFile, _outputFile = "") => {
     settings.binaryPath = path.join(process.cwd(), settings.binaryFile)
     fs.writeFileSync(settings.output, "Inited file")
   } else {
-    console.log(`Could not find file called ${_inputFile}.`)
+    console.log(`Could not find file called ${_inputFile}!`)
   }
 }
 
