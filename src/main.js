@@ -172,14 +172,14 @@ function generateWholeCode(ast) {
         return `${generateCpp(ast.left)} ${ast.operator} ${generateCpp(ast.right)} `;
       }
       case "ObjectExpression": {
-        let properties = ast.properties.map(property => `${generateCpp(property.key)}: ${generateCpp(property.value)}`).join(", ");
+        let properties = ast.properties.map(property => `"${generateCpp(property.key)}": ${generateCpp(property.value)}`).join(", ");
         return `nlohmann::json{${properties}}`;
       }
       case "Property":
         return `${generateCpp(ast.key)}: ${generateCpp(ast.value)} `;
       case "ArrayExpression": {
         let elements = ast.elements.map(generateCpp).join(", ");
-        return `JS_Array{${elements}}`;
+        return `nlohmann::json{${elements}}`;
       }
       case "EmptyStatement": {
         return ";";
