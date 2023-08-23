@@ -26,6 +26,7 @@ const STRING_FUNCTIONS = {
   'toLocaleUpperCase': { name: 'JS_toLocaleUpperCase', argCount: 1 },
   'toLowerCase': { name: 'JS_toLowerCase', argCount: 0 },
   'toUpperCase': { name: 'JS_toUpperCase', argCount: 0 },
+  'toString': { name: 'JS_toString', argCount: 0 },
   'trim': { name: 'JS_trim', argCount: 0 },
   'trimEnd': { name: 'JS_trimEnd', argCount: 0 },
   'trimStart': { name: 'JS_trimStart', argCount: 0 },
@@ -124,7 +125,6 @@ function generateWholeCode(ast) {
         const callee = generateCpp(ast.callee);
 
         const isMemberExpression = ast.callee.type === 'MemberExpression';
-        console.log(callee, isMemberExpression)
         if (isMemberExpression && ast.callee.property && ast.callee.object) {
           let jsFunction = BUILTIN_JS_FUNCTIONS[ast.callee.property.name];
           let variableName = ast.callee.object.name || generateCpp(ast.callee.object) // Ensure that nested methods get called right
@@ -172,19 +172,14 @@ function generateWholeCode(ast) {
         return `${generateCpp(ast.left)} ${ast.operator} ${generateCpp(ast.right)} `;
       }
       case "ObjectExpression": {
-        let properties = ast.properties.map(property => {
-          let key = generateCpp(property.key);
-          let value = generateCpp(property.value);
-          return `{${key}, ${value} } `;
-        }).join(", ");
-        // return `std:: map < std:: string, ${valueType(ast.properties[0].value)}> { ${properties}} `;
-        return
+        let properties = ast.properties.map(property => `${generateCpp(property.key)}: ${generateCpp(property.value)}`).join(", ");
+        return `nlohmann::json{${properties}}`;
       }
       case "Property":
         return `${generateCpp(ast.key)}: ${generateCpp(ast.value)} `;
       case "ArrayExpression": {
         let elements = ast.elements.map(generateCpp).join(", ");
-        return `JSArray(${elements})`;
+        return `JS_Array{${elements}}`;
       }
       case "EmptyStatement": {
         return ";";

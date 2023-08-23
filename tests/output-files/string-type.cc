@@ -2,16 +2,14 @@
 // All new includes goes here
 #include <iostream>
 
-
 // All JSMethods goes here
-
 
 #include <string>
 #include <cmath>
+#include <vector>
 
 /////////////////////////// BOOLEAN METHODS ///////////////////////////////
 std::string JS_toString(bool value) { return value ? "true" : "false"; }
-bool JS_valueOf(bool value) { return value; }
 /////////////////////////// BOOLEAN METHODS END ///////////////////////////////
 
 /////////////////////////// NUMBER METHODS ///////////////////////////////
@@ -38,7 +36,7 @@ std::string JS_toExponential(double value, int decimalPlaces) {
 std::string JS_toString(double value) { return std::to_string(value); }
 
 // Function to get the primitive value of a number
-double JS_valueOf(double value) { return value; }
+template <typename fpgn> JS_valueOf(fpgn value) { return value; }
 
 // Function to convert a number to a localized string representation
 std::string JS_toLocaleString(double value) {
@@ -69,51 +67,326 @@ double JS_parseFloat(const std::string &str) {
 }
 /////////////////////////// NUMBER METHODS END ///////////////////////////////
 
+/////////////////////////// STRING METHODS ///////////////////////////////
+std::string JS_charAt(const std::string &str, int index) {
+  if (index >= 0 && index < str.length()) {
+    return str.substr(index, 1);
+  }
+  return "";
+}
+
+int JS_charCodeAt(const std::string &str, int index) {
+  if (index >= 0 && index < str.length()) {
+    return static_cast<int>(str[index]);
+  }
+  return 0;
+}
+
+std::string JS_concat(const std::vector<std::string> &args) {
+  std::string result;
+  for (const std::string &arg : args) {
+    result += arg;
+  }
+  return result;
+}
+
+bool JS_includes(const std::string &str, const std::string &searchStr) {
+  return str.find(searchStr) != std::string::npos;
+}
+
+bool JS_endsWith(const std::string &str, const std::string &searchStr) {
+  if (str.length() < searchStr.length()) {
+    return false;
+  }
+  return str.compare(str.length() - searchStr.length(), searchStr.length(),
+                     searchStr) == 0;
+}
+
+int JS_indexOf(const std::string &str, const std::string &searchStr) {
+  size_t pos = str.find(searchStr);
+  if (pos != std::string::npos) {
+    return static_cast<int>(pos);
+  }
+  return -1;
+}
+
+int JS_lastIndexOf(const std::string &str, const std::string &searchStr) {
+  size_t pos = str.rfind(searchStr);
+  if (pos != std::string::npos) {
+    return static_cast<int>(pos);
+  }
+  return -1;
+}
+
+int JS_localeCompare(const std::string &str1, const std::string &str2) {
+  // Implementation may vary based on the desired locale comparison rules
+  return str1.compare(str2);
+}
+
+std::vector<std::string> JS_match(const std::string &str,
+                                  const std::string &regexStr) {
+  // Implementation for matching regex in a string
+  // (You may use regex libraries for this)
+  return std::vector<std::string>(); // Placeholder return value
+}
+
+std::vector<std::vector<std::string>> JS_matchAll(const std::string &str,
+                                                  const std::string &regexStr) {
+  // Implementation for matching all occurrences of a regex in a string
+  // (You may use regex libraries for this)
+  return std::vector<std::vector<std::string>>(); // Placeholder return value
+}
+
+std::string JS_normalize(const std::string &str) {
+  // Implementation for normalizing Unicode strings (NFC normalization)
+  // (You may use Unicode normalization libraries for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_padEnd(const std::string &str, int targetLength,
+                      const std::string &padString) {
+  if (targetLength <= str.length()) {
+    return str;
+  }
+  int remainingLength = targetLength - str.length();
+  int padCount = remainingLength / padString.length();
+  int padRemainder = remainingLength % padString.length();
+  std::string result = str;
+  for (int i = 0; i < padCount; i++) {
+    result += padString;
+  }
+  if (padRemainder > 0) {
+    result += padString.substr(0, padRemainder);
+  }
+  return result;
+}
+
+std::string JS_padStart(const std::string &str, int targetLength,
+                        const std::string &padString) {
+  if (targetLength <= str.length()) {
+    return str;
+  }
+  int remainingLength = targetLength - str.length();
+  int padCount = remainingLength / padString.length();
+  int padRemainder = remainingLength % padString.length();
+  std::string result;
+  for (int i = 0; i < padCount; i++) {
+    result += padString;
+  }
+  if (padRemainder > 0) {
+    result += padString.substr(0, padRemainder);
+  }
+  result += str;
+  return result;
+}
+
+std::string JS_repeat(const std::string &str, int count) {
+  if (count <= 0) {
+    return "";
+  }
+  std::string result;
+  for (int i = 0; i < count; i++) {
+    result += str;
+  }
+  return result;
+}
+
+std::string JS_replace(const std::string &str, const std::string &searchValue,
+                       const std::string &replaceValue) {
+  // Implementation for replacing occurrences of a substring with another string
+  // (You may use string replacement functions for this)
+  return str; // Placeholder return value
+}
+
+int JS_search(const std::string &str, const std::string &regexStr) {
+  // Implementation for searching a regex in a string
+  // (You may use regex libraries for this)
+  return -1; // Placeholder return value
+}
+
+std::string JS_slice(const std::string &str, int start, int end) {
+  if (start < 0) {
+    start += str.length();
+  }
+  if (end < 0) {
+    end += str.length();
+  }
+  if (start < 0) {
+    start = 0;
+  }
+  if (end > str.length()) {
+    end = str.length();
+  }
+  if (end <= start) {
+    return "";
+  }
+  return str.substr(start, end - start);
+}
+
+std::vector<std::string> JS_split(const std::string &str,
+                                  const std::string &separator) {
+  // Implementation for splitting a string into an array of substrings
+  // (You may use string split functions for this)
+  return std::vector<std::string>(); // Placeholder return value
+}
+
+bool JS_startsWith(const std::string &str, const std::string &searchStr) {
+  if (str.length() < searchStr.length()) {
+    return false;
+  }
+  return str.compare(0, searchStr.length(), searchStr) == 0;
+}
+
+std::string JS_substr(const std::string &str, int start, int length) {
+  if (start < 0) {
+    start += str.length();
+  }
+  if (length <= 0 || start >= str.length()) {
+    return "";
+  }
+  if (start + length > str.length()) {
+    length = str.length() - start;
+  }
+  return str.substr(start, length);
+}
+
+std::string JS_substring(const std::string &str, int start, int end) {
+  if (start < 0) {
+    start = 0;
+  }
+  if (end < 0) {
+    end = 0;
+  }
+  if (start > end) {
+    std::swap(start, end);
+  }
+  if (end > str.length()) {
+    end = str.length();
+  }
+  return str.substr(start, end - start);
+}
+
+std::string JS_toLocaleLowerCase(const std::string &str) {
+  // Implementation for converting a string to locale-specific lower case
+  // (You may use locale-specific case conversion functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_toLocaleUpperCase(const std::string &str) {
+  // Implementation for converting a string to locale-specific upper case
+  // (You may use locale-specific case conversion functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_toLowerCase(const std::string &str) {
+  // Implementation for converting a string to lower case
+  // (You may use case conversion functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_toUpperCase(const std::string &str) {
+  // Implementation for converting a string to upper case
+  // (You may use case conversion functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_toString(const std::string &str) { return str; }
+
+std::string JS_trim(const std::string &str) {
+  // Implementation for trimming leading and trailing whitespaces from a string
+  // (You may use trim functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_trimEnd(const std::string &str) {
+  // Implementation for trimming trailing whitespaces from a string
+  // (You may use trim functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_trimStart(const std::string &str) {
+  // Implementation for trimming leading whitespaces from a string
+  // (You may use trim functions for this)
+  return str; // Placeholder return value
+}
+/////////////////////////// STRING METHODS END ///////////////////////////////
 
 // All functions with its argument templates goes here
 
- 
-
 // Main Function (Have to be the only main function)
-int main(){
-  auto str = std::string("Hello, world!") ; 
+int main() {
+  auto str = std::string("Hello, world!");
 
-std::cout << std::string("Original String:") << JS_toString(str) << '\n';
-std::cout << std::string("Length:") << str.length << '\n';
-std::cout << std::string("Slice:") << JS_toString(JS_slice(str)) << '\n';
-std::cout << std::string("Substring:") << JS_toString(JS_substring(str)) << '\n';
-std::cout << std::string("Substr:") << JS_toString(JS_substr(str)) << '\n';
-std::cout << std::string("Replace:") << JS_toString(JS_replace(str)) << '\n';
-std::cout << std::string("ReplaceAll:") << JS_toString(str.replaceAll(std::string("l"), std::string("L"))) << '\n';
-std::cout << std::string("ToUpperCase:") << JS_toUpperCase << '\n';
-std::cout << std::string("ToLowerCase:") << JS_toLowerCase << '\n';
-auto otherString = std::string(" Welcome") ; 
+  std::cout << std::string("Original String:") << JS_toString(str) << '\n';
+  std::cout << std::string("Length:") << str.length << '\n';
+  std::cout << std::string("Slice:")
+            << JS_toString(JS_slice(str, static_cast<double>(0),
+                                    static_cast<double>(5)))
+            << '\n';
+  std::cout << std::string("Substring:")
+            << JS_toString(JS_substring(str, static_cast<double>(7),
+                                        static_cast<double>(12)))
+            << '\n';
+  std::cout << std::string("Substr:")
+            << JS_toString(JS_substr(str, static_cast<double>(7),
+                                     static_cast<double>(5)))
+            << '\n';
+  std::cout << std::string("Replace:")
+            << JS_toString(JS_replace(str, std::string("world"),
+                                      std::string("Universe")))
+            << '\n';
+  std::cout << std::string("ReplaceAll:")
+            << JS_toString(str.replaceAll(std::string("l"), std::string("L")))
+            << '\n';
+  std::cout << std::string("ToUpperCase:") << JS_toUpperCase(str) << '\n';
+  std::cout << std::string("ToLowerCase:") << JS_toLowerCase(str) << '\n';
+  auto otherString = std::string(" Welcome");
 
-std::cout << std::string("Concat:") << JS_toString(JS_concat(str)) << '\n';
-auto stringWithSpaces = std::string("   Hello!   ") ; 
+  std::cout << std::string("Concat:")
+            << JS_toString(JS_concat(str, otherString)) << '\n';
+  auto stringWithSpaces = std::string("   Hello!   ");
 
-std::cout << std::string("Trim:") << JS_toString(JS_trim) << '\n';
-auto stringWithSpacesStart = std::string("   Hello!") ; 
+  std::cout << std::string("Trim:") << JS_toString(JS_trim(stringWithSpaces))
+            << '\n';
+  auto stringWithSpacesStart = std::string("   Hello!");
 
-std::cout << std::string("TrimStart:") << JS_toString(JS_trimStart) << '\n';
-auto stringWithSpacesEnd = std::string("Hello!   ") ; 
+  std::cout << std::string("TrimStart:")
+            << JS_toString(JS_trimStart(stringWithSpacesStart)) << '\n';
+  auto stringWithSpacesEnd = std::string("Hello!   ");
 
-std::cout << std::string("TrimEnd:") << JS_toString(JS_trimEnd) << '\n';
-std::cout << std::string("CharAt:") << JS_toString(JS_charAt(str)) << '\n';
-std::cout << std::string("CharCodeAt:") << JS_valueOf << '\n';
-std::cout << std::string("Includes:") << JS_includes(str) << '\n';
-std::cout << std::string("StartsWith:") << JS_startsWith(str) << '\n';
-std::cout << std::string("EndsWith:") << JS_endsWith(str) << '\n';
-std::cout << std::string("Split:") << JS_toString(JS_split(str)) << '\n';
-std::cout << std::string("IndexOf:") << JS_valueOf << '\n';
-std::cout << std::string("LastIndexOf:") << JS_valueOf << '\n';
-std::cout << std::string("PadStart:") << JS_toString(JS_padStart(str)) << '\n';
-std::cout << std::string("PadEnd:") << JS_toString(JS_padEnd(str)) << '\n';
-auto regExp = std::string("\b\w+\b") ; 
+  std::cout << std::string("TrimEnd:")
+            << JS_toString(JS_trimEnd(stringWithSpacesEnd)) << '\n';
+  std::cout << std::string("CharAt:")
+            << JS_toString(JS_charAt(str, static_cast<double>(4))) << '\n';
+  std::cout << std::string("CharCodeAt:")
+            << JS_valueOf(JS_charCodeAt(str, static_cast<double>(4))) << '\n';
+  std::cout << std::string("Includes:")
+            << JS_includes(str, std::string("world")) << '\n';
+  std::cout << std::string("StartsWith:")
+            << JS_startsWith(str, std::string("Hello")) << '\n';
+  std::cout << std::string("EndsWith:")
+            << JS_endsWith(str, std::string("world!")) << '\n';
+  std::cout << std::string("Split:")
+            << JS_toString(JS_split(str, std::string(","))) << '\n';
+  std::cout << std::string("IndexOf:")
+            << JS_valueOf(JS_indexOf(str, std::string("o"))) << '\n';
+  std::cout << std::string("LastIndexOf:")
+            << JS_valueOf(JS_lastIndexOf(str, std::string("o"))) << '\n';
+  std::cout << std::string("PadStart:")
+            << JS_toString(
+                   JS_padStart(str, static_cast<double>(15), std::string("*")))
+            << '\n';
+  std::cout << std::string("PadEnd:")
+            << JS_toString(
+                   JS_padEnd(str, static_cast<double>(15), std::string("*")))
+            << '\n';
+  auto regExp = std::string("\b\w+\b");
 
-std::cout << std::string("Match:") << JS_toString(JS_match(str)) << '\n';
-auto regExpSearch = std::string("world") ; 
+  std::cout << std::string("Match:") << JS_toString(JS_match(str, regExp))
+            << '\n';
+  auto regExpSearch = std::string("world");
 
-std::cout << std::string("Search:") << JS_valueOf << '\n';
+  std::cout << std::string("Search:")
+            << JS_valueOf(JS_search(str, regExpSearch)) << '\n';
   return 0;
-}  
+}

@@ -2,9 +2,21 @@ const fs = require("fs")
 const path = require('path');
 
 function loadLibFiles() {
-  return fs.readFileSync(path.join(__dirname, "./lib/JS_Functions.hh"), "utf-8")
-}
+  const libFolderPath = path.join(__dirname, './lib');
+  const files = fs.readdirSync(libFolderPath);
 
+  let combinedContent = '';
+
+  files.forEach(file => {
+    if (path.extname(file) === '.hh') {
+      const filePath = path.join(libFolderPath, file);
+      const fileContent = fs.readFileSync(filePath, 'utf-8');
+      combinedContent += fileContent;
+    }
+  });
+
+  return combinedContent;
+}
 function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes = ["iostream"]) {
   let allIncludes = ""
   for (let i in includes) {

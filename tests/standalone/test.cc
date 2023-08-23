@@ -2,14 +2,70 @@
 // All new includes goes here
 #include <iostream>
 
+
 // All JSMethods goes here
+#include <vector>
+#include <variant>
+#include <string>
+
+class JSArray {
+private:
+  using Element = std::variant<double, std::string, bool, JSArray>;
+
+  std::vector<Element> elements;
+
+public:
+  JSArray() = default;
+
+  template <typename T> JSArray(T value) { push(value); }
+
+  ~JSArray() {
+    for (const auto &element : elements) {
+      if (std::holds_alternative<JSArray>(element)) {
+        delete &std::get<JSArray>(element);
+      }
+    }
+  }
+
+  void push(const std::string &value) { elements.push_back(value); }
+
+  void push(const double &value) { elements.push_back(value); }
+
+  void push(const bool &value) { elements.push_back(value); }
+
+  void push(const JSArray &value) { elements.push_back(value); }
+
+  // void print() const {
+  //   for (const auto &element : elements) {
+  //     if (std::holds_alternative<std::string>(element)) {
+  //       std::cout << "String: " << std::get<std::string>(element) <<
+  //       std::endl;
+  //     } else if (std::holds_alternative<double>(element)) {
+  //       std::cout << "Double: " << std::get<double>(element) << std::endl;
+  //     } else if (std::holds_alternative<bool>(element)) {
+  //       std::cout << "Bool: " << std::get<bool>(element) << std::endl;
+  //     } else if (std::holds_alternative<JSArray>(element)) {
+  //       std::cout << "Nested Array:" << std::endl;
+  //       std::get<JSArray>(element).print();
+  //     }
+  //   }
+  // }
+};
+
 
 #include <string>
 #include <cmath>
+#include <vector>
+
+/////////////////////////// GROUPED METHODS ///////////////////////////////
+template <typename valueOfTemplate>
+valueOfTemplate JS_valueOf(valueOfTemplate value) {
+  return value;
+}
+/////////////////////////// GROUPED METHODS END ///////////////////////////////
 
 /////////////////////////// BOOLEAN METHODS ///////////////////////////////
 std::string JS_toString(bool value) { return value ? "true" : "false"; }
-bool JS_valueOf(bool value) { return value; }
 /////////////////////////// BOOLEAN METHODS END ///////////////////////////////
 
 /////////////////////////// NUMBER METHODS ///////////////////////////////
@@ -34,9 +90,6 @@ std::string JS_toExponential(double value, int decimalPlaces) {
 // Function to convert a number to a string representation with the specified
 // radix
 std::string JS_toString(double value) { return std::to_string(value); }
-
-// Function to get the primitive value of a number
-double JS_valueOf(double value) { return value; }
 
 // Function to convert a number to a localized string representation
 std::string JS_toLocaleString(double value) {
@@ -67,23 +120,273 @@ double JS_parseFloat(const std::string &str) {
 }
 /////////////////////////// NUMBER METHODS END ///////////////////////////////
 
-// All functions with its argument templates goes here
-template <typename eqio, typename ayys> auto add(eqio a, ayys b) {
-  return (a + b);
-};
+/////////////////////////// STRING METHODS ///////////////////////////////
+std::string JS_charAt(const std::string &str, int index) {
+  if (index >= 0 && index < str.length()) {
+    return str.substr(index, 1);
+  }
+  return "";
+}
 
-// Main Function (Have to be the only main function)
-int main() {
-  auto x = static_cast<double>(21);
-
-  auto y = static_cast<double>(12);
-
-  auto z = add(x, y);
-
-  std::cout << z << '\n';
-
-  auto num = static_cast<double>(123);
-
-  std::cout << JS_toString(JS_valueOf(num)) << '\n';
+int JS_charCodeAt(const std::string &str, int index) {
+  if (index >= 0 && index < str.length()) {
+    return static_cast<int>(str[index]);
+  }
   return 0;
 }
+
+std::string JS_concat(const std::vector<std::string> &args) {
+  std::string result;
+  for (const std::string &arg : args) {
+    result += arg;
+  }
+  return result;
+}
+
+bool JS_includes(const std::string &str, const std::string &searchStr) {
+  return str.find(searchStr) != std::string::npos;
+}
+
+bool JS_endsWith(const std::string &str, const std::string &searchStr) {
+  if (str.length() < searchStr.length()) {
+    return false;
+  }
+  return str.compare(str.length() - searchStr.length(), searchStr.length(),
+                     searchStr) == 0;
+}
+
+int JS_indexOf(const std::string &str, const std::string &searchStr) {
+  size_t pos = str.find(searchStr);
+  if (pos != std::string::npos) {
+    return static_cast<int>(pos);
+  }
+  return -1;
+}
+
+int JS_lastIndexOf(const std::string &str, const std::string &searchStr) {
+  size_t pos = str.rfind(searchStr);
+  if (pos != std::string::npos) {
+    return static_cast<int>(pos);
+  }
+  return -1;
+}
+
+int JS_localeCompare(const std::string &str1, const std::string &str2) {
+  // Implementation may vary based on the desired locale comparison rules
+  return str1.compare(str2);
+}
+
+std::vector<std::string> JS_match(const std::string &str,
+                                  const std::string &regexStr) {
+  // Implementation for matching regex in a string
+  // (You may use regex libraries for this)
+  return std::vector<std::string>(); // Placeholder return value
+}
+
+std::vector<std::vector<std::string>> JS_matchAll(const std::string &str,
+                                                  const std::string &regexStr) {
+  // Implementation for matching all occurrences of a regex in a string
+  // (You may use regex libraries for this)
+  return std::vector<std::vector<std::string>>(); // Placeholder return value
+}
+
+std::string JS_normalize(const std::string &str) {
+  // Implementation for normalizing Unicode strings (NFC normalization)
+  // (You may use Unicode normalization libraries for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_padEnd(const std::string &str, int targetLength,
+                      const std::string &padString) {
+  if (targetLength <= str.length()) {
+    return str;
+  }
+  int remainingLength = targetLength - str.length();
+  int padCount = remainingLength / padString.length();
+  int padRemainder = remainingLength % padString.length();
+  std::string result = str;
+  for (int i = 0; i < padCount; i++) {
+    result += padString;
+  }
+  if (padRemainder > 0) {
+    result += padString.substr(0, padRemainder);
+  }
+  return result;
+}
+
+std::string JS_padStart(const std::string &str, int targetLength,
+                        const std::string &padString) {
+  if (targetLength <= str.length()) {
+    return str;
+  }
+  int remainingLength = targetLength - str.length();
+  int padCount = remainingLength / padString.length();
+  int padRemainder = remainingLength % padString.length();
+  std::string result;
+  for (int i = 0; i < padCount; i++) {
+    result += padString;
+  }
+  if (padRemainder > 0) {
+    result += padString.substr(0, padRemainder);
+  }
+  result += str;
+  return result;
+}
+
+std::string JS_repeat(const std::string &str, int count) {
+  if (count <= 0) {
+    return "";
+  }
+  std::string result;
+  for (int i = 0; i < count; i++) {
+    result += str;
+  }
+  return result;
+}
+
+std::string JS_replace(const std::string &str, const std::string &searchValue,
+                       const std::string &replaceValue) {
+  // Implementation for replacing occurrences of a substring with another string
+  // (You may use string replacement functions for this)
+  return str; // Placeholder return value
+}
+
+int JS_search(const std::string &str, const std::string &regexStr) {
+  // Implementation for searching a regex in a string
+  // (You may use regex libraries for this)
+  return -1; // Placeholder return value
+}
+
+std::string JS_slice(const std::string &str, int start, int end) {
+  if (start < 0) {
+    start += str.length();
+  }
+  if (end < 0) {
+    end += str.length();
+  }
+  if (start < 0) {
+    start = 0;
+  }
+  if (end > str.length()) {
+    end = str.length();
+  }
+  if (end <= start) {
+    return "";
+  }
+  return str.substr(start, end - start);
+}
+
+std::vector<std::string> JS_split(const std::string &str,
+                                  const std::string &separator) {
+  // Implementation for splitting a string into an array of substrings
+  // (You may use string split functions for this)
+  return std::vector<std::string>(); // Placeholder return value
+}
+
+bool JS_startsWith(const std::string &str, const std::string &searchStr) {
+  if (str.length() < searchStr.length()) {
+    return false;
+  }
+  return str.compare(0, searchStr.length(), searchStr) == 0;
+}
+
+std::string JS_substr(const std::string &str, int start, int length) {
+  if (start < 0) {
+    start += str.length();
+  }
+  if (length <= 0 || start >= str.length()) {
+    return "";
+  }
+  if (start + length > str.length()) {
+    length = str.length() - start;
+  }
+  return str.substr(start, length);
+}
+
+std::string JS_substring(const std::string &str, int start, int end) {
+  if (start < 0) {
+    start = 0;
+  }
+  if (end < 0) {
+    end = 0;
+  }
+  if (start > end) {
+    std::swap(start, end);
+  }
+  if (end > str.length()) {
+    end = str.length();
+  }
+  return str.substr(start, end - start);
+}
+
+std::string JS_toLocaleLowerCase(const std::string &str) {
+  // Implementation for converting a string to locale-specific lower case
+  // (You may use locale-specific case conversion functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_toLocaleUpperCase(const std::string &str) {
+  // Implementation for converting a string to locale-specific upper case
+  // (You may use locale-specific case conversion functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_toLowerCase(const std::string &str) {
+  // Implementation for converting a string to lower case
+  // (You may use case conversion functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_toUpperCase(const std::string &str) {
+  // Implementation for converting a string to upper case
+  // (You may use case conversion functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_toString(const std::string &str) { return str; }
+
+std::string JS_trim(const std::string &str) {
+  // Implementation for trimming leading and trailing whitespaces from a string
+  // (You may use trim functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_trimEnd(const std::string &str) {
+  // Implementation for trimming trailing whitespaces from a string
+  // (You may use trim functions for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_trimStart(const std::string &str) {
+  // Implementation for trimming leading whitespaces from a string
+  // (You may use trim functions for this)
+  return str; // Placeholder return value
+}
+/////////////////////////// STRING METHODS END ///////////////////////////////
+
+
+// All functions with its argument templates goes here
+template < typename drog, typename mpbo>
+auto add(drog a, mpbo b) { 
+return (a + b); }; 
+ 
+
+// Main Function (Have to be the only main function)
+int main(){
+  auto x = static_cast<double>(21) ; 
+
+auto y = static_cast<double>(12) ; 
+
+auto ydas = std::string("test") ; 
+
+auto ydasd = JS_Array{static_cast<double>(23), std::string("dsa")} ; 
+
+auto z = add(x, y) ; 
+
+auto obj = JS_Object{x: static_cast<double>(12), y: std::string("231")} ; 
+
+
+auto num = static_cast<double>(123) ; 
+
+  return 0;
+}  
