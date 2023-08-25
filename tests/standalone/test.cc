@@ -1,6 +1,7 @@
 
 // All new includes goes here
 #include <iostream>
+#include <variant>
 
 #include "json.hpp"
 
@@ -341,8 +342,8 @@ int main() {
 
   auto y = static_cast<double>(12);
 
-  auto ydas = std::string("test");
-
+  auto ydas = std::variant<double, std::string>("test");
+  ydas = 21;
   auto ydasd = nlohmann::json{static_cast<double>(23), std::string("dsa")};
 
   auto z = add(x, y);
