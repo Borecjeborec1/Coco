@@ -27,7 +27,6 @@ describe('generating variable types', function () {
 
 });
 
-
 describe('generating data types', function () {
   it('should convert positive number C++ double', function () {
     const variableValue = 42
@@ -59,7 +58,6 @@ describe('generating data types', function () {
   });
 
 });
-
 
 describe('generating objects and arrays', function () {
   it('should convert array C++ nlohmann::json', function () {

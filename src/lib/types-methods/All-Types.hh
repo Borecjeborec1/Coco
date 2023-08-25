@@ -1,0 +1,6 @@
+/////////////////////////// GROUPED METHODS ///////////////////////////////
+template <typename valueOfTemplate>
+valueOfTemplate JS_valueOf(valueOfTemplate value) {
+  return value;
+}
+/////////////////////////// GROUPED METHODS END ///////////////////////////////

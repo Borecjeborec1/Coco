@@ -343,8 +343,11 @@ int main() {
   auto y = static_cast<double>(12);
 
   auto ydas = std::variant<double, std::string>("test");
+  std::cout << std::get<std::string>(ydas) << std::endl;
   ydas = 21;
+  ydas += std::variant<double, std::string>(1 );
   auto ydasd = nlohmann::json{static_cast<double>(23), std::string("dsa")};
+  std::cout << std::get<std::string>(ydas) << std::endl;
 
   auto z = add(x, y);
 
@@ -353,10 +356,10 @@ int main() {
 
   auto num = static_cast<double>(123);
   auto xyz = static_cast<double>(0) - static_cast<double>(42);
-  std::cout << xyz;
+  std::cout << xyz << std::endl;
   auto add = [](auto a, auto b) { return a + b; };
 
-  std::cout << add(x, y);
+  std::cout << add(x, y) << std::endl;
 
   return 0;
 }
