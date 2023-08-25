@@ -2,56 +2,22 @@
 // All new includes goes here
 #include <iostream>
 
+#include "json.hpp"
 
 // All JSMethods goes here
-#include <vector>
-#include <variant>
 #include <string>
+#include "nlohmann-json.hpp"
 
-class JSArray {
-private:
-  using Element = std::variant<double, std::string, bool, JSArray>;
-
-  std::vector<Element> elements;
-
+class JSON {
 public:
-  JSArray() = default;
-
-  template <typename T> JSArray(T value) { push(value); }
-
-  ~JSArray() {
-    for (const auto &element : elements) {
-      if (std::holds_alternative<JSArray>(element)) {
-        delete &std::get<JSArray>(element);
-      }
-    }
+  static std::string stringify(const nlohmann::json &jsonObj) {
+    return jsonObj.dump();
   }
 
-  void push(const std::string &value) { elements.push_back(value); }
-
-  void push(const double &value) { elements.push_back(value); }
-
-  void push(const bool &value) { elements.push_back(value); }
-
-  void push(const JSArray &value) { elements.push_back(value); }
-
-  // void print() const {
-  //   for (const auto &element : elements) {
-  //     if (std::holds_alternative<std::string>(element)) {
-  //       std::cout << "String: " << std::get<std::string>(element) <<
-  //       std::endl;
-  //     } else if (std::holds_alternative<double>(element)) {
-  //       std::cout << "Double: " << std::get<double>(element) << std::endl;
-  //     } else if (std::holds_alternative<bool>(element)) {
-  //       std::cout << "Bool: " << std::get<bool>(element) << std::endl;
-  //     } else if (std::holds_alternative<JSArray>(element)) {
-  //       std::cout << "Nested Array:" << std::endl;
-  //       std::get<JSArray>(element).print();
-  //     }
-  //   }
-  // }
+  static nlohmann::json parse(const std::string &jsonString) {
+    return nlohmann::json::parse(jsonString);
+  }
 };
-
 
 #include <string>
 #include <cmath>
@@ -364,29 +330,32 @@ std::string JS_trimStart(const std::string &str) {
 }
 /////////////////////////// STRING METHODS END ///////////////////////////////
 
-
 // All functions with its argument templates goes here
-template < typename drog, typename mpbo>
-auto add(drog a, mpbo b) { 
-return (a + b); }; 
- 
+template <typename ipdr, typename nrku> auto add(ipdr a, nrku b) {
+  return (a + b);
+};
 
 // Main Function (Have to be the only main function)
-int main(){
-  auto x = static_cast<double>(21) ; 
+int main() {
+  auto x = static_cast<double>(21);
 
-auto y = static_cast<double>(12) ; 
+  auto y = static_cast<double>(12);
 
-auto ydas = std::string("test") ; 
+  auto ydas = std::string("test");
 
-auto ydasd = JS_Array{static_cast<double>(23), std::string("dsa")} ; 
+  auto ydasd = nlohmann::json{static_cast<double>(23), std::string("dsa")};
 
-auto z = add(x, y) ; 
+  auto z = add(x, y);
 
-auto obj = JS_Object{x: static_cast<double>(12), y: std::string("231")} ; 
+  auto obj =
+      nlohmann::json{{"x", static_cast<double>(12)}, {"y", std::string("231")}};
 
+  auto num = static_cast<double>(123);
+  auto xyz = static_cast<double>(0) - static_cast<double>(42);
+  std::cout << xyz;
+  auto add = [](auto a, auto b) { return a + b; };
 
-auto num = static_cast<double>(123) ; 
+  std::cout << add(x, y);
 
   return 0;
-}  
+}

@@ -8,7 +8,7 @@ function loadLibFiles() {
   let combinedContent = '';
 
   files.forEach(file => {
-    if (path.extname(file) === '.hh') {
+    if (path.extname(file) === '.hh') { // || path.extname(file) === '.hpp'
       const filePath = path.join(libFolderPath, file);
       const fileContent = fs.readFileSync(filePath, 'utf-8');
       combinedContent += fileContent;
@@ -25,6 +25,7 @@ function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes
   return `
 // All new includes goes here
 ${allIncludes}
+#include "json.hpp"
 
 // All JSMethods goes here
 ${loadLibFiles()}

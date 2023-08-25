@@ -7,10 +7,11 @@
   },
   "dependencies": {
     "acorn": "^8.9.0",
-    "acorn-typescript": "^1.3.7"
+    "acorn-typescript": "^1.3.7",
+    "chai-string": "^1.5.0"
   },
   "scripts": {
-    "test": "mocha ./tests/main.test.js",
+    "test": "mocha ./tests/test.js",
     "test:solo": "coco tests/standalone/test.js"
   },
   "keywords": [],
