@@ -13,6 +13,7 @@
 - built-in objects ()
 - rewrite of data types
 - bigint --> long long double
+- rewrite bin and index js
 
 #### FINISHED
 - -std=c++17 

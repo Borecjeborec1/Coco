@@ -1,6 +1,6 @@
 const { expect, use } = require('chai');
 const chaiString = require('chai-string');
-const { generateCpp } = require('../src/main'); // Adjust the path accordingly
+const { generateCpp } = require('../../src/main'); // Adjust the path accordingly
 const acorn = require("acorn")
 
 use(chaiString);

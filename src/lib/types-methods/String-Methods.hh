@@ -3,6 +3,8 @@
 #include <vector>
 
 /////////////////////////// STRING METHODS ///////////////////////////////
+std::string JS_valueOf(std::string value) { return std::string(value); }
+
 std::string JS_charAt(const std::string &str, int index) {
   if (index >= 0 && index < str.length()) {
     return str.substr(index, 1);

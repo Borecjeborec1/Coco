@@ -1,78 +1,97 @@
 const acorn = require('acorn');
-const fs = require("fs")
+const fs = require('fs').promises;
 const path = require('path');
+const { promisify } = require('util');
 const { exec, spawn } = require('child_process');
 
-let { generateWholeCode } = require("./src/main.js")
-const settings = {}
+const { generateWholeCode } = require('./src/main.js');
 
-exports.init = async (_inputFile, _outputFile = "") => {
-  if (fs.existsSync(_inputFile)) {
-    settings.input = _inputFile
-    settings.output = _outputFile || _inputFile.replace(".js", ".cc")
-    settings.binaryFile = settings.output.replace(/\.cc|\.cpp/, "")
-    settings.binaryPath = path.join(process.cwd(), settings.binaryFile)
-    fs.writeFileSync(settings.output, "Inited file")
-  } else {
-    console.log(`Could not find file called ${_inputFile}.`)
+class CocoCompiler {
+  constructor(_inputFile, _outputFile, _cppFile = "./test/test.cc") {
+    this.inputFile = _inputFile;
+    this.outputFile = _outputFile || this.inputFile.replace('.js', '');
+    console.log("Ozutput file: " + this.outputFile)
+    this.cppFile = _cppFile || this.inputFile.replace('.js', '.cc');
+    console.log("cpp file: " + this.cppFile)
   }
-}
 
 
-exports.build = async () => {
-  try {
-    const code = fs.readFileSync(settings.input, "utf-8")
-    const ast = acorn.parse(code);
-    const res = generateWholeCode(ast)
-    await fs.writeFileSync(settings.output, res)
-    return true
-  } catch (er) {
-    console.log("build error: " + er)
-    return false
+  async buildCpp() {
+    if (! await this.fileExists(this.inputFile))
+      return this.printInputFileMissing();
+
+    try {
+      const code = await fs.readFile(this.inputFile, 'utf-8');
+      const ast = acorn.parse(code);
+      const res = generateWholeCode(ast);
+      await fs.writeFile(this.cppFile, res);
+    } catch (error) {
+      console.log('build error: ' + error);
+    }
+
   }
-}
 
-exports.compile = async () => {
-  try {
+  async compile() {
+    try {
+      const compileCommand = `g++ -O3 ${this.cppFile} -O3 -s -o ${this.outputFile}`;
+      const execPromise = promisify(exec);
+      await execPromise(compileCommand);
+    } catch (error) {
+      console.log('compile error: ' + error);
+    }
+  }
 
-    const compileCommand = `g++ -O3 ${settings.output} -O3 -s -o ${settings.binaryFile} `;
+  async run() {
+    const outputPath = path.join(process.cwd(), this.outputFile);
+    const childProcess = spawn(outputPath);
+    let output = '';
 
-    await new Promise((resolve, reject) => {
-      exec(compileCommand, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Compilation failed: ${error.message}`);
-          reject(error);
-        } else if (stderr) {
-          console.error(`Compilation error: ${stderr}`);
-          reject(new Error(stderr));
-        } else {
-          // console.log('Compilation successful');
-          resolve();
-        }
+    childProcess.stdout.on('data', (data) => {
+      console.log(`${data}`);
+      output += data;
+    });
+
+    childProcess.stderr.on('data', (data) => {
+      console.error(`Error: ${data}`);
+    });
+
+    await new Promise((resolve) => {
+      childProcess.on('close', (code) => {
+        console.log(`Child process exited with code ${code}`);
+        resolve();
       });
     });
-    return true
-  } catch (er) {
-    console.log("compile error: " + er)
-    return false
+
+    return output;
   }
 
+  async fileExists(filePath) {
+    try {
+      await fs.access(filePath);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  printVersion() {
+    const packageJson = require('./package.json');
+    console.log(`Version: ${packageJson.version}`);
+  }
+
+  printUsage() {
+    console.log('Usage:');
+    console.log('-v, --version: Print the version');
+    console.log('-o, --output <file>: Compile with the specified output file');
+    console.log('Example:');
+    console.log('mypackage inputFile.js');
+    console.log('mypackage -v');
+    console.log('mypackage inputFile.js -o outputFile.cc');
+  }
+  printInputFileMissing() {
+    console.log('Input file is missing');
+    //TODO: Make this log better
+  }
 }
 
-exports.run = async () => {
-  const childProcess = spawn(settings.binaryPath);
-  childProcess.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  childProcess.stderr.on('data', (data) => {
-    console.error(`Error: ${data}`);
-  });
-
-  await new Promise((resolve) => {
-    childProcess.on('close', (code) => {
-      console.log(`Child process exited with code ${code}`);
-      resolve();
-    });
-  });
-};
+module.exports = CocoCompiler;

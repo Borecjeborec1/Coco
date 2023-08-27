@@ -3,6 +3,7 @@
 #include <vector>
 
 /////////////////////////// NUMBER METHODS ///////////////////////////////
+double JS_valueOf(double value) { return static_cast<double>(value); }
 // Function to convert a number to a fixed-point notation string with the
 // specified decimal places
 std::string JS_toFixed(double value, int decimalPlaces) {
