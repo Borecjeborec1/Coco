@@ -1,14 +1,9 @@
-
-
 #include <string>
 #include <cmath>
-
-/////////////////////////// BOOLEAN METHODS ///////////////////////////////
-std::string JS_toString(bool value) { return value ? "true" : "false"; }
-bool JS_valueOf(bool value) { return value; }
-/////////////////////////// BOOLEAN METHODS END ///////////////////////////////
+#include <vector>
 
 /////////////////////////// NUMBER METHODS ///////////////////////////////
+double JS_valueOf(double value) { return static_cast<double>(value); }
 // Function to convert a number to a fixed-point notation string with the
 // specified decimal places
 std::string JS_toFixed(double value, int decimalPlaces) {
@@ -30,9 +25,6 @@ std::string JS_toExponential(double value, int decimalPlaces) {
 // Function to convert a number to a string representation with the specified
 // radix
 std::string JS_toString(double value) { return std::to_string(value); }
-
-// Function to get the primitive value of a number
-double JS_valueOf(double value) { return value; }
 
 // Function to convert a number to a localized string representation
 std::string JS_toLocaleString(double value) {

@@ -1,16 +1,19 @@
 #### TODO
 - # Migration from custom types to custom functions
-- handle the generateTypename() to prevent same names
 - fix double stars and other syntaxes (pointer problems)
-- JSON
 - basic node modules
-- objects
 - classes
 - array methods
 - var vs let
 - testing even the output of c++ to match the nodejs
 - escape characters
+- objects methods
 - this!
+- other data types (undefined/null)
+- built-in objects ()
+- rewrite of data types
+- bigint --> long long double
+- rewrite bin and index js
 
 #### FINISHED
 - -std=c++17 
@@ -20,3 +23,5 @@
 - lambda functions
 - length() -> length
 - +/- prefixes
+- objects
+- JSON
