@@ -10,9 +10,7 @@ class CocoCompiler {
   constructor(_inputFile, _outputFile, _cppFile = "./test/test.cc") {
     this.inputFile = _inputFile;
     this.outputFile = _outputFile || this.inputFile.replace('.js', '');
-    console.log("Ozutput file: " + this.outputFile)
     this.cppFile = _cppFile || this.inputFile.replace('.js', '.cc');
-    console.log("cpp file: " + this.cppFile)
   }
 
 
@@ -41,14 +39,17 @@ class CocoCompiler {
     }
   }
 
-  async run() {
-    const outputPath = path.join(process.cwd(), this.outputFile);
+  async run(returnResult = false) {
+    const outputPath = this.outputFile;
     const childProcess = spawn(outputPath);
     let output = '';
 
     childProcess.stdout.on('data', (data) => {
-      console.log(`${data}`);
-      output += data;
+      if (returnResult) {
+        output += data;
+      } else {
+        console.log(`${data}`);
+      }
     });
 
     childProcess.stderr.on('data', (data) => {

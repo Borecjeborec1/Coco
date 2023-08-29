@@ -14,6 +14,7 @@
 - rewrite of data types
 - bigint --> long long double
 - rewrite bin and index js
+- regex
 
 #### FINISHED
 - -std=c++17 

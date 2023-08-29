@@ -71,7 +71,6 @@ function generateWholeCode(ast) {
 
 
 function generateCpp(ast) {
-
   try {
     // console.log("Translating:: " + ast.type)
     let x = ast.type
@@ -154,7 +153,11 @@ function generateCpp(ast) {
       const objectCode = generateCpp(ast.object);
       const propertyCode = generateCpp(ast.property);
 
-      return `${objectCode}.${propertyCode}`;
+      if (propertyCode === 'length') {
+        return `${objectCode}.length()`;
+      } else {
+        return `${objectCode}.${propertyCode}`;
+      }
     }
     case "IfStatement": {
       let result = `if (${generateCpp(ast.test)}) {\n${generateCpp(ast.consequent)}\n}`;
@@ -197,8 +200,16 @@ function generateCpp(ast) {
       if (ast.expression.type === "CallExpression" && ast.expression.callee.type === "MemberExpression" && ast.expression.callee.object.name === "console") {
         let args = ast.expression.arguments.map(generateCpp).join(" << ");
         let typeOfCout = "cout"
-        if (ast.expression.callee.property.name === "error")
+        if (ast.expression.callee.property.name === "time") {
+          const label = ast.expression.arguments[0].value;
+          return `auto ${label} = std::chrono::high_resolution_clock::now();`;
+        } else if (ast.expression.callee.property.name === "timeEnd") {
+          const label = ast.expression.arguments[0].value;
+          const duration = "std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - " + label + ").count()";
+          return `std::cout << "Time taken by ${label}: " << ${duration} << " microseconds" << std::endl;`;
+        } else if (ast.expression.callee.property.name === "error") {
           typeOfCout = "cerr"
+        }
         return `std::${typeOfCout} << ${args} << '\\n';`;
       } else {
         return generateCpp(ast.expression) + ";";

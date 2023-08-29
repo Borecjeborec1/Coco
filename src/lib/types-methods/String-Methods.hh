@@ -1,6 +1,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <regex>
 
 /////////////////////////// STRING METHODS ///////////////////////////////
 std::string JS_valueOf(std::string value) { return std::string(value); }
@@ -25,6 +26,12 @@ std::string JS_concat(const std::vector<std::string> &args) {
     result += arg;
   }
   return result;
+}
+
+template <typename... Args>
+std::string JS_concat(const std::string &arg1, Args... args) {
+  std::vector<std::string> argList = {arg1, args...};
+  return JS_concat(argList);
 }
 
 bool JS_includes(const std::string &str, const std::string &searchStr) {
@@ -59,21 +66,47 @@ int JS_localeCompare(const std::string &str1, const std::string &str2) {
   // Implementation may vary based on the desired locale comparison rules
   return str1.compare(str2);
 }
+nlohmann::json JS_match(const std::string &str, const std::string &regexStr) {
+  std::regex regex(regexStr);
+  std::smatch match;
 
-std::vector<std::string> JS_match(const std::string &str,
-                                  const std::string &regexStr) {
-  // Implementation for matching regex in a string
-  // (You may use regex libraries for this)
-  return std::vector<std::string>(); // Placeholder return value
+  nlohmann::json result = nlohmann::json::array();
+
+  if (std::regex_search(str, match, regex)) {
+    nlohmann::json matchDetails = nlohmann::json::object();
+    matchDetails["match"] = match[0].str();
+    matchDetails["index"] = static_cast<int>(match.position());
+    matchDetails["input"] = str;
+    matchDetails["groups"] = nlohmann::json::object(); // No groups for now
+    result.push_back(matchDetails);
+  }
+
+  return result;
 }
 
-std::vector<std::vector<std::string>> JS_matchAll(const std::string &str,
-                                                  const std::string &regexStr) {
-  // Implementation for matching all occurrences of a regex in a string
-  // (You may use regex libraries for this)
-  return std::vector<std::vector<std::string>>(); // Placeholder return value
-}
+nlohmann::json JS_matchAll(const std::string &str,
+                           const std::string &regexStr) {
+  std::regex regex(regexStr);
+  std::sregex_iterator it(str.begin(), str.end(), regex);
+  std::sregex_iterator end;
 
+  nlohmann::json result = nlohmann::json::array();
+
+  while (it != end) {
+    nlohmann::json matchDetails = nlohmann::json::object();
+    std::smatch match = *it;
+
+    matchDetails["match"] = match[0].str();
+    matchDetails["index"] = static_cast<int>(match.position());
+    matchDetails["input"] = str;
+    matchDetails["groups"] = nlohmann::json::object(); // No groups for now
+
+    result.push_back(matchDetails);
+    ++it;
+  }
+
+  return result;
+}
 std::string JS_normalize(const std::string &str) {
   // Implementation for normalizing Unicode strings (NFC normalization)
   // (You may use Unicode normalization libraries for this)
@@ -204,46 +237,43 @@ std::string JS_substring(const std::string &str, int start, int end) {
 }
 
 std::string JS_toLocaleLowerCase(const std::string &str) {
-  // Implementation for converting a string to locale-specific lower case
-  // (You may use locale-specific case conversion functions for this)
-  return str; // Placeholder return value
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+  return result;
 }
 
 std::string JS_toLocaleUpperCase(const std::string &str) {
-  // Implementation for converting a string to locale-specific upper case
-  // (You may use locale-specific case conversion functions for this)
-  return str; // Placeholder return value
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+  return result;
 }
 
 std::string JS_toLowerCase(const std::string &str) {
-  // Implementation for converting a string to lower case
-  // (You may use case conversion functions for this)
-  return str; // Placeholder return value
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+  return result;
 }
 
 std::string JS_toUpperCase(const std::string &str) {
-  // Implementation for converting a string to upper case
-  // (You may use case conversion functions for this)
-  return str; // Placeholder return value
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+  return result;
 }
 
 std::string JS_toString(const std::string &str) { return str; }
 
 std::string JS_trim(const std::string &str) {
-  // Implementation for trimming leading and trailing whitespaces from a string
-  // (You may use trim functions for this)
-  return str; // Placeholder return value
+  std::regex trimPattern("^\\s+|\\s+$");
+  return std::regex_replace(str, trimPattern, "");
 }
 
 std::string JS_trimEnd(const std::string &str) {
-  // Implementation for trimming trailing whitespaces from a string
-  // (You may use trim functions for this)
-  return str; // Placeholder return value
+  std::regex trimPattern("\\s+$");
+  return std::regex_replace(str, trimPattern, "");
 }
 
 std::string JS_trimStart(const std::string &str) {
-  // Implementation for trimming leading whitespaces from a string
-  // (You may use trim functions for this)
-  return str; // Placeholder return value
+  std::regex trimPattern("^\\s+");
+  return std::regex_replace(str, trimPattern, "");
 }
 /////////////////////////// STRING METHODS END ///////////////////////////////

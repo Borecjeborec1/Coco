@@ -1,23 +1,41 @@
 const fs = require("fs")
 const path = require('path');
 
-function loadLibFiles() {
-  const libFolderPath = path.join(__dirname, './lib');
-  const files = fs.readdirSync(libFolderPath);
-
+function loadLibFiles(libFolderPath) {
   let combinedContent = '';
+  let nlohmannJsonContent = ''; // To store content of nlohmann-json file
 
-  files.forEach(file => {
-    if (path.extname(file) === '.hh') { // || path.extname(file) === '.hpp'
-      const filePath = path.join(libFolderPath, file);
-      const fileContent = fs.readFileSync(filePath, 'utf-8');
-      combinedContent += fileContent;
+  function processFile(filePath) {
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    if (path.basename(filePath) === 'nlohmann-json.hh') {
+      nlohmannJsonContent = "\n" + fileContent;
+    } else if (path.extname(filePath) === '.hh' || path.extname(filePath) === '.hpp') {
+      combinedContent += "\n" + fileContent.replace('#include "nlohmann-json.hpp"', "");
     }
-  });
+  }
 
+  function exploreFolder(folderPath) {
+    const files = fs.readdirSync(folderPath);
+
+    files.forEach(file => {
+      const filePath = path.join(folderPath, file);
+      const stats = fs.statSync(filePath);
+
+      if (stats.isDirectory()) {
+        exploreFolder(filePath); // Recurse into subfolder
+      } else {
+        processFile(filePath);
+      }
+    });
+  }
+
+  exploreFolder(libFolderPath);
+  combinedContent = nlohmannJsonContent + "\n" + combinedContent; // Add nlohmann-json content at the start
   return combinedContent;
 }
-function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes = ["iostream"]) {
+
+
+function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes = ["iostream", "chrono"]) {
   let allIncludes = ""
   for (let i in includes) {
     allIncludes += `#include <${includes[i]}>\n`
@@ -25,10 +43,9 @@ function joinCppParts(mainBody = "", fcDefinitions = "", usedTypenames, includes
   return `
 // All new includes goes here
 ${allIncludes}
-#include "json.hpp"
 
 // All JSMethods goes here
-${loadLibFiles()}
+${loadLibFiles(path.join(__dirname, './lib'))}
 
 // All functions with its argument templates goes here
 ${generateTemplates(usedTypenames)}
@@ -36,6 +53,7 @@ ${fcDefinitions}
 
 // Main Function (Have to be the only main function)
 int main(){
+  std::cout.setf(std::ios::boolalpha);
   ${mainBody}
   return 0;
 }  
