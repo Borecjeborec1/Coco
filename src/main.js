@@ -36,7 +36,7 @@ const NUMBER_FUNCTIONS = {
   'toFixed': { name: 'JS_toFixed', argCount: 1 },
   'toExponential': { name: 'JS_toExponential', argCount: 1 },
   'toPrecision': { name: 'JS_toPrecision', argCount: 1 },
-  'toString': { name: 'JS_toString', argCount: 1 },
+  'toString': { name: 'JS_toString', argCount: 0 },
   'valueOf': { name: 'JS_valueOf', argCount: 0 },
   'toLocaleString': { name: 'JS_toLocaleString', argCount: 0 },
   'isFinite': { name: 'JS_isFinite', argCount: 1 },

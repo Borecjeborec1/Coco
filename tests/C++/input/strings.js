@@ -19,27 +19,27 @@ console.log("startsWith:", str.startsWith("Hello"));
 console.log("endsWith:", str.endsWith("World!"));
 console.log("indexOf:", str.indexOf("o"));
 console.log("lastIndexOf:", str.lastIndexOf("o"));
-// console.log("match:", str.match("o"));
-// console.log("match:", str.matchAll("o"));
+// console.log("match:", str.match("o")); // Match is working, but does not return the same type as in JS. Idk what to about that.
+// console.log("match:", str.matchAll("o")); // Match is working, but does not return the same type as in JS. Idk what to about that.
+// // [{groups:{},index:4,input:Hello, World!,match:o}] --> [ o, index: 4, input: Hello, World!, groups: undefined ]
 console.log("search:", str.search("World"));
 
-// // Extraction
-// console.log("slice:", str.slice(7, 12));
-// console.log("substring:", str.substring(7, 12));
-// console.log("substr:", str.substr(7, 5));
+// Extraction
+console.log("slice:", str.slice(7, 12));
+console.log("substring:", str.substring(7, 12));
+console.log("substr:", str.substr(7, 5));
 
 // // Transformation
-// console.log("replace:", str.replace("World", "Universe"));
-// console.log("repeat:", str.repeat(2));
-// console.log("trim:", "   Hello, World!   ".trim());
+console.log("replace:", str.replace("World", "Universe"));
+console.log("repeat:", str.repeat(2));
+console.log("trim:", "   Hello, World!   ".trim());
 
-// // Splitting and Joining
-// console.log("split:", str.split(","));
-// console.log("join:", str.split(" ").join("-"));
+// Splitting 
+console.log("split:", str.split(","));
 
-// // Miscellaneous
-// console.log("length:", str.length);
-// console.log("valueOf:", str.valueOf());
+// Miscellaneous
+console.log("length:", str.length);
+console.log("valueOf:", str.valueOf());
 
-// // Unicode Manipulation
-// console.log("normalize:", "l\u0308".normalize()); // Unicode normalization
+// Unicode Manipulation
+console.log("normalize:", "l\u0308".normalize()); // Unicode normalization

@@ -58,7 +58,6 @@ class CocoCompiler {
 
     await new Promise((resolve) => {
       childProcess.on('close', (code) => {
-        console.log(`Child process exited with code ${code}`);
         resolve();
       });
     });

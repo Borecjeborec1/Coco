@@ -163,15 +163,26 @@ std::string JS_repeat(const std::string &str, int count) {
 
 std::string JS_replace(const std::string &str, const std::string &searchValue,
                        const std::string &replaceValue) {
-  // Implementation for replacing occurrences of a substring with another string
-  // (You may use string replacement functions for this)
-  return str; // Placeholder return value
+  std::string result = str;
+  size_t pos = 0;
+
+  while ((pos = result.find(searchValue, pos)) != std::string::npos) {
+    result.replace(pos, searchValue.length(), replaceValue);
+    pos += replaceValue.length();
+  }
+
+  return result;
 }
 
 int JS_search(const std::string &str, const std::string &regexStr) {
-  // Implementation for searching a regex in a string
-  // (You may use regex libraries for this)
-  return -1; // Placeholder return value
+  std::regex regex(regexStr);
+  std::smatch match;
+
+  if (std::regex_search(str, match, regex)) {
+    return static_cast<int>(match.position());
+  }
+
+  return -1;
 }
 
 std::string JS_slice(const std::string &str, int start, int end) {
@@ -193,11 +204,20 @@ std::string JS_slice(const std::string &str, int start, int end) {
   return str.substr(start, end - start);
 }
 
-std::vector<std::string> JS_split(const std::string &str,
-                                  const std::string &separator) {
-  // Implementation for splitting a string into an array of substrings
-  // (You may use string split functions for this)
-  return std::vector<std::string>(); // Placeholder return value
+nlohmann::json JS_split(const std::string &str, const std::string &separator) {
+  nlohmann::json result = nlohmann::json::array();
+  size_t start = 0;
+  size_t end = str.find(separator);
+
+  while (end != std::string::npos) {
+    result.push_back(str.substr(start, end - start));
+    start = end + separator.length();
+    end = str.find(separator, start);
+  }
+
+  result.push_back(str.substr(start));
+
+  return result;
 }
 
 bool JS_startsWith(const std::string &str, const std::string &searchStr) {

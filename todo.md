@@ -10,11 +10,12 @@
 - objects methods
 - this!
 - other data types (undefined/null)
-- built-in objects ()
+- built-in objects (Array, String, etc...)
 - rewrite of data types
 - bigint --> long long double
 - rewrite bin and index js
 - regex
+- fix num.toString(213)
 
 #### FINISHED
 - -std=c++17 
