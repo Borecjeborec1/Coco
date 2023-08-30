@@ -1,6 +1,6 @@
+// Ignore imports
 #include <string>
-#include <cmath>
-#include <vector>
+// Ignore imports end
 
 /////////////////////////// BOOLEAN METHODS ///////////////////////////////
 std::string JS_toString(bool value) { return value ? "true" : "false"; }

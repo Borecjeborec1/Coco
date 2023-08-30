@@ -1,7 +1,10 @@
-console.time("Test")
-console.log("testing")
-let x = { x: 12 }
-for (let i = 0; i < 1000000; i++) {
-  let abc = i * i + 123
+const N = 1000000000;
+let sum = 0;
+
+console.time("Sum");
+for (let i = 1; i <= N; ++i) {
+  sum += i * i;
 }
-console.timeEnd("Test")
+console.timeEnd("Sum");
+
+console.log("Sum:", sum);

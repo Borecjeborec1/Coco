@@ -1,29 +1,34 @@
 #### TODO
-- # Migration from custom types to custom functions
-- fix double stars and other syntaxes (pointer problems)
-- basic node modules
-- classes
-- array methods
-- var vs let
-- testing even the output of c++ to match the nodejs
-- escape characters
-- objects methods
-- this!
-- other data types (undefined/null)
-- built-in objects (Array, String, etc...)
-- rewrite of data types
-- bigint --> long long double
-- rewrite bin and index js
-- regex
-- fix num.toString(213)
+- classes {Very High}
+- basic node modules {High}
+- array methods {Very High}
+- objects methods {Very High}
+- regex {High}
+- template literal {High}
+- this! {High}
+- var vs let {Mid}
+- other data types (undefined/null) {High}
+- rewrite bin and index js {Low}
+- escape characters {Low}
+- bigint --> long long double {Low}
+- built-in objects (Array, String, etc...) {Mid}
+- fix num.toString(213) -> binary formats? {Low}
+- fix double stars and other syntaxes (pointer problems) {Very Low}
+- requires, linking files {Mid}
+- block npm modules {Low}
+- Typescript discovery {Low}
+- ignore multiple includes {Very High}
 
 #### FINISHED
-- -std=c++17 
-- array
-- string includes
+- -std=c++17 discovery {High}
+- array {Very High}
+- string {Very High}
 - bool dont have .toString when printing
-- lambda functions
-- length() -> length
-- +/- prefixes
-- objects
-- JSON
+- lambda functions {High}
+- length() -> length {High}
+- +/- prefixes {High}
+- objects {Very High}
+- JSON {High}
+- Migration from custom types to custom functions {Very High}
+- testing even the output of c++ to match the nodejs {Mid}
+- rewrite of data types (number->static_cast<double>) {High}

@@ -16,7 +16,7 @@ async function main(args) {
     await coco.compile()
     console.timeEnd("Compiling cpp")
     console.time("Running exe")
-    await coco.run(coco)
+    await coco.run()
     console.timeEnd("Running exe")
   } else {
     coco.printUsage();

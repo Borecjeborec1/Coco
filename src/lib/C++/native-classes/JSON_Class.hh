@@ -1,5 +1,7 @@
+// Ignore imports
 #include <string>
-#include "nlohmann-json.hpp"
+#include "nlohmann-json.hh"
+// Ignore imports end
 
 class JSON {
 public:

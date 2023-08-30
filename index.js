@@ -31,7 +31,7 @@ class CocoCompiler {
 
   async compile() {
     try {
-      const compileCommand = `g++ -O3 ${this.cppFile} -O3 -s -o ${this.outputFile}`;
+      const compileCommand = `g++ ${this.cppFile} -s -o ${this.outputFile} -O3 -ffast-math`;
       const execPromise = promisify(exec);
       await execPromise(compileCommand);
     } catch (error) {

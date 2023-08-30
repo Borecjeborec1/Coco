@@ -9,16 +9,22 @@ use(chaiString);
 
 describe('Given all string methods', function () {
   this.timeout(10000000);
-  describe("Given all built-in string methods", function () {
+  describe("Given all built-in STRING methods", function () {
     it('Should output same results as node', async function () {
       await compileAndRunTest("strings");
     });
 
   })
-  describe('Given all built-in number methods', function () {
+  describe('Given all built-in NUMBER methods', function () {
     it('Should output same results as node', async function () {
 
       await compileAndRunTest("numbers");
+    });
+  });
+  describe.only('Given all built-in GLOBAL methods', function () {
+    it('Should output same results as node', async function () {
+
+      await compileAndRunTest("functions");
     });
   });
 
