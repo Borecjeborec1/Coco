@@ -12,7 +12,7 @@
     "npm-downloads-increaser": "^1.8.7"
   },
   "scripts": {
-    "test": "mocha ./tests/test.js",
+    "test": "mocha ./tests/**/*.test.js",
     "test:js": "mocha ./tests/JS/js.test.js",
     "test:cc": "mocha ./tests/C++/cc.test.js",
     "test:solo": "coco tests/standalone/test.js"

@@ -1,3 +1,11 @@
+
+// All new includes goes here
+#include <iostream>
+#include <chrono>
+
+
+// All JSMethods goes here
+
 //     __ _____ _____ _____
 //  __|  |   __|     |   | |  JSON for Modern C++
 // |  |  |__   |  |  | | | |  version 3.11.2
@@ -24594,3 +24602,496 @@ inline void swap(nlohmann::NLOHMANN_BASIC_JSON_TPL& j1, nlohmann::NLOHMANN_BASIC
 
 
 #endif  // INCLUDE_NLOHMANN_JSON_HPP_
+
+
+//IGNORE-IMPORT
+#include <iostream>
+#include <sstream>
+#include <cmath>
+#include <iomanip>
+//END-IGNORE-IMPORT
+
+bool isFinite(double value) { return std::isfinite(value); }
+
+bool isNaN(double value) { return std::isnan(value); }
+
+double parseFloat(const std::string &str) {
+  std::istringstream iss(str);
+  double result;
+  iss >> result;
+  return result;
+}
+
+double parseInt(const std::string &str, int base = 10) {
+  return std::stoi(str, nullptr, base);
+}
+
+std::string toHex(unsigned char value) {
+  std::stringstream ss;
+  ss << std::uppercase << std::hex << std::setw(2) << std::setfill('0')
+     << static_cast<int>(value);
+  return ss.str();
+}
+char hexToChar(const std::string &hex) {
+  int value;
+  std::stringstream ss;
+  ss << std::hex << hex;
+  ss >> value;
+  return static_cast<char>(value);
+}
+
+std::string decodeURI(const std::string &uri) {
+  std::string decoded;
+  for (size_t i = 0; i < uri.length(); ++i) {
+    if (uri[i] == '%' && i + 2 < uri.length()) {
+      std::string hex = uri.substr(i + 1, 2);
+      decoded += hexToChar(hex);
+      i += 2;
+    } else if (uri[i] == '+') {
+      decoded += ' ';
+    } else {
+      decoded += uri[i];
+    }
+  }
+  return decoded;
+}
+
+std::string decodeURIComponent(const std::string &component) {
+  std::string decoded;
+  for (size_t i = 0; i < component.length(); ++i) {
+    if (component[i] == '%' && i + 2 < component.length()) {
+      std::string hex = component.substr(i + 1, 2);
+      decoded += hexToChar(hex);
+      i += 2;
+    } else {
+      decoded += component[i];
+    }
+  }
+  return decoded;
+}
+
+std::string encodeURI(const std::string &uri) {
+  std::string encoded;
+  for (char c : uri) {
+    if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+      encoded += c;
+    } else {
+      encoded += '%' + toHex(static_cast<unsigned char>(c));
+    }
+  }
+  return encoded;
+}
+
+std::string encodeURIComponent(const std::string &component) {
+  std::string encoded;
+  for (char c : component) {
+    if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+      encoded += c;
+    } else {
+      encoded += '%' + toHex(static_cast<unsigned char>(c));
+    }
+  }
+  return encoded;
+}
+
+//IGNORE-IMPORT
+#include <string>
+#include "nlohmann-json.hh"
+// Ignored imports error
+//IGNORE-IMPORT
+#include <string>
+#include <cmath>
+#include <sstream>
+//END-IGNORE-IMPORT
+const code = "Some code here";
+// Rest of the code...
+class JSON {
+public:
+  static std::string stringify(const nlohmann::json &jsonObj) {
+    return jsonObj.dump();
+  }
+
+  static nlohmann::json parse(const std::string &jsonString) {
+    return nlohmann::json::parse(jsonString);
+  }
+};
+//IGNORE-IMPORT
+#include <string>
+//END-IGNORE-IMPORT
+
+/////////////////////////// BOOLEAN METHODS ///////////////////////////////
+std::string JS_toString(bool value) { return value ? "true" : "false"; }
+bool JS_valueOf(bool value) { return value ? true : false; }
+/////////////////////////// BOOLEAN METHODS END ///////////////////////////////
+
+//IGNORE-IMPORT
+#include <string>
+#include <cmath>
+#include <sstream>
+//END-IGNORE-IMPORT
+
+/////////////////////////// NUMBER METHODS ///////////////////////////////
+double JS_valueOf(double value) { return static_cast<double>(value); }
+std::string JS_toFixed(double value, int decimalPlaces) {
+  std::ostringstream stream;
+  stream.precision(decimalPlaces);
+  stream << std::fixed << value;
+  return stream.str();
+}
+
+std::string JS_toExponential(double value, int decimalPlaces) {
+  std::ostringstream stream;
+  stream.precision(decimalPlaces);
+  stream << std::scientific << value;
+  return stream.str();
+}
+#include <iomanip>
+std::string JS_toPrecision(double value, int precision) {
+  std::ostringstream stream;
+
+  if (value == 0.0) {
+    stream << std::fixed << std::setprecision(precision) << value;
+  } else {
+    int intPartLength = static_cast<int>(std::log10(std::abs(value))) + 1;
+    int significantDigits = precision - intPartLength;
+
+    if (significantDigits <= 0) {
+      stream << std::fixed << std::setprecision(precision) << value;
+    } else {
+      stream << std::fixed << std::setprecision(significantDigits) << value;
+    }
+  }
+
+  return stream.str();
+}
+std::string JS_toString(double value) {
+  // Trim trailing zeros for non-integer values
+  std::ostringstream stream;
+  if (std::fmod(value, 1.0) == 0.0) {
+    stream << static_cast<int>(value);
+  } else {
+    stream << value;
+  }
+  return stream.str();
+}
+
+std::string JS_toLocaleString(double value) { return std::to_string(value); }
+
+bool JS_isFinite(double value) { return std::isfinite(value); }
+
+bool JS_isNaN(double value) { return std::isnan(value); }
+/////////////////////////// NUMBER METHODS END ///////////////////////////////
+//IGNORE-IMPORT
+#include <string>
+#include <vector>
+#include <regex>
+#include "nlohmann-json.hh"
+//END-IGNORE-IMPORT
+
+/////////////////////////// STRING METHODS ///////////////////////////////
+std::string JS_valueOf(std::string value) { return std::string(value); }
+
+std::string JS_charAt(const std::string &str, int index) {
+  if (index >= 0 && index < str.length()) {
+    return str.substr(index, 1);
+  }
+  return "";
+}
+
+int JS_charCodeAt(const std::string &str, int index) {
+  if (index >= 0 && index < str.length()) {
+    return static_cast<int>(str[index]);
+  }
+  return 0;
+}
+
+std::string JS_concat(const std::vector<std::string> &args) {
+  std::string result;
+  for (const std::string &arg : args) {
+    result += arg;
+  }
+  return result;
+}
+
+template <typename... Args>
+std::string JS_concat(const std::string &arg1, Args... args) {
+  std::vector<std::string> argList = {arg1, args...};
+  return JS_concat(argList);
+}
+
+bool JS_includes(const std::string &str, const std::string &searchStr) {
+  return str.find(searchStr) != std::string::npos;
+}
+
+bool JS_endsWith(const std::string &str, const std::string &searchStr) {
+  if (str.length() < searchStr.length()) {
+    return false;
+  }
+  return str.compare(str.length() - searchStr.length(), searchStr.length(),
+                     searchStr) == 0;
+}
+
+int JS_indexOf(const std::string &str, const std::string &searchStr) {
+  size_t pos = str.find(searchStr);
+  if (pos != std::string::npos) {
+    return static_cast<int>(pos);
+  }
+  return -1;
+}
+
+int JS_lastIndexOf(const std::string &str, const std::string &searchStr) {
+  size_t pos = str.rfind(searchStr);
+  if (pos != std::string::npos) {
+    return static_cast<int>(pos);
+  }
+  return -1;
+}
+
+int JS_localeCompare(const std::string &str1, const std::string &str2) {
+  // Implementation may vary based on the desired locale comparison rules
+  return str1.compare(str2);
+}
+nlohmann::json JS_match(const std::string &str, const std::string &regexStr) {
+  std::regex regex(regexStr);
+  std::smatch match;
+
+  nlohmann::json result = nlohmann::json::array();
+
+  if (std::regex_search(str, match, regex)) {
+    nlohmann::json matchDetails = nlohmann::json::object();
+    matchDetails["match"] = match[0].str();
+    matchDetails["index"] = static_cast<int>(match.position());
+    matchDetails["input"] = str;
+    matchDetails["groups"] = nlohmann::json::object(); // No groups for now
+    result.push_back(matchDetails);
+  }
+
+  return result;
+}
+
+nlohmann::json JS_matchAll(const std::string &str,
+                           const std::string &regexStr) {
+  std::regex regex(regexStr);
+  std::sregex_iterator it(str.begin(), str.end(), regex);
+  std::sregex_iterator end;
+
+  nlohmann::json result = nlohmann::json::array();
+
+  while (it != end) {
+    nlohmann::json matchDetails = nlohmann::json::object();
+    std::smatch match = *it;
+
+    matchDetails["match"] = match[0].str();
+    matchDetails["index"] = static_cast<int>(match.position());
+    matchDetails["input"] = str;
+    matchDetails["groups"] = nlohmann::json::object(); // No groups for now
+
+    result.push_back(matchDetails);
+    ++it;
+  }
+
+  return result;
+}
+std::string JS_normalize(const std::string &str) {
+  // Implementation for normalizing Unicode strings (NFC normalization)
+  // (You may use Unicode normalization libraries for this)
+  return str; // Placeholder return value
+}
+
+std::string JS_padEnd(const std::string &str, int targetLength,
+                      const std::string &padString) {
+  if (targetLength <= str.length()) {
+    return str;
+  }
+  int remainingLength = targetLength - str.length();
+  int padCount = remainingLength / padString.length();
+  int padRemainder = remainingLength % padString.length();
+  std::string result = str;
+  for (int i = 0; i < padCount; i++) {
+    result += padString;
+  }
+  if (padRemainder > 0) {
+    result += padString.substr(0, padRemainder);
+  }
+  return result;
+}
+
+std::string JS_padStart(const std::string &str, int targetLength,
+                        const std::string &padString) {
+  if (targetLength <= str.length()) {
+    return str;
+  }
+  int remainingLength = targetLength - str.length();
+  int padCount = remainingLength / padString.length();
+  int padRemainder = remainingLength % padString.length();
+  std::string result;
+  for (int i = 0; i < padCount; i++) {
+    result += padString;
+  }
+  if (padRemainder > 0) {
+    result += padString.substr(0, padRemainder);
+  }
+  result += str;
+  return result;
+}
+
+std::string JS_repeat(const std::string &str, int count) {
+  if (count <= 0) {
+    return "";
+  }
+  std::string result;
+  for (int i = 0; i < count; i++) {
+    result += str;
+  }
+  return result;
+}
+
+std::string JS_replace(const std::string &str, const std::string &searchValue,
+                       const std::string &replaceValue) {
+  std::string result = str;
+  size_t pos = 0;
+
+  while ((pos = result.find(searchValue, pos)) != std::string::npos) {
+    result.replace(pos, searchValue.length(), replaceValue);
+    pos += replaceValue.length();
+  }
+
+  return result;
+}
+
+int JS_search(const std::string &str, const std::string &regexStr) {
+  std::regex regex(regexStr);
+  std::smatch match;
+
+  if (std::regex_search(str, match, regex)) {
+    return static_cast<int>(match.position());
+  }
+
+  return -1;
+}
+
+std::string JS_slice(const std::string &str, int start, int end) {
+  if (start < 0) {
+    start += str.length();
+  }
+  if (end < 0) {
+    end += str.length();
+  }
+  if (start < 0) {
+    start = 0;
+  }
+  if (end > str.length()) {
+    end = str.length();
+  }
+  if (end <= start) {
+    return "";
+  }
+  return str.substr(start, end - start);
+}
+
+nlohmann::json JS_split(const std::string &str, const std::string &separator) {
+  nlohmann::json result = nlohmann::json::array();
+  size_t start = 0;
+  size_t end = str.find(separator);
+
+  while (end != std::string::npos) {
+    result.push_back(str.substr(start, end - start));
+    start = end + separator.length();
+    end = str.find(separator, start);
+  }
+
+  result.push_back(str.substr(start));
+
+  return result;
+}
+
+bool JS_startsWith(const std::string &str, const std::string &searchStr) {
+  if (str.length() < searchStr.length()) {
+    return false;
+  }
+  return str.compare(0, searchStr.length(), searchStr) == 0;
+}
+
+std::string JS_substr(const std::string &str, int start, int length) {
+  if (start < 0) {
+    start += str.length();
+  }
+  if (length <= 0 || start >= str.length()) {
+    return "";
+  }
+  if (start + length > str.length()) {
+    length = str.length() - start;
+  }
+  return str.substr(start, length);
+}
+
+std::string JS_substring(const std::string &str, int start, int end) {
+  if (start < 0) {
+    start = 0;
+  }
+  if (end < 0) {
+    end = 0;
+  }
+  if (start > end) {
+    std::swap(start, end);
+  }
+  if (end > str.length()) {
+    end = str.length();
+  }
+  return str.substr(start, end - start);
+}
+
+std::string JS_toLocaleLowerCase(const std::string &str) {
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+  return result;
+}
+
+std::string JS_toLocaleUpperCase(const std::string &str) {
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+  return result;
+}
+
+std::string JS_toLowerCase(const std::string &str) {
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+  return result;
+}
+
+std::string JS_toUpperCase(const std::string &str) {
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+  return result;
+}
+
+std::string JS_toString(const std::string &str) { return str; }
+
+std::string JS_trim(const std::string &str) {
+  std::regex trimPattern("^\\s+|\\s+$");
+  return std::regex_replace(str, trimPattern, "");
+}
+
+std::string JS_trimEnd(const std::string &str) {
+  std::regex trimPattern("\\s+$");
+  return std::regex_replace(str, trimPattern, "");
+}
+
+std::string JS_trimStart(const std::string &str) {
+  std::regex trimPattern("^\\s+");
+  return std::regex_replace(str, trimPattern, "");
+}
+/////////////////////////// STRING METHODS END ///////////////////////////////
+
+
+// All functions with its argument templates goes here
+
+ 
+
+// Main Function (Have to be the only main function)
+int main(){
+  std::cout.setf(std::ios::boolalpha);
+  std::cout << std::string("parseFloat:") << parseFloat(std::string("3.14")) << '\n';
+std::cout << std::string("parseInt:") << parseInt(std::string("42")) << '\n';
+  return 0;
+}  

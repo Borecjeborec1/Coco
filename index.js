@@ -10,9 +10,7 @@ class CocoCompiler {
   constructor(_inputFile, _outputFile, _cppFile = "./test/test.cc") {
     this.inputFile = _inputFile;
     this.outputFile = _outputFile || this.inputFile.replace('.js', '');
-    console.log("Ozutput file: " + this.outputFile)
     this.cppFile = _cppFile || this.inputFile.replace('.js', '.cc');
-    console.log("cpp file: " + this.cppFile)
   }
 
 
@@ -33,7 +31,7 @@ class CocoCompiler {
 
   async compile() {
     try {
-      const compileCommand = `g++ -O3 ${this.cppFile} -O3 -s -o ${this.outputFile}`;
+      const compileCommand = `g++ ${this.cppFile} -s -o ${this.outputFile} -O3 -ffast-math`;
       const execPromise = promisify(exec);
       await execPromise(compileCommand);
     } catch (error) {
@@ -41,14 +39,17 @@ class CocoCompiler {
     }
   }
 
-  async run() {
-    const outputPath = path.join(process.cwd(), this.outputFile);
+  async run(returnResult = false) {
+    const outputPath = this.outputFile;
     const childProcess = spawn(outputPath);
     let output = '';
 
     childProcess.stdout.on('data', (data) => {
-      console.log(`${data}`);
-      output += data;
+      if (returnResult) {
+        output += data;
+      } else {
+        console.log(`${data}`);
+      }
     });
 
     childProcess.stderr.on('data', (data) => {
@@ -57,7 +58,6 @@ class CocoCompiler {
 
     await new Promise((resolve) => {
       childProcess.on('close', (code) => {
-        console.log(`Child process exited with code ${code}`);
         resolve();
       });
     });

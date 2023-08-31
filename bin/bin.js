@@ -9,9 +9,15 @@ async function main(args) {
   if (options.version) {
     coco.printVersion();
   } else if (options.inputFile) {
-    await coco.buildCpp();
-    await coco.compile();
-    await coco.run();
+    console.time("Building cpp")
+    await coco.buildCpp()
+    console.timeEnd("Building cpp")
+    console.time("Compiling cpp")
+    await coco.compile()
+    console.timeEnd("Compiling cpp")
+    console.time("Running exe")
+    await coco.run()
+    console.timeEnd("Running exe")
   } else {
     coco.printUsage();
   }
