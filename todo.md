@@ -18,6 +18,8 @@
 - block npm modules {Low}
 - Typescript discovery {Low}
 - ignore multiple includes {Very High}
+- no strict mode (using json for everything) {Mid}
+- more cli params {Mid}
 
 #### FINISHED
 - -std=c++17 discovery {High}

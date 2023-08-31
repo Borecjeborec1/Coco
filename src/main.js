@@ -42,7 +42,7 @@ function generateCpp(ast) {
       if (typeof ast.value === 'string') {
         return `std::string("${ast.value}")`;
       } else if (typeof ast.value === 'number') {
-        return `static_cast<double>(${ast.value})`;
+        return `static_cast<float>(${ast.value})`;
       } else if (typeof ast.value === "boolean") {
         return `${!!ast.value}`;
       }
@@ -116,7 +116,7 @@ function generateCpp(ast) {
       if (operator === "typeof") {
         return `typeid(${argument}).name()`;
       } else if (operator === "-") {
-        return `static_cast<double>(0)-${argument}`;
+        return `static_cast<float>(0)-${argument}`;
       }
       return `${operator}${argument} `;
     }
@@ -165,6 +165,7 @@ function generateCpp(ast) {
       let test = generateCpp(ast.test);
       let update = generateCpp(ast.update);
       let body = generateCpp(ast.body);
+      console.log("FOR LOOP::::::: " + init.replace("float", "int"))
       return `for (${init} ${test}; ${update}) { \n${body} \n } `;
     }
     case "ForInStatement": {
