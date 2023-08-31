@@ -20,6 +20,9 @@
 - ignore multiple includes {Very High}
 - no strict mode (using json for everything) {Mid}
 - more cli params {Mid}
+- optimization for doubles {Mid}  
+- joining objects/arrays {Very High}
+- Check % (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
 
 #### FINISHED
 - -std=c++17 discovery {High}
@@ -34,3 +37,4 @@
 - Migration from custom types to custom functions {Very High}
 - testing even the output of c++ to match the nodejs {Mid}
 - rewrite of data types (number->static_cast<double>) {High}
+- accesing objects [], ., [""] {High}

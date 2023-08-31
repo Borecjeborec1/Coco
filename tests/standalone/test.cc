@@ -25067,22 +25067,22 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  const auto N = static_cast<float>(1500) ; 
+  auto Heyo = std::chrono::high_resolution_clock::now();
+auto i = static_cast<double>(0) ; 
 
-auto sum = static_cast<float>(0) ; 
+while (true) { 
+i += static_cast<double>(0.000004);
+if ((i >= static_cast<double>(10000))) {
+break;
 
-auto Sum = std::chrono::high_resolution_clock::now();
-for (auto i = static_cast<float>(1) ; 
- (i <= N); i += static_cast<float>(3e-7)) { 
-sum += (i * i); 
- } 
+} } 
+
 
           auto end_time = std::chrono::high_resolution_clock::now();
           auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-              end_time - Sum);
+              end_time - Heyo);
         
-          std::cout << "Sum: " << duration.count() << "ms" << std::endl;
+          std::cout << "Heyo: " << duration.count() << "ms" << std::endl;
           
-std::cout << std::string("Sum:") << sum << '\n';
   return 0;
 }  

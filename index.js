@@ -56,11 +56,16 @@ class CocoCompiler {
       console.error(`Error: ${data}`);
     });
 
+
     await new Promise((resolve) => {
       childProcess.on('close', (code) => {
         resolve();
       });
     });
+
+    process.on("exit", () => {
+      childProcess.kill()
+    })
 
     return output;
   }

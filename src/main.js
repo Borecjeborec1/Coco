@@ -27,8 +27,9 @@ function generateCpp(ast) {
       const body = generateCpp(ast.body);
       return `auto ${funcName} = [](${params}) { \n${body} \n };`;
     }
-    case "BlockStatement":
+    case "BlockStatement": {
       return ast.body.map(generateCpp).join("\n")
+    }
     case "VariableDeclaration": {
       const declarations = ast.declarations.map(generateCpp).join(", ");
       const declarationType = ast.kind === "const" ? "const auto" : "auto"; // Handle const declaration
@@ -42,7 +43,7 @@ function generateCpp(ast) {
       if (typeof ast.value === 'string') {
         return `std::string("${ast.value}")`;
       } else if (typeof ast.value === 'number') {
-        return `static_cast<float>(${ast.value})`;
+        return `static_cast<double>(${ast.value})`;
       } else if (typeof ast.value === "boolean") {
         return `${!!ast.value}`;
       }
@@ -95,8 +96,14 @@ function generateCpp(ast) {
 
       if (propertyCode === 'length') {
         return `${objectCode}.length()`;
+      } else if (propertyCode.startsWith("std::string(")) {
+        let propertyString = propertyCode.replace(/std\:\:string\(|\)/g, "")
+        return `${objectCode}[${propertyString}]`;
+      } else if (propertyCode.startsWith("static_cast<double>(")) {
+        let propertyString = propertyCode.replace(/static\_cast\<double\>\(|\)/g, "")
+        return `${objectCode}[${propertyString}]`;
       } else {
-        return `${objectCode}.${propertyCode}`;
+        return `${objectCode}["${propertyCode}"]`;
       }
     }
     case "IfStatement": {
@@ -116,7 +123,7 @@ function generateCpp(ast) {
       if (operator === "typeof") {
         return `typeid(${argument}).name()`;
       } else if (operator === "-") {
-        return `static_cast<float>(0)-${argument}`;
+        return `static_cast<double>(0)-${argument}`;
       }
       return `${operator}${argument} `;
     }
@@ -165,7 +172,6 @@ function generateCpp(ast) {
       let test = generateCpp(ast.test);
       let update = generateCpp(ast.update);
       let body = generateCpp(ast.body);
-      console.log("FOR LOOP::::::: " + init.replace("float", "int"))
       return `for (${init} ${test}; ${update}) { \n${body} \n } `;
     }
     case "ForInStatement": {
@@ -306,7 +312,6 @@ function loadLibFiles(libFolderPath) {
   const nonDuplicateImports = [...new Set(includes.join("\n").split("\r\n"))];
   const filteredImports = nonDuplicateImports.filter(filterImports).join("\n");
 
-  console.log(filteredImports)
   return {
     loadedLibFiles: filteredImports + "\n" + nlohmannJsonContent + "\n" + combinedContent,
     neededExternalImports: filteredImports
