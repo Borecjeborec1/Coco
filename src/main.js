@@ -3,8 +3,10 @@ const path = require('path');
 
 const { BUILTIN_JS_FUNCTIONS } = require("./lib/JS/Builtin-functions.js")
 
+let config = {}
 
-function generateWholeCode(ast) {
+function generateWholeCode(ast, compilingOptions) {
+  config = compilingOptions
   const mainBody = generateCpp(ast);
   return joinCppParts(mainBody)
 }
@@ -43,7 +45,7 @@ function generateCpp(ast) {
       if (typeof ast.value === 'string') {
         return `std::string("${ast.value}")`;
       } else if (typeof ast.value === 'number') {
-        return `static_cast<double>(${ast.value})`;
+        return `static_cast<${config.numberDataType}>(${ast.value})`;
       } else if (typeof ast.value === "boolean") {
         return `${!!ast.value}`;
       }
@@ -99,8 +101,9 @@ function generateCpp(ast) {
       } else if (propertyCode.startsWith("std::string(")) {
         let propertyString = propertyCode.replace(/std\:\:string\(|\)/g, "")
         return `${objectCode}[${propertyString}]`;
-      } else if (propertyCode.startsWith("static_cast<double>(")) {
-        let propertyString = propertyCode.replace(/static\_cast\<double\>\(|\)/g, "")
+      } else if (propertyCode.startsWith(`static_cast<${config.numberDataType}>(`)) {
+        const staticCastRegex = new RegExp(`static_cast<${config.numberDataType}>(\|)`, "g");
+        let propertyString = propertyCode.replace(staticCastRegex, "")
         return `${objectCode}[${propertyString}]`;
       } else {
         return `${objectCode}["${propertyCode}"]`;
@@ -123,7 +126,7 @@ function generateCpp(ast) {
       if (operator === "typeof") {
         return `typeid(${argument}).name()`;
       } else if (operator === "-") {
-        return `static_cast<double>(0)-${argument}`;
+        return `static_cast<${config.numberDataType}>(0)-${argument}`;
       }
       return `${operator}${argument} `;
     }

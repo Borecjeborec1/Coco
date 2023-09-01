@@ -4,11 +4,11 @@ const CocoCompiler = require('../index.js');
 const process = require('process');
 
 async function main(args) {
-  const options = parseArguments(args);
-  const coco = new CocoCompiler(options.inputFile, options.outputFile, options.cppFile)
-  if (options.version) {
+  const { buildingOptions, compilingOptions } = parseArguments(args);
+  const coco = new CocoCompiler(buildingOptions.inputFile, buildingOptions.outputFile, buildingOptions.cppFile, compilingOptions)
+  if (buildingOptions.version) {
     coco.printVersion();
-  } else if (options.inputFile) {
+  } else if (buildingOptions.inputFile) {
     console.time("Building cpp")
     await coco.buildCpp()
     console.timeEnd("Building cpp")
@@ -24,11 +24,14 @@ async function main(args) {
 }
 
 function parseArguments(args) {
-  const options = {
+  const buildingOptions = {
     version: false,
     inputFile: '',
     outputFile: '',
-    cppFile: ''
+    cppFile: '',
+  };
+  const compilingOptions = {
+    numberDataType: 'int'
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -37,27 +40,31 @@ function parseArguments(args) {
     switch (arg) {
       case '-v':
       case '--version':
-        options.version = true;
+        buildingOptions.version = true;
         break;
 
       case '-o':
       case '--output':
-        options.outputFile = args[i + 1] || '';
+        buildingOptions.outputFile = args[i + 1] || '';
         i++;
         break;
 
       case '--cpp':
-        options.cppFile = args[i + 1] || '';
+        buildingOptions.cppFile = args[i + 1] || '';
         i++;
         break;
 
+      case '--useFloat':
+      case '--useBigInt':
+        compilingOptions.numberDataType = "double"
+
       default:
-        options.inputFile = arg;
+        buildingOptions.inputFile = arg;
         break;
     }
   }
 
-  return options;
+  return { buildingOptions, compilingOptions };
 }
 
 main(process.argv.slice(2));

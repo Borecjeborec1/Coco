@@ -1,9 +1,5 @@
-console.time("Heyo")
-let i = 0
-while (true) {
-  i += .000004
-  if (i >= 10000) {
-    break
-  }
-}
-console.timeEnd("Heyo")
+let x = { name: "312", fsat: 2341, idk: true }
+
+console.log(x.name)
+console.log(x["fsat"])
+

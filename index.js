@@ -7,10 +7,11 @@ const { exec, spawn } = require('child_process');
 const { generateWholeCode } = require('./src/main.js');
 
 class CocoCompiler {
-  constructor(_inputFile, _outputFile, _cppFile = "./test/test.cc") {
+  constructor(_inputFile, _outputFile, _cppFile = "./test/test.cc", _compilingOptions = {}) {
     this.inputFile = _inputFile;
     this.outputFile = _outputFile || this.inputFile.replace('.js', '');
     this.cppFile = _cppFile || this.inputFile.replace('.js', '.cc');
+    this.compilingOptions = _compilingOptions
   }
 
 
@@ -21,7 +22,7 @@ class CocoCompiler {
     try {
       const code = await fs.readFile(this.inputFile, 'utf-8');
       const ast = acorn.parse(code);
-      const res = generateWholeCode(ast);
+      const res = generateWholeCode(ast, this.compilingOptions);
       await fs.writeFile(this.cppFile, res);
     } catch (error) {
       console.log('build error: ' + error);

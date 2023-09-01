@@ -25067,22 +25067,9 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto Heyo = std::chrono::high_resolution_clock::now();
-auto i = static_cast<double>(0) ; 
+  auto x = nlohmann::json{{"name", std::string("312")}, {"fsat", static_cast<int>(2341)}, {"idk", true}} ; 
 
-while (true) { 
-i += static_cast<double>(0.000004);
-if ((i >= static_cast<double>(10000))) {
-break;
-
-} } 
-
-
-          auto end_time = std::chrono::high_resolution_clock::now();
-          auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-              end_time - Heyo);
-        
-          std::cout << "Heyo: " << duration.count() << "ms" << std::endl;
-          
+std::cout << x["name"] << '\n';
+std::cout << x["fsat"] << '\n';
   return 0;
 }  
