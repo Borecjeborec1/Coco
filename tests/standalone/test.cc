@@ -3,12 +3,16 @@
 // All includes goes here
 #include <iostream>
 #include <sstream>
+
+#include <iostream>
 #include <regex>
 #include <chrono>
 
 // All Built-in JSMethods goes here
 #include <iostream>
 #include <sstream>
+
+#include <iostream>
 #include <regex>
 
 //     __ _____ _____ _____
@@ -24708,6 +24712,418 @@ public:
 };
 
 
+std::vector<double> jsonArrayToVector(const nlohmann::json &arr) {
+  std::vector<double> result;
+  for (const auto &element : arr) {
+    result.push_back(element.get<double>());
+  }
+  return result;
+}
+
+nlohmann::json vectorToJsonArray(const std::vector<double> &vec) {
+  nlohmann::json result;
+  for (const auto &value : vec) {
+    result.push_back(value);
+  }
+  return result;
+}
+
+nlohmann::json JS_concat(const nlohmann::json &arr1,
+                         const nlohmann::json &arr2) {
+  nlohmann::json result = arr1;
+  for (const auto &element : arr2) {
+    result.push_back(element);
+  }
+  return result;
+}
+
+// nlohmann::json JS_copyWithin(nlohmann::json &arr, int target, int start = 0,
+//                              int end = 0) {
+//   std::vector<double> vec = jsonArrayToVector(arr);
+
+//   start = std::max(start, 0);
+//   end = std::min(end, static_cast<int>(vec.size()));
+
+//   if (target < 0) {
+//     target = std::max<int>(target + vec.size(), 0);
+//   }
+
+//   for (int i = start; i < end && target < static_cast<int>(vec.size());
+//        i++, target++) {
+//     vec[target] = vec[i];
+//   }
+
+//   return vectorToJsonArray(vec);
+// }
+
+// nlohmann::json JS_entries(const nlohmann::json &arr) {
+//   nlohmann::json result;
+//   int index = 0;
+//   for (const auto &element : arr) {
+//     nlohmann::json entry;
+//     entry.push_back(index);
+//     entry.push_back(element);
+//     result.push_back(entry);
+//     index++;
+//   }
+//   return result;
+// }
+
+bool JS_every(const nlohmann::json &arr, std::function<bool(double)> callback) {
+  for (const auto &element : arr) {
+    if (!callback(element.get<double>())) {
+      return false;
+    }
+  }
+  return true;
+}
+
+nlohmann::json JS_fill(nlohmann::json &arr, double value, int start, int end) {
+  std::vector<double> vec = jsonArrayToVector(arr);
+
+  // Adjust start and end indices
+  start = std::max(start, 0);
+  end = std::min(end, static_cast<int>(vec.size()));
+
+  for (int i = start; i < end; i++) {
+    vec[i] = value;
+  }
+
+  return vectorToJsonArray(vec);
+}
+
+nlohmann::json JS_filter(const nlohmann::json &arr,
+                         std::function<bool(double)> callback) {
+  nlohmann::json result;
+  for (const auto &element : arr) {
+    double value = element.get<double>();
+    if (callback(value)) {
+      result.push_back(value);
+    }
+  }
+  return result;
+}
+
+nlohmann::json JS_find(const nlohmann::json &arr,
+                       std::function<bool(double)> callback) {
+  for (auto it = arr.rbegin(); it != arr.rend(); ++it) {
+    double value = it->get<double>();
+    if (callback(value)) {
+      return value;
+    }
+  }
+  return nullptr;
+}
+
+int JS_findIndex(const nlohmann::json &arr,
+                 std::function<bool(double)> callback) {
+  int index = arr.size() - 1;
+  for (auto it = arr.rbegin(); it != arr.rend(); ++it) {
+    double value = it->get<double>();
+    if (callback(value)) {
+      return index;
+    }
+    index--;
+  }
+  return -1;
+}
+
+// nlohmann::json JS_flat(const nlohmann::json &arr, int depth = 1) {
+//   if (depth <= 0) {
+//     return arr;
+//   }
+
+//   nlohmann::json result;
+//   for (const auto &element : arr) {
+//     if (element.is_array()) {
+//       result.insert(result.end(), JS_flat(element, depth - 1).begin(),
+//                     JS_flat(element, depth - 1).end());
+//     } else {
+//       result.push_back(element);
+//     }
+//   }
+//   return result;
+// }
+
+// // flatMap()
+// nlohmann::json JS_flatMap(const nlohmann::json &arr,
+//                           std::function<nlohmann::json(double)> callback) {
+//   nlohmann::json result;
+//   for (const auto &element : arr) {
+//     double value = element.get<double>();
+//     nlohmann::json mapped = callback(value);
+//     if (mapped.is_array()) {
+//       result.insert(result.end(), mapped.begin(), mapped.end());
+//     } else {
+//       result.push_back(mapped);
+//     }
+//   }
+//   return result;
+// }
+
+// forEach()
+void JS_forEach(const nlohmann::json &arr,
+                std::function<void(double)> callback) {
+  for (const auto &element : arr) {
+    double value = element.get<double>();
+    callback(value);
+  }
+}
+
+// // includes()
+// bool JS_includes(const nlohmann::json &arr, double searchElement) {
+//   for (const auto &element : arr) {
+//     double value = element.get<double>();
+//     if (value == searchElement) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
+
+// // indexOf()
+// int JS_indexOf(const nlohmann::json &arr, double searchElement,
+//                int fromIndex = 0) {
+//   fromIndex = std::max(fromIndex, 0);
+//   for (int i = fromIndex; i < static_cast<int>(arr.size()); i++) {
+//     double value = arr[i].get<double>();
+//     if (value == searchElement) {
+//       return i;
+//     }
+//   }
+//   return -1;
+// }
+
+// // isArray()
+// bool JS_isArray(const nlohmann::json &arr) { return arr.is_array(); }
+
+// // join()
+// std::string JS_join(const nlohmann::json &arr,
+//                     const std::string &separator = ",") {
+//   std::string result;
+//   for (size_t i = 0; i < arr.size(); i++) {
+//     double value = arr[i].get<double>();
+//     result += std::to_string(value);
+//     if (i < arr.size() - 1) {
+//       result += separator;
+//     }
+//   }
+//   return result;
+// }
+
+// // keys()
+// nlohmann::json JS_keys(const nlohmann::json &arr) {
+//   nlohmann::json result;
+//   for (size_t i = 0; i < arr.size(); i++) {
+//     result.push_back(static_cast<double>(i));
+//   }
+//   return result;
+// }
+
+// // lastIndexOf()
+// int JS_lastIndexOf(const nlohmann::json &arr, double searchElement,
+//                    int fromIndex = -1) {
+//   if (fromIndex == -1) {
+//     fromIndex = static_cast<int>(arr.size()) - 1;
+//   }
+//   fromIndex = std::min(fromIndex, static_cast<int>(arr.size()) - 1);
+//   for (int i = fromIndex; i >= 0; i--) {
+//     double value = arr[i].get<double>();
+//     if (value == searchElement) {
+//       return i;
+//     }
+//   }
+//   return -1;
+// }
+
+// // map()
+// nlohmann::json JS_map(const nlohmann::json &arr,
+//                       std::function<nlohmann::json(double)> callback) {
+//   nlohmann::json result;
+//   for (const auto &element : arr) {
+//     double value = element.get<double>();
+//     nlohmann::json mapped = callback(value);
+//     result.push_back(mapped);
+//   }
+//   return result;
+// }
+
+// // pop()
+// nlohmann::json JS_pop(nlohmann::json &arr) {
+//   if (arr.is_array() && !arr.empty()) {
+//     nlohmann::json popped = arr.back();
+//     arr.pop_back();
+//     return popped;
+//   }
+//   return nullptr; // Handle non-array cases or empty arrays
+// }
+
+// // push()
+// void JS_push(nlohmann::json &arr, const nlohmann::json &element) {
+//   arr.push_back(element);
+// }
+
+// // reduce()
+// nlohmann::json
+// JS_reduce(const nlohmann::json &arr,
+//           std::function<nlohmann::json(nlohmann::json, double)> callback,
+//           const nlohmann::json &initialValue = nullptr) {
+//   nlohmann::json accumulator = initialValue ? initialValue : nullptr;
+//   for (const auto &element : arr) {
+//     double value = element.get<double>();
+//     if (accumulator) {
+//       accumulator = callback(accumulator, value);
+//     } else {
+//       accumulator = value;
+//     }
+//   }
+//   return accumulator;
+// }
+
+// // reduceRight()
+// nlohmann::json
+// JS_reduceRight(const nlohmann::json &arr,
+//                std::function<nlohmann::json(nlohmann::json, double)>
+//                callback,
+//                const nlohmann::json &initialValue = nullptr) {
+//   // Convert the reversed JSON array to a vector of JSON values
+//   std::vector<nlohmann::json> reversed(arr.rbegin(), arr.rend());
+
+//   // Perform the reduce operation on the reversed vector
+//   nlohmann::json result = JS_reduce(reversed, callback, initialValue);
+
+//   return result;
+// }
+
+// // reverse()
+// nlohmann::json JS_reverse(nlohmann::json &arr) {
+//   std::reverse(arr.begin(), arr.end());
+//   return arr;
+// }
+
+// // shift()
+// nlohmann::json JS_shift(nlohmann::json &arr) {
+//   if (arr.empty()) {
+//     return nullptr;
+//   }
+//   nlohmann::json shifted = arr.front();
+//   arr.erase(arr.begin());
+//   return shifted;
+// }
+
+// // slice()
+// nlohmann::json JS_slice(const nlohmann::json &arr, int start = 0,
+//                         int end = INT_MAX) {
+//   start = std::max(start, 0);
+//   end = std::min(end, static_cast<int>(arr.size()));
+
+//   nlohmann::json result;
+//   for (int i = start; i < end; i++) {
+//     result.push_back(arr[i]);
+//   }
+//   return result;
+// }
+
+// // some()
+// bool JS_some(const nlohmann::json &arr, std::function<bool(double)> callback)
+// {
+//   for (const auto &element : arr) {
+//     double value = element.get<double>();
+//     if (callback(value)) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
+
+// // sort()
+// nlohmann::json
+// JS_sort(nlohmann::json &arr,
+//         std::function<bool(double, double)> compareFunction = nullptr) {
+//   if (compareFunction) {
+//     std::sort(arr.begin(), arr.end(),
+//               [&](const nlohmann::json &a, const nlohmann::json &b) {
+//                 return compareFunction(a.get<double>(), b.get<double>());
+//               });
+//   } else {
+//     std::sort(arr.begin(), arr.end(),
+//               [](const nlohmann::json &a, const nlohmann::json &b) {
+//                 return a.get<double>() < b.get<double>();
+//               });
+//   }
+//   return arr;
+// }
+
+// // splice()
+// nlohmann::json JS_splice(nlohmann::json &arr, int start, int deleteCount,
+//                          const nlohmann::json &items = nullptr) {
+//   start = std::max(start, 0);
+//   deleteCount = std::max(deleteCount, 0);
+//   int end = start + deleteCount;
+
+//   nlohmann::json removed;
+
+//   // Remove elements from the array
+//   auto eraseBegin = arr.begin() + start;
+//   auto eraseEnd = arr.begin() + end;
+//   for (auto it = eraseBegin; it != eraseEnd; ++it) {
+//     removed.push_back(*it);
+//   }
+//   arr.erase(eraseBegin, eraseEnd);
+
+//   // Insert new items at the same position
+//   if (items.is_array()) {
+//     for (const auto &item : items) {
+//       arr.insert(arr.begin() + start, item);
+//       start++;
+//     }
+//   }
+
+//   return removed;
+// }
+
+// // toLocaleString()
+// std::string JS_toLocaleString(const nlohmann::json &arr) {
+//   std::string result = "[";
+
+//   for (size_t i = 0; i < arr.size(); i++) {
+//     if (i > 0) {
+//       result += ", ";
+//     }
+
+//     // Convert each element to a string
+//     result += arr[i].dump();
+//   }
+
+//   result += "]";
+//   return result;
+// }
+
+// // toSource() (Non-standard)
+// std::string JS_toSource(const nlohmann::json &arr) {
+//   return JS_toLocaleString(
+//       arr); // Using the same implementation as toLocaleString
+// }
+
+// // toString()
+// std::string JS_toString(const nlohmann::json &arr) {
+//   return JS_toLocaleString(
+//       arr); // Using the same implementation as toLocaleString
+// }
+
+// // unshift()
+// size_t JS_unshift(nlohmann::json &arr, const nlohmann::json &items) {
+//   for (auto it = items.rbegin(); it != items.rend(); ++it) {
+//     arr.insert(arr.begin(), *it);
+//   }
+//   return arr.size();
+// }
+
+// // values()
+// nlohmann::json JS_values(const nlohmann::json &arr) { return arr; }
+
+
+
 /////////////////////////// BOOLEAN METHODS ///////////////////////////////
 std::string JS_toString(bool value) { return value ? "true" : "false"; }
 bool JS_valueOf(bool value) { return value ? true : false; }
@@ -25067,9 +25483,13 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto x = nlohmann::json{{"name", std::string("312")}, {"fsat", static_cast<int>(2341)}, {"idk", true}} ; 
+  auto arr = nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3), static_cast<int>(4)} ; 
 
-std::cout << x["name"] << '\n';
-std::cout << x["fsat"] << '\n';
+for ( ; ) { 
+ 
+ } 
+JS_forEach(arr, [](auto item) { 
+return console["log"](item);  
+ } );
   return 0;
 }  

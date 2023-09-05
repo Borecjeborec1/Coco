@@ -22,7 +22,13 @@
 - more cli params {Mid}
 - optimization for doubles {Mid}  
 - joining objects/arrays {Very High}
-- Check % (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
+- Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
+- pointer params  {Mid}  
+- optional params  {Low}  
+- more vars inside loop  {Low}
+- Fix compile options for tests {High}
+- Remove unsude methods {Low}
+- == vs === {Mid}
 
 #### FINISHED
 - -std=c++17 discovery {High}

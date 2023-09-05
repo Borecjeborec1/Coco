@@ -7,7 +7,7 @@ const CocoCompiler = require('../../index.js');
 
 use(chaiString);
 
-describe('Given all string methods', function () {
+describe('Given ALL JS methods', function () {
   this.timeout(10000000);
   describe("Given all built-in STRING methods", function () {
     it('Should output same results as node', async function () {
@@ -21,20 +21,25 @@ describe('Given all string methods', function () {
       await compileAndRunTest("numbers");
     });
   });
-  describe.only('Given all built-in GLOBAL methods', function () {
+  describe('Given all built-in GLOBAL methods', function () {
     it('Should output same results as node', async function () {
 
       await compileAndRunTest("functions");
     });
   });
+  describe.only('Given all built-in Array methods', function () {
+    it('Should output same results as node', async function () {
 
+      await compileAndRunTest("arrays");
+    });
+  });
 });
 
 
 
 
 function preprocessOutput(output) {
-  return output.replace(/[']/g, '"');
+  return output.replace(/[']/g, '"').replace(/\b(\d+)\.0\b/g, '$1');
 }
 
 async function compileAndRunTest(fileName) {
@@ -42,7 +47,7 @@ async function compileAndRunTest(fileName) {
   const ccFile = path.join(__dirname, `./input/${fileName}.cc`);
   const binaryFile = path.join(__dirname, `./output/${fileName}.exe`);
 
-  const coco = new CocoCompiler(jsFile, binaryFile, ccFile);
+  const coco = new CocoCompiler(jsFile, binaryFile, ccFile, { numberDataType: 'double' });
 
   await coco.buildCpp();
   await coco.compile();

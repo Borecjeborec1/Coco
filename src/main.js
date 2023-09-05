@@ -3,16 +3,17 @@ const path = require('path');
 
 const { BUILTIN_JS_FUNCTIONS } = require("./lib/JS/Builtin-functions.js")
 
-let config = {}
+let config = { numberDataType: 'int' }
 
 function generateWholeCode(ast, compilingOptions) {
-  config = compilingOptions
+  config = { ...config, ...compilingOptions }
   const mainBody = generateCpp(ast);
   return joinCppParts(mainBody)
 }
 
 
-function generateCpp(ast) {
+function generateCpp(ast, compilingOptions) {
+  config = { ...config, ...compilingOptions }
   try {
     // console.log("Translating:: " + ast.type)
     let x = ast.type

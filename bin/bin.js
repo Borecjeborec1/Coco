@@ -6,20 +6,25 @@ const process = require('process');
 async function main(args) {
   const { buildingOptions, compilingOptions } = parseArguments(args);
   const coco = new CocoCompiler(buildingOptions.inputFile, buildingOptions.outputFile, buildingOptions.cppFile, compilingOptions)
-  if (buildingOptions.version) {
-    coco.printVersion();
-  } else if (buildingOptions.inputFile) {
-    console.time("Building cpp")
-    await coco.buildCpp()
-    console.timeEnd("Building cpp")
-    console.time("Compiling cpp")
-    await coco.compile()
-    console.timeEnd("Compiling cpp")
-    console.time("Running exe")
-    await coco.run()
-    console.timeEnd("Running exe")
-  } else {
-    coco.printUsage();
+  try {
+    if (buildingOptions.version) {
+      coco.printVersion();
+    } else if (buildingOptions.inputFile) {
+      console.time("Building cpp");
+      await coco.buildCpp();
+      console.timeEnd("Building cpp");
+      console.time("Compiling cpp");
+      await coco.compile();
+      console.timeEnd("Compiling cpp");
+      console.time("Running exe");
+      await coco.run();
+      console.timeEnd("Running exe");
+    } else {
+      coco.printUsage();
+    }
+  } catch (error) {
+    console.error("An error occurred:", error);
+    process.exit(1);
   }
 }
 

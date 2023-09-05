@@ -1,5 +1,4 @@
-let x = { name: "312", fsat: 2341, idk: true }
+let arr = [1, 2, 3, 4]
 
-console.log(x.name)
-console.log(x["fsat"])
-
+console.log("forEach:");
+arr.forEach(item => { return console.log(item) });

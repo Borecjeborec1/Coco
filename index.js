@@ -25,7 +25,7 @@ class CocoCompiler {
       const res = generateWholeCode(ast, this.compilingOptions);
       await fs.writeFile(this.cppFile, res);
     } catch (error) {
-      console.log('build error: ' + error);
+      throw new Error(`Error building C++ with Coco: ${error.message}`);
     }
 
   }
@@ -36,7 +36,7 @@ class CocoCompiler {
       const execPromise = promisify(exec);
       await execPromise(compileCommand);
     } catch (error) {
-      console.log('compile error: ' + error);
+      throw new Error(`Error compiling C++ with Coco: ${error.message}`);
     }
   }
 
