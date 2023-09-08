@@ -66,12 +66,37 @@ function generateCpp(ast, compilingOptions) {
       return `(${generateCpp(ast.left)} ${ast.operator} ${generateCpp(ast.right)})`;
     }
     case "ReturnStatement":
+
       return `return ${generateCpp(ast.argument)}; `;
     case "CallExpression": {
       const callee = generateCpp(ast.callee);
 
-      const isMemberExpression = ast.callee.type === 'MemberExpression';
-      if (isMemberExpression && ast.callee.property && ast.callee.object) {
+      if (ast.callee.type === 'MemberExpression' && ast.callee.property && ast.callee.object) {
+        if (ast.callee.object.name === "console") {
+          if (ast.type === "CallExpression" && ast.callee.type === "MemberExpression" && ast.callee.object.name === "console") {
+            let args = ast.arguments.map(generateCpp).join(" << ");
+            let typeOfCout = ast.callee.property.name === "error" ? "cerr" : "cout"
+            if (ast.callee.property.name === "time") {
+              const label = ast.expression.arguments[0].value;
+              return `auto ${label} = std::chrono::high_resolution_clock::now();\n return;`;
+            }
+
+            if (ast.callee.property.name === "timeEnd") {
+              const label = ast.arguments[0].value;
+              return `
+              auto end_time = std::chrono::high_resolution_clock::now();
+              auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  end_time - ${label});
+            
+              std::cout << "${label}: " << duration.count() << "ms" << std::endl;
+              return;
+              `;
+            }
+            return `std::${typeOfCout} << ${args} << '\\n';\nreturn;`;
+          }
+        }
+
+
         let jsFunction = BUILTIN_JS_FUNCTIONS[ast.callee.property.name];
         let variableName = ast.callee.object.name || generateCpp(ast.callee.object) // Ensure that nested methods get called right
         if (jsFunction) {
@@ -91,12 +116,15 @@ function generateCpp(ast, compilingOptions) {
     case "ArrowFunctionExpression": {
       if (ast.body.type === "BlockStatement")
         return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(", ")}) { \n${generateCpp(ast.body)} \n } `;
-      return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(", ")}) { return ${generateCpp(ast.body)}; } `;
+
+      const returnBody = generateCpp(ast.body)
+      const returnString = returnBody.includes("return;") ? `${returnBody}` : `return ${returnBody};`
+
+      return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(", ")}) { ${returnString} } `;
     }
     case 'MemberExpression': {
       const objectCode = generateCpp(ast.object);
       const propertyCode = generateCpp(ast.property);
-
       if (propertyCode === 'length') {
         return `${objectCode}.length()`;
       } else if (propertyCode.startsWith("std::string(")) {

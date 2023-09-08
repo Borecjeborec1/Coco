@@ -25483,14 +25483,16 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto arr = nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3), static_cast<int>(4)} ; 
+  auto arr = nlohmann::json{static_cast<double>(1), static_cast<double>(2), static_cast<double>(3), static_cast<double>(5), static_cast<double>(4)} ; 
 
+std::cout << std::string("concat:") << JS_concat(arr, nlohmann::json{static_cast<double>(6), static_cast<double>(7)}) << '\n';
+std::cout << std::string("every:") << JS_every(arr, [](auto item) { return (item > static_cast<double>(0)); } ) << '\n';
+std::cout << std::string("fill:") << JS_fill(arr, static_cast<double>(0), static_cast<double>(2), static_cast<double>(4)) << '\n';
+std::cout << std::string("filter:") << JS_filter(arr, [](auto item) { return ((item * static_cast<double>(2)) == static_cast<double>(4)); } ) << '\n';
+std::cout << std::string("find:") << JS_find(arr, [](auto item) { return (item > static_cast<double>(3)); } ) << '\n';
+std::cout << std::string("findIndex:") << JS_findIndex(arr, [](auto item) { return (item > static_cast<double>(3)); } ) << '\n';
 std::cout << std::string("forEach:") << '\n';
 JS_forEach(arr, [](auto item) { std::cout << item << '\n';
 return; } );
-auto test = [](auto a, auto b) { 
-return (a + b);  
- };
-std::cout << test(static_cast<int>(1), static_cast<int>(2)) << '\n';
   return 0;
 }  

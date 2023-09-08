@@ -14,7 +14,7 @@ console.log("findIndex:", arr.findIndex(item => item > 3));
 // console.log("flat:", arr.flat());
 // console.log("flatMap:", arr.flatMap(item => [item * 2, item * 3]));
 console.log("forEach:");
-// arr.forEach(item => console.log(item));
+arr.forEach(item => console.log(item));
 // console.log("includes:", arr.includes(3));
 // console.log("indexOf:", arr.indexOf(3));
 // console.log("isArray:", Array.isArray(arr));
