@@ -1,36 +1,31 @@
 #### TODO
 - classes {Very High}
-- basic node modules {High}
 - objects methods {Very High}
+- basic node modules {High}
 - regex {High}
 - template literal {High}
 - this! {High}
-- var vs let {Mid}
 - other data types (undefined/null) {High}
-- rewrite bin and index js {Low}
-- escape characters {Low}
-- bigint --> long long double {Low}
+- operators for diferent data types {High}
 - built-in objects (Array, String, etc...) {Mid}
-- fix num.toString(213) -> binary formats? {Low}
-- fix double stars and other syntaxes (pointer problems) {Very Low}
+- var vs let {Mid}
 - requires, linking files {Mid}
-- block npm modules {Low}
-- Typescript discovery {Low}
-- ignore multiple includes {Very High}
 - no strict mode (using json for everything) {Mid}
 - more cli params {Mid}
 - optimization for doubles {Mid}  
-- joining objects/arrays {Very High}
 - Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
-- pointer params  {Mid}  
-- optional params  {Low}  
-- more vars inside loop  {Low}
-- Fix compile options for tests {High}
-- Remove unsude methods {Low}
 - == vs === {Mid}
-- operators for diferent data types {High}
 - Fix flatmap and reduce/reduceright {Low}
-
+- omptimize the c++ lib files (double->int, double->typename, etc) {Low}
+- block npm modules {Low}
+- optional params  {Low}  
+- Remove unused methods in translate {Low}
+- rewrite bin and index js {Low}
+- escape characters {Low}
+- bigint --> long long double {Low}
+- Typescript discovery {Low}
+- fix num.toString(213) -> binary formats? {Very Low}
+- fix double stars and other syntaxes (pointer problems) {Very Low}
 
 #### FINISHED
 - -std=c++17 discovery {High}
@@ -48,3 +43,7 @@
 - accesing objects [], ., [""] {High}
 - enable mutability in fcs {High}
 - array methods {Very High}
+- more vars inside loop [index, value] of .entries  {Low}
+- pointer params  {Mid}  
+- ignore multiple includes {Very High}
+- Fix compile options for tests {High}
