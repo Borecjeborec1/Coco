@@ -57,7 +57,10 @@ async function compileAndRunTest(fileName) {
   const nodeResult = await runInNode(jsFile);
 
   expect(preprocessOutput(cocoResult)).to.equalIgnoreSpaces(preprocessOutput(nodeResult));
-
+  console.log("coco: ")
+  console.log(preprocessOutput(cocoResult))
+  console.log("nodejs: ")
+  console.log(preprocessOutput(nodeResult))
   await cleanupFiles(ccFile, binaryFile);
 }
 

@@ -1,7 +1,6 @@
 #### TODO
 - classes {Very High}
 - basic node modules {High}
-- array methods {Very High}
 - objects methods {Very High}
 - regex {High}
 - template literal {High}
@@ -29,6 +28,9 @@
 - Fix compile options for tests {High}
 - Remove unsude methods {Low}
 - == vs === {Mid}
+- operators for diferent data types {High}
+- Fix flatmap and reduce/reduceright {Low}
+
 
 #### FINISHED
 - -std=c++17 discovery {High}
@@ -44,3 +46,5 @@
 - testing even the output of c++ to match the nodejs {Mid}
 - rewrite of data types (number->static_cast<double>) {High}
 - accesing objects [], ., [""] {High}
+- enable mutability in fcs {High}
+- array methods {Very High}

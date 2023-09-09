@@ -70,7 +70,7 @@ const ARRAY_FUNCTIONS = {
   'map': { name: 'JS_map', argCount: 1 },
   'pop': { name: 'JS_pop', argCount: 0 },
   'push': { name: 'JS_push', argCount: 1 },
-  'reduce': { name: 'JS_reduce', argCount: 1 },
+  'reduce': { name: 'JS_reduce', argCount: 2 },
   'reduceRight': { name: 'JS_reduceRight', argCount: 1 },
   'reverse': { name: 'JS_reverse', argCount: 0 },
   'shift': { name: 'JS_shift', argCount: 0 },
@@ -79,7 +79,7 @@ const ARRAY_FUNCTIONS = {
   'sort': { name: 'JS_sort', argCount: 1 },
   'splice': { name: 'JS_splice', argCount: Infinity },
   'toLocaleString': { name: 'JS_toLocaleString', argCount: 0 },
-  'toSource': { name: 'JS_toSource', argCount: 0 }, // Note: Non-standard
+  'toSource': { name: 'JS_toSource', argCount: 0 },
   'toString': { name: 'JS_toString', argCount: 0 },
   'unshift': { name: 'JS_unshift', argCount: 1 },
   'values': { name: 'JS_values', argCount: 0 },

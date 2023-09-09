@@ -207,6 +207,7 @@ function generateCpp(ast, compilingOptions) {
       return `for (${init} ${test}; ${update}) { \n${body} \n } `;
     }
     case "ForInStatement": {
+      console.log(ast.left.declarations[0])
       const left = generateCpp(ast.left.declarations[0].id);
       const right = generateCpp(ast.right);
       const body = generateCpp(ast.body);
@@ -216,9 +217,21 @@ function generateCpp(ast, compilingOptions) {
       }`;
     }
     case "ForOfStatement": {
-      const left = generateCpp(ast.left.declarations[0].id);
       const right = generateCpp(ast.right);
       const body = generateCpp(ast.body);
+      if (ast.left.declarations[0].id.elements) {// array of keys inside loop
+        const index = ast.left.declarations[0].id.elements[0].name
+        const value = ast.left.declarations[0].id.elements[1].name
+        console.log()
+        return `
+        int ${index} = 0;
+        for (const auto&  __val__ : ${right}) {
+          auto ${value} = __val__[1];
+          ${body}
+          ${index}+=1;
+        }`;
+      }
+      const left = generateCpp(ast.left.declarations[0].id);
       return `for (const auto& ${left} : ${right}) {
         ${body}
       }`;
