@@ -1,9 +1,6 @@
 #### TODO
 - classes {Very High}
-- objects methods {Very High}
 - basic node modules {High}
-- regex {High}
-- template literal {High}
 - this! {High}
 - other data types (undefined/null) {High}
 - operators for diferent data types {High}
@@ -26,6 +23,11 @@
 - Typescript discovery {Low}
 - fix num.toString(213) -> binary formats? {Very Low}
 - fix double stars and other syntaxes (pointer problems) {Very Low}
+- eval {Low}
+- Timers {Low}
+- Error Object {Low}
+- map {Low}
+- set {Low}
 
 #### FINISHED
 - -std=c++17 discovery {High}
@@ -47,3 +49,5 @@
 - pointer params  {Mid}  
 - ignore multiple includes {Very High}
 - Fix compile options for tests {High}
+- template literal {High}
+- regex {High}

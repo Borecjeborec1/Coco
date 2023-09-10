@@ -86,6 +86,23 @@ nlohmann::json JS_match(const std::string &str, const std::string &regexStr) {
   return result;
 }
 
+nlohmann::json JS_match(const std::string &str, const std::regex &regex) {
+  std::smatch match;
+
+  nlohmann::json result = nlohmann::json::array();
+
+  if (std::regex_search(str, match, regex)) {
+    nlohmann::json matchDetails = nlohmann::json::object();
+    matchDetails["match"] = match[0].str();
+    matchDetails["index"] = static_cast<int>(match.position());
+    matchDetails["input"] = str;
+    matchDetails["groups"] = nlohmann::json::object(); // No groups for now
+    result.push_back(matchDetails);
+  }
+
+  return result;
+}
+
 nlohmann::json JS_matchAll(const std::string &str,
                            const std::string &regexStr) {
   std::regex regex(regexStr);
@@ -109,6 +126,29 @@ nlohmann::json JS_matchAll(const std::string &str,
 
   return result;
 }
+
+nlohmann::json JS_matchAll(const std::string &str, const std::regex &regex) {
+  std::sregex_iterator it(str.begin(), str.end(), regex);
+  std::sregex_iterator end;
+
+  nlohmann::json result = nlohmann::json::array();
+
+  while (it != end) {
+    nlohmann::json matchDetails = nlohmann::json::object();
+    std::smatch match = *it;
+
+    matchDetails["match"] = match[0].str();
+    matchDetails["index"] = static_cast<int>(match.position());
+    matchDetails["input"] = str;
+    matchDetails["groups"] = nlohmann::json::object(); // No groups for now
+
+    result.push_back(matchDetails);
+    ++it;
+  }
+
+  return result;
+}
+
 std::string JS_normalize(const std::string &str) {
   // Implementation for normalizing Unicode strings (NFC normalization)
   // (You may use Unicode normalization libraries for this)

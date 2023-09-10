@@ -195,8 +195,12 @@ std::string JS_join(const nlohmann::json &arr,
     if (!firstElement) {
       result += separator;
     }
-    result +=
-        element.dump(); // Convert the element to a JSON string representation
+
+    if (element.is_string()) {
+      result += element.get<std::string>();
+    } else {
+      result += element.dump();
+    }
     firstElement = false;
   }
 

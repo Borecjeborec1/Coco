@@ -1,10 +1,4 @@
-let arr = [1, 2, 3, 5, 4];
-console.log("entries:");
-for (const [index, value] of arr.entries()) {
-  console.log(index, value);
-}
+const regege = /hello/g;
+const testString = "hello world"
 
-console.log("keys:");
-for (const key of arr.keys()) {
-  console.log(key);
-}
+console.log(testString.match(regege))

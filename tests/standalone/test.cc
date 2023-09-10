@@ -24902,8 +24902,12 @@ std::string JS_join(const nlohmann::json &arr,
     if (!firstElement) {
       result += separator;
     }
-    result +=
-        element.dump(); // Convert the element to a JSON string representation
+
+    if (element.is_string()) {
+      result += element.get<std::string>();
+    } else {
+      result += element.dump();
+    }
     firstElement = false;
   }
 
@@ -25247,6 +25251,23 @@ nlohmann::json JS_match(const std::string &str, const std::string &regexStr) {
   return result;
 }
 
+nlohmann::json JS_match(const std::string &str, const std::regex &regex) {
+  std::smatch match;
+
+  nlohmann::json result = nlohmann::json::array();
+
+  if (std::regex_search(str, match, regex)) {
+    nlohmann::json matchDetails = nlohmann::json::object();
+    matchDetails["match"] = match[0].str();
+    matchDetails["index"] = static_cast<int>(match.position());
+    matchDetails["input"] = str;
+    matchDetails["groups"] = nlohmann::json::object(); // No groups for now
+    result.push_back(matchDetails);
+  }
+
+  return result;
+}
+
 nlohmann::json JS_matchAll(const std::string &str,
                            const std::string &regexStr) {
   std::regex regex(regexStr);
@@ -25465,18 +25486,10 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto arr = nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3), static_cast<int>(5), static_cast<int>(4)} ; 
+  const auto regege = std::regex("hello", std::regex::ECMAScript) ; 
 
-std::cout << std::string("entries:") << '\n';
+const auto testString = std::string("hello world") ; 
 
-        int index = 0;
-        for (const auto& value : JS_entries(arr)) {
-          std::cout << index << value << '\n';
-          index+=1;
-        }
-std::cout << std::string("keys:") << '\n';
-for (const auto& key : JS_keys(arr)) {
-        std::cout << key << '\n';
-      }
+std::cout << JS_match(testString, regege) << '\n';
   return 0;
 }  

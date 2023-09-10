@@ -43,6 +43,21 @@ function generateCpp(ast, compilingOptions) {
     case "Identifier":
       return ast.name;
     case "Literal": {
+
+      if (ast.value.toString().startsWith("/")) {
+        console.log("here")
+        if (/\/(.+)\/([a-z]*)/.test(ast.value)) { // Check if it's a regex
+          const [, pattern, flags] = ast.value.toString().match(/\/(.+)\/([a-z]*)/);
+          let regexFlags = "std::regex::ECMAScript";
+          if (flags.includes("i")) regexFlags += " | std::regex::icase";
+          if (flags.includes("m")) regexFlags += " | std::regex::multiline";
+          if (flags.includes("s")) regexFlags += " | std::regex::dotall";
+          if (flags.includes("x")) regexFlags += " | std::regex::extended";
+          if (flags.includes("U")) regexFlags += " | std::regex::ungreedy";
+
+          return `std::regex("${pattern}", ${regexFlags})`;
+        }
+      }
       if (typeof ast.value === 'string') {
         return `std::string("${ast.value}")`;
       } else if (typeof ast.value === 'number') {
@@ -310,6 +325,27 @@ function generateCpp(ast, compilingOptions) {
       return
       // return `std:: vector < ${getCppType(ast.argument.elements[0].type)}> ${paramName} _vector(${argName}); \n`;
     }
+    case "TemplateLiteral": {
+      const quasis = ast.quasis.map(generateCpp);
+      const expressions = ast.expressions.map(expression => generateCpp(expression));
+      let result = ``;
+
+      for (let i = 0; i < expressions.length; i++) {
+        result += `${quasis[i]},  `
+        result += `${expressions[i]},  `
+      }
+      console.log(result)
+      return `JS_join(nlohmann::json{${result}},"")`;
+    }
+    case "TemplateElement":
+      return `"${ast.value.raw}"`;
+    case "RegExpLiteral": {
+      const pattern = ast.pattern;
+      console.log("HERE")
+      const flags = ast.flags;
+      return `std::regex("${pattern}", std::regex::${flags})`;
+    }
+
     default:
       console.log(`Unsupported AST node type: ${ast.type} `);
   }
