@@ -1,4 +1,4 @@
-let arr = [1, 2, 3, 5, 4];
+let arr = ["test", "test2"];
 
 console.log("concat:", arr.concat([6, 7]));
 console.log("copyWithin:", arr.copyWithin(0, 3));
@@ -6,7 +6,7 @@ console.log("entries:");
 for (const [index, value] of arr.entries()) {
   console.log(index, value);
 }
-console.log("every:", arr.every(item => item > 0));
+console.log("every:", arr.every(item => item));
 console.log("fill:", arr.fill(0, 2, 4));
 console.log("filter:", arr.filter(item => item));
 console.log("find:", arr.find(item => item > 3));

@@ -3,31 +3,33 @@
 - basic node modules {High}
 - this! {High}
 - other data types (undefined/null) {High}
-- operators for diferent data types {High}
+- operators for diferent data types -> problem with nlohmann json {High}
+- sttring operators {High}
+- fix different data types in array methods {High}
 - built-in objects (Array, String, etc...) {Mid}
 - var vs let {Mid}
 - requires, linking files {Mid}
 - no strict mode (using json for everything) {Mid}
 - more cli params {Mid}
-- optimization for doubles {Mid}  
 - Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
 - == vs === {Mid}
 - Fix flatmap and reduce/reduceright {Low}
 - omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 - block npm modules {Low}
 - optional params  {Low}  
-- Remove unused methods in translate {Low}
+- Remove unused methods in translation process {Low}
 - rewrite bin and index js {Low}
 - escape characters {Low}
 - bigint --> long long double {Low}
 - Typescript discovery {Low}
-- fix num.toString(213) -> binary formats? {Very Low}
-- fix double stars and other syntaxes (pointer problems) {Very Low}
 - eval {Low}
 - Timers {Low}
 - Error Object {Low}
 - map {Low}
 - set {Low}
+- fix num.toString(213) -> binary formats? {Very Low}
+- fix double stars and other syntaxes (pointer problems) {Very Low}
+
 
 #### FINISHED
 - -std=c++17 discovery {High}

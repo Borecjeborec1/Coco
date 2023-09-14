@@ -10,6 +10,10 @@ function generateWholeCode(ast, compilingOptions) {
   const mainBody = generateCpp(ast);
   return joinCppParts(mainBody)
 }
+const validUserTypes = { int: "int", float: "double", string: "std::string", void: "void", json: "nlohman::json", boolean: "bool" }
+function mapUserType(type) {
+  return validUserTypes[type]
+}
 
 
 function generateCpp(ast, compilingOptions) {
@@ -35,17 +39,25 @@ function generateCpp(ast, compilingOptions) {
     }
     case "VariableDeclaration": {
       const declarations = ast.declarations.map(generateCpp).join(", ");
-      const declarationType = ast.kind === "const" ? "const auto" : "auto"; // Handle const declaration
+      const typeAnnotation = ast.declarations[0].id.typeAnnotation;
+      const type = typeAnnotation ? generateCpp(typeAnnotation.typeAnnotation) : "";
+      const declarationType = mapUserType(type) ? mapUserType(type) : "auto"; // Handle const declaration
+
       return `${declarationType} ${declarations}; \n`;
     }
     case "VariableDeclarator":
+      if (ast.id.typeAnnotation) {
+        return `${generateCpp(ast.id)} = ${ast.init.raw} `
+      }
       return `${generateCpp(ast.id)} = ${generateCpp(ast.init)} `;
     case "Identifier":
       return ast.name;
     case "Literal": {
-
+      console.log("LITERALLLLLLLLLLL:::: ", ast)
+      if (ast.typeAnnotation) {
+        return ast.value.toString();
+      }
       if (ast.value.toString().startsWith("/")) {
-        console.log("here")
         if (/\/(.+)\/([a-z]*)/.test(ast.value)) { // Check if it's a regex
           const [, pattern, flags] = ast.value.toString().match(/\/(.+)\/([a-z]*)/);
           let regexFlags = "std::regex::ECMAScript";
@@ -149,6 +161,8 @@ function generateCpp(ast, compilingOptions) {
         const staticCastRegex = new RegExp(`static_cast<${config.numberDataType}>(\|)`, "g");
         let propertyString = propertyCode.replace(staticCastRegex, "")
         return `${objectCode}[${propertyString}]`;
+      } else if (objectCode == "this") {
+        return `${propertyCode}`
       } else {
         return `${objectCode}["${propertyCode}"]`;
       }
@@ -222,7 +236,6 @@ function generateCpp(ast, compilingOptions) {
       return `for (${init} ${test}; ${update}) { \n${body} \n } `;
     }
     case "ForInStatement": {
-      console.log(ast.left.declarations[0])
       const left = generateCpp(ast.left.declarations[0].id);
       const right = generateCpp(ast.right);
       const body = generateCpp(ast.body);
@@ -237,7 +250,6 @@ function generateCpp(ast, compilingOptions) {
       if (ast.left.declarations[0].id.elements) {// array of keys inside loop
         const index = ast.left.declarations[0].id.elements[0].name
         const value = ast.left.declarations[0].id.elements[1].name
-        console.log()
         return `
         int ${index} = 0;
         for (const auto&  __val__ : ${right}) {
@@ -334,18 +346,67 @@ function generateCpp(ast, compilingOptions) {
         result += `${quasis[i]},  `
         result += `${expressions[i]},  `
       }
-      console.log(result)
       return `JS_join(nlohmann::json{${result}},"")`;
     }
     case "TemplateElement":
       return `"${ast.value.raw}"`;
     case "RegExpLiteral": {
       const pattern = ast.pattern;
-      console.log("HERE")
       const flags = ast.flags;
       return `std::regex("${pattern}", std::regex::${flags})`;
     }
+    case "TSTypeAnnotation": {
+      return generateCpp(ast.typeAnnotation);
+    }
+    case "TSTypeReference": {
+      const typeName = generateCpp(ast.typeName);
+      return typeName;
+    }
 
+    // case "ClassDeclaration": {
+    //   console.log("here")
+    //   const className = generateCpp(ast.id);
+    //   let constructorParams = ""
+    //   let constructorInits = ""
+    //   let constructorInitClass = ` class local_class {
+    //     public:
+    //       REPLACE_CONTENT
+    // } local;`
+    //   let classMethods = ""
+    //   for (let i = 0; i < ast.body.body.length; ++i) {
+    //     const generated = generateCpp(ast.body.body[i])
+    //     console.log(generated)
+    //     if (generated.isConstructor) {
+    //       constructorInits = generated.constructorInits
+    //       constructorInitClass = constructorInitClass.replace("REPLACE_CONTENT", constructorInits.split("\n").map(row => {
+    //         let items = row.split("=")
+    //         return `decltype(${items[1]}) ${items[0]}`
+    //       }).join("\n"))
+    //       constructorParams = generated.constructorParams
+    //     } else {
+    //       classMethods += generated.classMethod + "\n"
+    //     }
+    //   }
+    //   console.log(`auto ${className} = [](${constructorParams}) {\n ${constructorInitClass}\n${constructorInits} \n ${classMethods}\n};`)
+    //   return `auto ${className} = [](${constructorParams}) {\n ${constructorInitClass}\n${constructorInits} \n ${classMethods}\n};`;
+    // }
+
+    // case "MethodDefinition": {
+    //   if (ast.kind === "constructor") {
+    //     const constructorParams = ast.value.params.map(generateCpp).map(el => "auto " + el).join(", ");
+    //     const body = generateCpp(ast.value.body);
+    //     const constructorInits = body.replace(/this\./g, 'local.');
+    //     console.log("HERE", constructorInits)
+    //     return { constructorInits, isConstructor: true, constructorParams };
+    //   } else {
+    //     const methodName = ast.key.name;
+    //     const params = ast.value.params.map(generateCpp).map(el => "auto " + el).join(", ");
+    //     console.log(params)
+    //     const body = generateCpp(ast.value.body);
+    //     const modifiedBody = body.replace(/this\./g, '');
+    //     return { classMethod: `auto ${methodName}(${params}) {\n${modifiedBody}\n}`, isConstructor: false };
+    //   }
+    // }
     default:
       console.log(`Unsupported AST node type: ${ast.type} `);
   }

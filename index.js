@@ -1,6 +1,6 @@
 const acorn = require('acorn');
+const { tsPlugin } = require('acorn-typescript');
 const fs = require('fs').promises;
-const path = require('path');
 const { promisify } = require('util');
 const { exec, spawn } = require('child_process');
 
@@ -9,8 +9,8 @@ const { generateWholeCode } = require('./src/main.js');
 class CocoCompiler {
   constructor(_inputFile, _outputFile, _cppFile = "./test/test.cc", _compilingOptions = {}) {
     this.inputFile = _inputFile;
-    this.outputFile = _outputFile || this.inputFile.replace('.js', '');
-    this.cppFile = _cppFile || this.inputFile.replace('.js', '.cc');
+    this.outputFile = _outputFile || this.inputFile.replace(/\.js|\.ts/, '');
+    this.cppFile = _cppFile || this.inputFile.replace(/\.js|\.ts/, '.cc');
     this.compilingOptions = _compilingOptions
   }
 
@@ -21,7 +21,11 @@ class CocoCompiler {
 
     try {
       const code = await fs.readFile(this.inputFile, 'utf-8');
-      const ast = acorn.parse(code);
+      const ast = acorn.Parser.extend(tsPlugin()).parse(code, {
+        sourceType: 'module',
+        ecmaVersion: 'latest',
+        locations: true
+      });
       const res = generateWholeCode(ast, this.compilingOptions);
       await fs.writeFile(this.cppFile, res);
     } catch (error) {
