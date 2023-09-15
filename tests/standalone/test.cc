@@ -24789,8 +24789,12 @@ nlohmann::json operator/(const nlohmann::json &lhs, int &rhs) {
   return nlohmann::json();
 }
 
-nlohmann::json operator+(const int &lhs, const std::string &rhs) {
+std::string operator+(const int &lhs, const std::string &rhs) {
   return std::string(std::to_string(lhs)) + rhs;
+}
+
+std::string operator+(const std::string &lhs, const int &rhs) {
+  return lhs + std::string(std::to_string(rhs));
 }
 
 
@@ -25579,20 +25583,10 @@ int main(){
   
 
 
-auto isPrime = [](auto  x ) { 
-for (auto i = static_cast<int>(2) ; 
- (i < x); i++ ) { 
-if (((x % i) == static_cast<int>(0))) {
-return false; 
-} 
- } 
-return (x > static_cast<int>(2));  
- };
-for (auto i = static_cast<int>(0) ; 
- (i < static_cast<int>(100)); i++ ) { 
-if (isPrime(i)) {
-std::cout << i << '\n';
-} 
- } 
+auto x = static_cast<int>(123) ; 
+
+auto y = std::string("test") ; 
+
+std::cout << (y + x) << '\n';
   return 0;
 }  

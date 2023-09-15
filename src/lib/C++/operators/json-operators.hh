@@ -79,7 +79,3 @@ nlohmann::json operator/(const nlohmann::json &lhs, int &rhs) {
   }
   return nlohmann::json();
 }
-
-nlohmann::json operator+(const int &lhs, const std::string &rhs) {
-  return std::string(std::to_string(lhs)) + rhs;
-}

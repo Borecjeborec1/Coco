@@ -3,7 +3,6 @@
 - basic node modules {High}
 - this! {High}
 - other data types (undefined/null) {High}
-- string operators {High}
 - fix different data types in array methods {High}
 - built-in objects (Array, String, etc...) {Mid}
 - var vs let {Mid}
@@ -55,3 +54,4 @@
 - Typescript variable types {Mid}
 - Typescript types in arguments {Mid}
 - operators for diferent data types -> problem with nlohmann json {High}
+- string operators {High}
