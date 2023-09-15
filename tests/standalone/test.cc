@@ -24789,12 +24789,22 @@ nlohmann::json operator/(const nlohmann::json &lhs, int &rhs) {
   return nlohmann::json();
 }
 
+
+
 std::string operator+(const int &lhs, const std::string &rhs) {
   return std::string(std::to_string(lhs)) + rhs;
 }
 
 std::string operator+(const std::string &lhs, const int &rhs) {
   return lhs + std::string(std::to_string(rhs));
+}
+
+bool operator==(const int &lhs, const std::string &rhs) {
+  return std::string(std::to_string(lhs)) == rhs;
+}
+
+bool operator==(const std::string &lhs, const int &rhs) {
+  return lhs == std::string(std::to_string(rhs));
 }
 
 
@@ -25580,13 +25590,10 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  
-
-
-auto x = static_cast<int>(123) ; 
+  auto x = static_cast<int>(123) ; 
 
 auto y = std::string("test") ; 
 
-std::cout << (y + x) << '\n';
+std::cout << (x == y) << '\n';
   return 0;
 }  
