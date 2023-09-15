@@ -3,34 +3,37 @@
 const CocoCompiler = require('../index.js');
 const process = require('process');
 
-async function main(args) {
-  const { buildingOptions, compilingOptions } = parseArguments(args);
-  const coco = new CocoCompiler(buildingOptions, compilingOptions)
-  try {
-    if (buildingOptions.version) {
-      coco.printVersion();
-    } else if (buildingOptions.inputFile) {
-      console.time("Building cpp");
-      await coco.buildCpp();
-      console.timeEnd("Building cpp");
-      console.time("Compiling cpp");
-      await coco.compile();
-      console.timeEnd("Compiling cpp");
-      console.time("Running exe");
-      await coco.run();
-      console.timeEnd("Running exe");
+async function main(_args) {
+  const { runtimeOptions, buildingOptions, compilingOptions } = parseArguments(_args);
+  const coco = new CocoCompiler(buildingOptions, compilingOptions);
+
+  if (runtimeOptions.version)
+    return coco.printVersion();
+
+  if (buildingOptions.inputFile) {
+    if (runtimeOptions.timeOutput) {
+      timeOperation("Building cpp", async () => await coco.buildCpp());
+      timeOperation("Compiling cpp", async () => await coco.compile());
+      timeOperation("Running exe", async () => await coco.run());
+      return
     } else {
-      coco.printUsage();
+      await coco.buildCpp();
+      await coco.compile();
+      await coco.run();
+      return
     }
-  } catch (error) {
-    console.error("An error occurred:", error);
-    process.exit(1);
   }
+
+  coco.printUsage();
+
 }
 
-function parseArguments(args) {
-  const buildingOptions = {
+function parseArguments(_args) {
+  const runtimeOptions = {
     version: false,
+    timeOutputs: false
+  }
+  const buildingOptions = {
     inputFile: '',
     outputFile: '',
     cppFile: '',
@@ -39,23 +42,27 @@ function parseArguments(args) {
     numberDataType: 'int'
   };
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
+  for (let i = 0; i < _args.length; i++) {
+    const arg = _args[i];
 
     switch (arg) {
       case '-v':
       case '--version':
-        buildingOptions.version = true;
+        runtimeOptions.version = true;
+        break;
+      case '--time-output':
+      case '--time-outputs':
+        runtimeOptions.timeOutputs = true;
         break;
 
       case '-o':
       case '--output':
-        buildingOptions.outputFile = args[i + 1] || '';
+        buildingOptions.outputFile = _args[i + 1] || '';
         i++;
         break;
 
       case '--cpp':
-        buildingOptions.cppFile = args[i + 1] || '';
+        buildingOptions.cppFile = _args[i + 1] || '';
         i++;
         break;
 
@@ -69,7 +76,19 @@ function parseArguments(args) {
     }
   }
 
-  return { buildingOptions, compilingOptions };
+  return { runtimeOptions, buildingOptions, compilingOptions };
+}
+
+function timeOperation(label, operation) {
+  console.time(label);
+  operation()
+    .then(() => console.timeEnd(label))
+    .catch((error) => handleError(error));
+}
+
+function handleError(error) {
+  console.error("An error occurred:", error);
+  process.exit(1);
 }
 
 main(process.argv.slice(2));

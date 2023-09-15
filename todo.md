@@ -14,9 +14,8 @@
 - Fix flatmap and reduce/reduceright {Low}
 - omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 - block npm modules {Low}
-- optional params  {Low}  
+- optional params fix in JS_ c++ methods  {Low}  
 - Remove unused methods in translation process {Low}
-- rewrite bin and index js {Low}
 - escape characters {Low}
 - bigint --> long long double {Low}
 - Typescript discovery {Low}
@@ -55,3 +54,4 @@
 - Typescript types in arguments {Mid}
 - operators for diferent data types -> problem with nlohmann json {High}
 - string operators {High}
+- rewrite bin and index js {Low}
