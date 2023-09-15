@@ -5,7 +5,7 @@ const process = require('process');
 
 async function main(args) {
   const { buildingOptions, compilingOptions } = parseArguments(args);
-  const coco = new CocoCompiler(buildingOptions.inputFile, buildingOptions.outputFile, buildingOptions.cppFile, compilingOptions)
+  const coco = new CocoCompiler(buildingOptions, compilingOptions)
   try {
     if (buildingOptions.version) {
       coco.printVersion();
