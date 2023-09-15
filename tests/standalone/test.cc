@@ -24712,21 +24712,88 @@ public:
 };
 
 
-std::vector<double> jsonArrayToVector(const nlohmann::json &arr) {
-  std::vector<double> result;
-  for (const auto &element : arr) {
-    result.push_back(element.get<double>());
+nlohmann::json &operator+=(nlohmann::json &j, int x) {
+  if (j.is_number()) {
+    j = j.get<int>() + x;
   }
-  return result;
+  return j;
 }
 
-nlohmann::json vectorToJsonArray(const std::vector<double> &vec) {
-  nlohmann::json result;
-  for (const auto &value : vec) {
-    result.push_back(value);
+nlohmann::json &operator-=(nlohmann::json &j, int x) {
+  if (j.is_number()) {
+    j = j.get<int>() - x;
   }
-  return result;
+  return j;
 }
+
+nlohmann::json &operator*=(nlohmann::json &j, int x) {
+  if (j.is_number()) {
+    j = j.get<int>() * x;
+  }
+  return j;
+}
+
+nlohmann::json &operator/=(nlohmann::json &j, int x) {
+  if (j.is_number() && x != 0) {
+    j = j.get<int>() / x;
+  }
+  return j;
+}
+
+nlohmann::json &operator++(nlohmann::json &j) {
+  if (j.is_number()) {
+    j = j.get<int>() + 1;
+  }
+  return j;
+}
+
+nlohmann::json &operator--(nlohmann::json &j) {
+  if (j.is_number()) {
+    j = j.get<int>() - 1;
+  }
+  return j;
+}
+
+nlohmann::json operator+(const nlohmann::json &lhs, const int &rhs) {
+  if (lhs.is_number()) {
+    return lhs.get<int>() + rhs;
+  }
+  return nlohmann::json();
+}
+
+nlohmann::json operator-(const nlohmann::json &lhs, const int &rhs) {
+  if (lhs.is_number()) {
+    return lhs.get<int>() - rhs;
+  }
+  return nlohmann::json();
+}
+
+nlohmann::json operator*(const nlohmann::json &lhs, const int &rhs) {
+  if (lhs.is_number()) {
+    return lhs.get<int>() * rhs;
+  }
+  return nlohmann::json();
+}
+
+nlohmann::json operator%(const nlohmann::json &lhs, const int &rhs) {
+  if (lhs.is_number() && rhs != 0) {
+    return lhs.get<int>() % rhs;
+  }
+  return nlohmann::json();
+}
+
+nlohmann::json operator/(const nlohmann::json &lhs, int &rhs) {
+  if (lhs.is_number() && rhs != 0) {
+    return lhs.get<int>() / rhs;
+  }
+  return nlohmann::json();
+}
+
+nlohmann::json operator+(const int &lhs, const std::string &rhs) {
+  return std::string(std::to_string(lhs)) + rhs;
+}
+
+
 
 nlohmann::json JS_concat(const nlohmann::json &arr1,
                          const nlohmann::json &arr2) {
@@ -25512,13 +25579,20 @@ int main(){
   
 
 
-int x = 12 ; 
-
-auto y = static_cast<int>(321) ; 
-
-auto sum = [](auto a, auto b) { 
-return (a + b);  
+auto isPrime = [](auto  x ) { 
+for (auto i = static_cast<int>(2) ; 
+ (i < x); i++ ) { 
+if (((x % i) == static_cast<int>(0))) {
+return false; 
+} 
+ } 
+return (x > static_cast<int>(2));  
  };
-std::cout << sum(x, y) << '\n';
+for (auto i = static_cast<int>(0) ; 
+ (i < static_cast<int>(100)); i++ ) { 
+if (isPrime(i)) {
+std::cout << i << '\n';
+} 
+ } 
   return 0;
 }  

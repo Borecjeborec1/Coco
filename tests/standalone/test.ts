@@ -3,10 +3,16 @@ type float = number;
 type json = any;
 
 
-let x: int = 12
-let y = 321
-function sum(a, b): int {
-  return a + b
+function isPrime(x:any){
+  for(let i = 2;i<x;++i){
+    if(x%i==0){
+      return false
+    }
+  }
+  return x>2
 }
 
-console.log(sum(x,y))
+for(let i = 0;i<100;++i){
+  if(isPrime(i))
+  console.log(i)
+}
