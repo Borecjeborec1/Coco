@@ -4,4 +4,4 @@ type json = any;
 
 let x = 123
 let y = "test"
-console.log(y + x)
+console.log(y == x)
