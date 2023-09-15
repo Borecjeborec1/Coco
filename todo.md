@@ -3,13 +3,12 @@
 - basic node modules {High}
 - this! {High}
 - other data types (undefined/null) {High}
-- operators for diferent data types -> problem with nlohmann json {High}
-- sttring operators {High}
+- string operators {High}
 - fix different data types in array methods {High}
 - built-in objects (Array, String, etc...) {Mid}
 - var vs let {Mid}
 - requires, linking files {Mid}
-- no strict mode (using json for everything) {Mid}
+- no strict mode (using json for everything) {Mid} HARD!!!
 - more cli params {Mid}
 - Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
 - == vs === {Mid}
@@ -23,10 +22,10 @@
 - bigint --> long long double {Low}
 - Typescript discovery {Low}
 - eval {Low}
-- Timers {Low}
+- Timers - setInterval/setTimeout {Low}
 - Error Object {Low}
-- map {Low}
-- set {Low}
+- Map {Low}
+- Set {Low}
 - fix num.toString(213) -> binary formats? {Very Low}
 - fix double stars and other syntaxes (pointer problems) {Very Low}
 
@@ -53,3 +52,6 @@
 - Fix compile options for tests {High}
 - template literal {High}
 - regex {High}
+- Typescript variable types {Mid}
+- Typescript types in arguments {Mid}
+- operators for diferent data types -> problem with nlohmann json {High}

@@ -5,22 +5,6 @@
 #include "nlohmann-json.hh"
 // Ignore imports end
 
-std::vector<double> jsonArrayToVector(const nlohmann::json &arr) {
-  std::vector<double> result;
-  for (const auto &element : arr) {
-    result.push_back(element.get<double>());
-  }
-  return result;
-}
-
-nlohmann::json vectorToJsonArray(const std::vector<double> &vec) {
-  nlohmann::json result;
-  for (const auto &value : vec) {
-    result.push_back(value);
-  }
-  return result;
-}
-
 nlohmann::json JS_concat(const nlohmann::json &arr1,
                          const nlohmann::json &arr2) {
   nlohmann::json result = arr1;

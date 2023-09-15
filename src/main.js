@@ -2,6 +2,7 @@ const fs = require("fs")
 const path = require('path');
 
 const { BUILTIN_JS_FUNCTIONS } = require("./lib/JS/Builtin-functions.js")
+const VALID_USER_TYPES = { int: "int", float: "double", string: "std::string", void: "void", json: "nlohman::json", boolean: "bool" }
 
 let config = { numberDataType: 'int' }
 
@@ -10,11 +11,24 @@ function generateWholeCode(ast, compilingOptions) {
   const mainBody = generateCpp(ast);
   return joinCppParts(mainBody)
 }
-const validUserTypes = { int: "int", float: "double", string: "std::string", void: "void", json: "nlohman::json", boolean: "bool" }
+
 function mapUserType(type) {
-  return validUserTypes[type]
+  return VALID_USER_TYPES[type]
 }
 
+
+function addAutoType(variable) {
+  return "auto " + variable
+}
+
+
+function needAutoType(variable) {
+  return variable.length === 1
+}
+
+function addAutoIfNotTypedAlready(variable) {
+  return needAutoType(variable) ? addAutoType(variable) : variable
+}
 
 function generateCpp(ast, compilingOptions) {
   config = { ...config, ...compilingOptions }
@@ -30,7 +44,7 @@ function generateCpp(ast, compilingOptions) {
       return ast.body.map(generateCpp).join("\n");
     case "FunctionDeclaration": {
       const funcName = generateCpp(ast.id);
-      const params = ast.params.map(generateCpp).map(el => "auto " + el).join(", ");
+      const params = ast.params.map(generateCpp).map(addAutoIfNotTypedAlready).join(", ");
       const body = generateCpp(ast.body);
       return `auto ${funcName} = [](${params}) { \n${body} \n };`;
     }
@@ -41,8 +55,7 @@ function generateCpp(ast, compilingOptions) {
       const declarations = ast.declarations.map(generateCpp).join(", ");
       const typeAnnotation = ast.declarations[0].id.typeAnnotation;
       const type = typeAnnotation ? generateCpp(typeAnnotation.typeAnnotation) : "";
-      const declarationType = mapUserType(type) ? mapUserType(type) : "auto"; // Handle const declaration
-
+      const declarationType = mapUserType(type) ? "" : "auto"; // Handle const declaration
       return `${declarationType} ${declarations}; \n`;
     }
     case "VariableDeclarator":
@@ -51,10 +64,14 @@ function generateCpp(ast, compilingOptions) {
       }
       return `${generateCpp(ast.id)} = ${generateCpp(ast.init)} `;
     case "Identifier":
+      if (ast.typeAnnotation) {
+        return `${generateCpp(ast.typeAnnotation)} ${ast.name} `
+      }
       return ast.name;
     case "Literal": {
-      console.log("LITERALLLLLLLLLLL:::: ", ast)
       if (ast.typeAnnotation) {
+        console.log("IN LITERALLLL", ast.typeAnnotation)
+        console.log()
         return ast.value.toString();
       }
       if (ast.value.toString().startsWith("/")) {
@@ -189,6 +206,8 @@ function generateCpp(ast, compilingOptions) {
       return `${operator}${argument} `;
     }
     case "AssignmentExpression": {
+      if (ast.operator === "+=")
+        return `${generateCpp(ast.left)} = ${generateCpp(ast.left)} + ${generateCpp(ast.right)}`;
       return `${generateCpp(ast.left)} ${ast.operator} ${generateCpp(ast.right)}`;
     }
     case "ObjectExpression": {
@@ -255,7 +274,7 @@ function generateCpp(ast, compilingOptions) {
         for (const auto&  __val__ : ${right}) {
           auto ${value} = __val__[1];
           ${body}
-          ${index}+=1;
+          ${index}= ${index} + 1;
         }`;
       }
       const left = generateCpp(ast.left.declarations[0].id);
@@ -360,9 +379,11 @@ function generateCpp(ast, compilingOptions) {
     }
     case "TSTypeReference": {
       const typeName = generateCpp(ast.typeName);
-      return typeName;
+      return mapUserType(typeName);
     }
-
+    case "TSAnyKeyword": {
+      return "auto ";
+    }
     // case "ClassDeclaration": {
     //   console.log("here")
     //   const className = generateCpp(ast.id);
