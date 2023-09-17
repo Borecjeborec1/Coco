@@ -436,13 +436,10 @@ function generateCpp(ast, compilingOptions) {
 
 function loadLibFiles(libFolderPath) {
   let combinedContent = '';
-  let nlohmannJsonContent = ''; // To store content of nlohmann-json file
   const includes = []
   function processFile(filePath) {
     const fileContent = fs.readFileSync(filePath, 'utf-8');
-    if (path.basename(filePath) === 'nlohmann-json.hh') {
-      nlohmannJsonContent = "\n" + fileContent;
-    } else if (path.extname(filePath) === '.hh' || path.extname(filePath) === '.hpp') {
+     if (path.extname(filePath) === '.hh' || path.extname(filePath) === '.hpp' && path.basename(filePath) !== 'nlohmann-json.hh') {
       const regex = /\/\/ Ignore imports\r\n([\s\S]*?)\/\/ Ignore imports end/g;
 
       const modifiedInput = fileContent.toString().replace(regex, (match, capturedContent) => {
@@ -462,21 +459,21 @@ function loadLibFiles(libFolderPath) {
       const stats = fs.statSync(filePath);
 
       if (stats.isDirectory()) {
-        exploreFolder(filePath); // Recurse into subfolder
+        exploreFolder(filePath);
       } else {
         processFile(filePath);
       }
     });
   }
   function filterImports(e) {
-    return e && !nlohmannJsonContent.includes(e) && !e.includes("hh") && e.includes("#include")
+    return e && !e.includes("hh") && e.includes("#include")
   }
   exploreFolder(libFolderPath);
   const nonDuplicateImports = [...new Set(includes.join("\n").split("\r\n"))];
   const filteredImports = nonDuplicateImports.filter(filterImports).join("\n");
 
   return {
-    loadedLibFiles: filteredImports + "\n" + nlohmannJsonContent + "\n" + combinedContent,
+    loadedLibFiles: filteredImports  + "\n" + combinedContent,
     neededExternalImports: filteredImports
   };
 
@@ -487,13 +484,13 @@ function loadLibFiles(libFolderPath) {
 function joinCppParts(mainBody = "") {
 
   const { loadedLibFiles, neededExternalImports } = loadLibFiles(path.join(__dirname, './lib/C++'))
-  const neededImports = `#include <chrono>`
 
   return `
 
 // All includes goes here
 ${neededExternalImports}
-${neededImports}
+#include <chrono>
+#include "nlohmann-json.hh"
 
 // All Built-in JSMethods goes here
 ${loadedLibFiles}

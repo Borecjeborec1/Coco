@@ -8,6 +8,7 @@
 - var vs let {Mid}
 - requires, linking files {Mid}
 - no strict mode (using json for everything) {Mid} HARD!!!
+- dont copy whole json content but include it {Mid}
 - more cli params {Mid}
 - Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
 - == vs === {Mid}

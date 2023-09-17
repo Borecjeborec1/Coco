@@ -1,6 +1,7 @@
 const acorn = require('acorn');
 const { tsPlugin } = require('acorn-typescript');
 const fs = require('fs').promises;
+const path = require('path');
 const { exec, spawn } = require('child_process');
 
 const { generateWholeCode } = require('./src/main.js');
@@ -22,6 +23,9 @@ class CocoCompiler {
     this.inputFile = _buildingOptions.inputFile;
     this.outputFile = _buildingOptions.outputFile || this.inputFile.replace(/\.js|\.ts|\.coco/, '');
     this.cppFile = _buildingOptions.cppFile || this.inputFile.replace(/\.js|\.ts|\.coco/, '.cc');
+    this.jsonName = "nlohmann-json.hh"
+    this.jsonInput = path.join(__dirname, `./src/lib/C++/${this.jsonName}`); 
+    this.jsonOutput =  path.join(path.dirname(this.outputFile), `${this.jsonName}`);
     this.compilingOptions = _compilingOptions
   }
 
@@ -43,6 +47,8 @@ class CocoCompiler {
       });
       const res = generateWholeCode(ast, this.compilingOptions);
       await fs.writeFile(this.cppFile, res);
+      await fs.copyFile(this.jsonInput, this.jsonOutput);
+
     } catch (error) {
       throw new Error(`Error building C++ with Coco: ${error.message}`);
     }
