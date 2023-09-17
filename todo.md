@@ -1,25 +1,32 @@
 #### TODO
 - classes {Very High}
 - basic node modules {High}
-- array methods {Very High}
-- objects methods {Very High}
-- regex {High}
-- template literal {High}
 - this! {High}
-- var vs let {Mid}
 - other data types (undefined/null) {High}
-- rewrite bin and index js {Low}
+- fix different data types in array methods {High}
+- built-in objects (Array, String, etc...) {Mid}
+- var vs let {Mid}
+- requires, linking files {Mid}
+- no strict mode (using json for everything) {Mid} HARD!!!
+- more cli params {Mid}
+- Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
+- == vs === {Mid}
+- Fix flatmap and reduce/reduceright {Low}
+- omptimize the c++ lib files (double->int, double->typename, etc) {Low}
+- block npm modules {Low}
+- optional params fix in JS_ c++ methods  {Low}  
+- Remove unused methods in translation process {Low}
 - escape characters {Low}
 - bigint --> long long double {Low}
-- built-in objects (Array, String, etc...) {Mid}
-- fix num.toString(213) -> binary formats? {Low}
-- fix double stars and other syntaxes (pointer problems) {Very Low}
-- requires, linking files {Mid}
-- block npm modules {Low}
 - Typescript discovery {Low}
-- ignore multiple includes {Very High}
-- no strict mode (using json for everything) {Mid}
-- more cli params {Mid}
+- eval {Low}
+- Timers - setInterval/setTimeout {Low}
+- Error Object {Low}
+- Map {Low}
+- Set {Low}
+- fix num.toString(213) -> binary formats? {Very Low}
+- fix double stars and other syntaxes (pointer problems) {Very Low}
+
 
 #### FINISHED
 - -std=c++17 discovery {High}
@@ -34,3 +41,17 @@
 - Migration from custom types to custom functions {Very High}
 - testing even the output of c++ to match the nodejs {Mid}
 - rewrite of data types (number->static_cast<double>) {High}
+- accesing objects [], ., [""] {High}
+- enable mutability in fcs {High}
+- array methods {Very High}
+- more vars inside loop [index, value] of .entries  {Low}
+- pointer params  {Mid}  
+- ignore multiple includes {Very High}
+- Fix compile options for tests {High}
+- template literal {High}
+- regex {High}
+- Typescript variable types {Mid}
+- Typescript types in arguments {Mid}
+- operators for diferent data types -> problem with nlohmann json {High}
+- string operators {High}
+- rewrite bin and index js {Low}

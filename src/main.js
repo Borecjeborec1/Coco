@@ -2,15 +2,36 @@ const fs = require("fs")
 const path = require('path');
 
 const { BUILTIN_JS_FUNCTIONS } = require("./lib/JS/Builtin-functions.js")
+const VALID_USER_TYPES = { int: "int", float: "double", string: "std::string", void: "void", json: "nlohman::json", boolean: "bool" }
 
+let config = { numberDataType: 'int' }
 
-function generateWholeCode(ast) {
+function generateWholeCode(ast, compilingOptions) {
+  config = { ...config, ...compilingOptions }
   const mainBody = generateCpp(ast);
   return joinCppParts(mainBody)
 }
 
+function mapUserType(type) {
+  return VALID_USER_TYPES[type]
+}
 
-function generateCpp(ast) {
+
+function addAutoType(variable) {
+  return "auto " + variable
+}
+
+
+function needAutoType(variable) {
+  return variable.length === 1
+}
+
+function addAutoIfNotTypedAlready(variable) {
+  return needAutoType(variable) ? addAutoType(variable) : variable
+}
+
+function generateCpp(ast, compilingOptions) {
+  config = { ...config, ...compilingOptions }
   try {
     // console.log("Translating:: " + ast.type)
     let x = ast.type
@@ -23,26 +44,53 @@ function generateCpp(ast) {
       return ast.body.map(generateCpp).join("\n");
     case "FunctionDeclaration": {
       const funcName = generateCpp(ast.id);
-      const params = ast.params.map(generateCpp).map(el => "auto " + el).join(", ");
+      const params = ast.params.map(generateCpp).map(addAutoIfNotTypedAlready).join(", ");
       const body = generateCpp(ast.body);
       return `auto ${funcName} = [](${params}) { \n${body} \n };`;
     }
-    case "BlockStatement":
+    case "BlockStatement": {
       return ast.body.map(generateCpp).join("\n")
+    }
     case "VariableDeclaration": {
       const declarations = ast.declarations.map(generateCpp).join(", ");
-      const declarationType = ast.kind === "const" ? "const auto" : "auto"; // Handle const declaration
+      const typeAnnotation = ast.declarations[0].id.typeAnnotation;
+      const type = typeAnnotation ? generateCpp(typeAnnotation.typeAnnotation) : "";
+      const declarationType = mapUserType(type) ? "" : "auto"; // Handle const declaration
       return `${declarationType} ${declarations}; \n`;
     }
     case "VariableDeclarator":
+      if (ast.id.typeAnnotation) {
+        return `${generateCpp(ast.id)} = ${ast.init.raw} `
+      }
       return `${generateCpp(ast.id)} = ${generateCpp(ast.init)} `;
     case "Identifier":
+      if (ast.typeAnnotation) {
+        return `${generateCpp(ast.typeAnnotation)} ${ast.name} `
+      }
       return ast.name;
     case "Literal": {
+      if (ast.typeAnnotation) {
+        console.log("IN LITERALLLL", ast.typeAnnotation)
+        console.log()
+        return ast.value.toString();
+      }
+      if (ast.value.toString().startsWith("/")) {
+        if (/\/(.+)\/([a-z]*)/.test(ast.value)) { // Check if it's a regex
+          const [, pattern, flags] = ast.value.toString().match(/\/(.+)\/([a-z]*)/);
+          let regexFlags = "std::regex::ECMAScript";
+          if (flags.includes("i")) regexFlags += " | std::regex::icase";
+          if (flags.includes("m")) regexFlags += " | std::regex::multiline";
+          if (flags.includes("s")) regexFlags += " | std::regex::dotall";
+          if (flags.includes("x")) regexFlags += " | std::regex::extended";
+          if (flags.includes("U")) regexFlags += " | std::regex::ungreedy";
+
+          return `std::regex("${pattern}", ${regexFlags})`;
+        }
+      }
       if (typeof ast.value === 'string') {
         return `std::string("${ast.value}")`;
       } else if (typeof ast.value === 'number') {
-        return `static_cast<float>(${ast.value})`;
+        return `static_cast<${config.numberDataType}>(${ast.value})`;
       } else if (typeof ast.value === "boolean") {
         return `${!!ast.value}`;
       }
@@ -62,12 +110,37 @@ function generateCpp(ast) {
       return `(${generateCpp(ast.left)} ${ast.operator} ${generateCpp(ast.right)})`;
     }
     case "ReturnStatement":
+
       return `return ${generateCpp(ast.argument)}; `;
     case "CallExpression": {
       const callee = generateCpp(ast.callee);
 
-      const isMemberExpression = ast.callee.type === 'MemberExpression';
-      if (isMemberExpression && ast.callee.property && ast.callee.object) {
+      if (ast.callee.type === 'MemberExpression' && ast.callee.property && ast.callee.object) {
+        if (ast.callee.object.name === "console") {
+          if (ast.type === "CallExpression" && ast.callee.type === "MemberExpression" && ast.callee.object.name === "console") {
+            let args = ast.arguments.map(generateCpp).join(" << ");
+            let typeOfCout = ast.callee.property.name === "error" ? "cerr" : "cout"
+            if (ast.callee.property.name === "time") {
+              const label = ast.expression.arguments[0].value;
+              return `auto ${label} = std::chrono::high_resolution_clock::now();\n return;`;
+            }
+
+            if (ast.callee.property.name === "timeEnd") {
+              const label = ast.arguments[0].value;
+              return `
+              auto end_time = std::chrono::high_resolution_clock::now();
+              auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  end_time - ${label});
+            
+              std::cout << "${label}: " << duration.count() << "ms" << std::endl;
+              return;
+              `;
+            }
+            return `std::${typeOfCout} << ${args} << '\\n';\nreturn;`;
+          }
+        }
+
+
         let jsFunction = BUILTIN_JS_FUNCTIONS[ast.callee.property.name];
         let variableName = ast.callee.object.name || generateCpp(ast.callee.object) // Ensure that nested methods get called right
         if (jsFunction) {
@@ -87,16 +160,28 @@ function generateCpp(ast) {
     case "ArrowFunctionExpression": {
       if (ast.body.type === "BlockStatement")
         return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(", ")}) { \n${generateCpp(ast.body)} \n } `;
-      return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(", ")}) { return ${generateCpp(ast.body)}; } `;
+
+      const returnBody = generateCpp(ast.body)
+      const returnString = returnBody.includes("return;") ? `${returnBody}` : `return ${returnBody};`
+
+      return `[](${ast.params.map(generateCpp).map(el => "auto " + el).join(", ")}) { ${returnString} } `;
     }
     case 'MemberExpression': {
       const objectCode = generateCpp(ast.object);
       const propertyCode = generateCpp(ast.property);
-
       if (propertyCode === 'length') {
         return `${objectCode}.length()`;
+      } else if (propertyCode.startsWith("std::string(")) {
+        let propertyString = propertyCode.replace(/std\:\:string\(|\)/g, "")
+        return `${objectCode}[${propertyString}]`;
+      } else if (propertyCode.startsWith(`static_cast<${config.numberDataType}>(`)) {
+        const staticCastRegex = new RegExp(`static_cast<${config.numberDataType}>(\|)`, "g");
+        let propertyString = propertyCode.replace(staticCastRegex, "")
+        return `${objectCode}[${propertyString}]`;
+      } else if (objectCode == "this") {
+        return `${propertyCode}`
       } else {
-        return `${objectCode}.${propertyCode}`;
+        return `${objectCode}["${propertyCode}"]`;
       }
     }
     case "IfStatement": {
@@ -116,11 +201,13 @@ function generateCpp(ast) {
       if (operator === "typeof") {
         return `typeid(${argument}).name()`;
       } else if (operator === "-") {
-        return `static_cast<float>(0)-${argument}`;
+        return `static_cast<${config.numberDataType}>(0)-${argument}`;
       }
       return `${operator}${argument} `;
     }
     case "AssignmentExpression": {
+      if (ast.operator === "+=")
+        return `${generateCpp(ast.left)} = ${generateCpp(ast.left)} + ${generateCpp(ast.right)}`;
       return `${generateCpp(ast.left)} ${ast.operator} ${generateCpp(ast.right)}`;
     }
     case "ObjectExpression": {
@@ -165,7 +252,6 @@ function generateCpp(ast) {
       let test = generateCpp(ast.test);
       let update = generateCpp(ast.update);
       let body = generateCpp(ast.body);
-      console.log("FOR LOOP::::::: " + init.replace("float", "int"))
       return `for (${init} ${test}; ${update}) { \n${body} \n } `;
     }
     case "ForInStatement": {
@@ -178,9 +264,20 @@ function generateCpp(ast) {
       }`;
     }
     case "ForOfStatement": {
-      const left = generateCpp(ast.left.declarations[0].id);
       const right = generateCpp(ast.right);
       const body = generateCpp(ast.body);
+      if (ast.left.declarations[0].id.elements) {// array of keys inside loop
+        const index = ast.left.declarations[0].id.elements[0].name
+        const value = ast.left.declarations[0].id.elements[1].name
+        return `
+        int ${index} = 0;
+        for (const auto&  __val__ : ${right}) {
+          auto ${value} = __val__[1];
+          ${body}
+          ${index}= ${index} + 1;
+        }`;
+      }
+      const left = generateCpp(ast.left.declarations[0].id);
       return `for (const auto& ${left} : ${right}) {
         ${body}
       }`;
@@ -259,6 +356,78 @@ function generateCpp(ast) {
       return
       // return `std:: vector < ${getCppType(ast.argument.elements[0].type)}> ${paramName} _vector(${argName}); \n`;
     }
+    case "TemplateLiteral": {
+      const quasis = ast.quasis.map(generateCpp);
+      const expressions = ast.expressions.map(expression => generateCpp(expression));
+      let result = ``;
+
+      for (let i = 0; i < expressions.length; i++) {
+        result += `${quasis[i]},  `
+        result += `${expressions[i]},  `
+      }
+      return `JS_join(nlohmann::json{${result}},"")`;
+    }
+    case "TemplateElement":
+      return `"${ast.value.raw}"`;
+    case "RegExpLiteral": {
+      const pattern = ast.pattern;
+      const flags = ast.flags;
+      return `std::regex("${pattern}", std::regex::${flags})`;
+    }
+    case "TSTypeAnnotation": {
+      return generateCpp(ast.typeAnnotation);
+    }
+    case "TSTypeReference": {
+      const typeName = generateCpp(ast.typeName);
+      return mapUserType(typeName);
+    }
+    case "TSAnyKeyword": {
+      return "auto ";
+    }
+    // case "ClassDeclaration": {
+    //   console.log("here")
+    //   const className = generateCpp(ast.id);
+    //   let constructorParams = ""
+    //   let constructorInits = ""
+    //   let constructorInitClass = ` class local_class {
+    //     public:
+    //       REPLACE_CONTENT
+    // } local;`
+    //   let classMethods = ""
+    //   for (let i = 0; i < ast.body.body.length; ++i) {
+    //     const generated = generateCpp(ast.body.body[i])
+    //     console.log(generated)
+    //     if (generated.isConstructor) {
+    //       constructorInits = generated.constructorInits
+    //       constructorInitClass = constructorInitClass.replace("REPLACE_CONTENT", constructorInits.split("\n").map(row => {
+    //         let items = row.split("=")
+    //         return `decltype(${items[1]}) ${items[0]}`
+    //       }).join("\n"))
+    //       constructorParams = generated.constructorParams
+    //     } else {
+    //       classMethods += generated.classMethod + "\n"
+    //     }
+    //   }
+    //   console.log(`auto ${className} = [](${constructorParams}) {\n ${constructorInitClass}\n${constructorInits} \n ${classMethods}\n};`)
+    //   return `auto ${className} = [](${constructorParams}) {\n ${constructorInitClass}\n${constructorInits} \n ${classMethods}\n};`;
+    // }
+
+    // case "MethodDefinition": {
+    //   if (ast.kind === "constructor") {
+    //     const constructorParams = ast.value.params.map(generateCpp).map(el => "auto " + el).join(", ");
+    //     const body = generateCpp(ast.value.body);
+    //     const constructorInits = body.replace(/this\./g, 'local.');
+    //     console.log("HERE", constructorInits)
+    //     return { constructorInits, isConstructor: true, constructorParams };
+    //   } else {
+    //     const methodName = ast.key.name;
+    //     const params = ast.value.params.map(generateCpp).map(el => "auto " + el).join(", ");
+    //     console.log(params)
+    //     const body = generateCpp(ast.value.body);
+    //     const modifiedBody = body.replace(/this\./g, '');
+    //     return { classMethod: `auto ${methodName}(${params}) {\n${modifiedBody}\n}`, isConstructor: false };
+    //   }
+    // }
     default:
       console.log(`Unsupported AST node type: ${ast.type} `);
   }
@@ -306,7 +475,6 @@ function loadLibFiles(libFolderPath) {
   const nonDuplicateImports = [...new Set(includes.join("\n").split("\r\n"))];
   const filteredImports = nonDuplicateImports.filter(filterImports).join("\n");
 
-  console.log(filteredImports)
   return {
     loadedLibFiles: filteredImports + "\n" + nlohmannJsonContent + "\n" + combinedContent,
     neededExternalImports: filteredImports

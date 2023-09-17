@@ -49,6 +49,42 @@ const BOOLEAN_FUNCTIONS = {
   'valueOf': { name: 'JS_valueOf', argCount: 0 },
 };
 
-const BUILTIN_JS_FUNCTIONS = { ...BOOLEAN_FUNCTIONS, ...NUMBER_FUNCTIONS, ...STRING_FUNCTIONS }
+const ARRAY_FUNCTIONS = {
+  'concat': { name: 'JS_concat', argCount: Infinity },
+  'copyWithin': { name: 'JS_copyWithin', argCount: 2 },
+  'entries': { name: 'JS_entries', argCount: 0 },
+  'every': { name: 'JS_every', argCount: 1 },
+  'fill': { name: 'JS_fill', argCount: 3 },
+  'filter': { name: 'JS_filter', argCount: 1 },
+  'find': { name: 'JS_find', argCount: 1 },
+  'findIndex': { name: 'JS_findIndex', argCount: 1 },
+  'flat': { name: 'JS_flat', argCount: 1 },
+  'flatMap': { name: 'JS_flatMap', argCount: 1 },
+  'forEach': { name: 'JS_forEach', argCount: 1 },
+  'includes': { name: 'JS_includes', argCount: 1 },
+  'indexOf': { name: 'JS_indexOf', argCount: 1 },
+  'isArray': { name: 'JS_isArray', argCount: 1 },
+  'join': { name: 'JS_join', argCount: 1 },
+  'keys': { name: 'JS_keys', argCount: 0 },
+  'lastIndexOf': { name: 'JS_lastIndexOf', argCount: 1 },
+  'map': { name: 'JS_map', argCount: 1 },
+  'pop': { name: 'JS_pop', argCount: 0 },
+  'push': { name: 'JS_push', argCount: 1 },
+  'reduce': { name: 'JS_reduce', argCount: 2 },
+  'reduceRight': { name: 'JS_reduceRight', argCount: 1 },
+  'reverse': { name: 'JS_reverse', argCount: 0 },
+  'shift': { name: 'JS_shift', argCount: 0 },
+  'slice': { name: 'JS_slice', argCount: 2 },
+  'some': { name: 'JS_some', argCount: 1 },
+  'sort': { name: 'JS_sort', argCount: 1 },
+  'splice': { name: 'JS_splice', argCount: Infinity },
+  'toLocaleString': { name: 'JS_toLocaleString', argCount: 0 },
+  'toSource': { name: 'JS_toSource', argCount: 0 },
+  'toString': { name: 'JS_toString', argCount: 0 },
+  'unshift': { name: 'JS_unshift', argCount: 1 },
+  'values': { name: 'JS_values', argCount: 0 },
+};
+
+const BUILTIN_JS_FUNCTIONS = { ...BOOLEAN_FUNCTIONS, ...NUMBER_FUNCTIONS, ...STRING_FUNCTIONS, ...ARRAY_FUNCTIONS }
 
 module.exports = { BUILTIN_JS_FUNCTIONS }

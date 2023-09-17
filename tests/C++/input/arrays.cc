@@ -24712,102 +24712,21 @@ public:
 };
 
 
-nlohmann::json &operator+=(nlohmann::json &j, int x) {
-  if (j.is_number()) {
-    j = j.get<int>() + x;
+std::vector<double> jsonArrayToVector(const nlohmann::json &arr) {
+  std::vector<double> result;
+  for (const auto &element : arr) {
+    result.push_back(element.get<double>());
   }
-  return j;
+  return result;
 }
 
-nlohmann::json &operator-=(nlohmann::json &j, int x) {
-  if (j.is_number()) {
-    j = j.get<int>() - x;
+nlohmann::json vectorToJsonArray(const std::vector<double> &vec) {
+  nlohmann::json result;
+  for (const auto &value : vec) {
+    result.push_back(value);
   }
-  return j;
+  return result;
 }
-
-nlohmann::json &operator*=(nlohmann::json &j, int x) {
-  if (j.is_number()) {
-    j = j.get<int>() * x;
-  }
-  return j;
-}
-
-nlohmann::json &operator/=(nlohmann::json &j, int x) {
-  if (j.is_number() && x != 0) {
-    j = j.get<int>() / x;
-  }
-  return j;
-}
-
-nlohmann::json &operator++(nlohmann::json &j) {
-  if (j.is_number()) {
-    j = j.get<int>() + 1;
-  }
-  return j;
-}
-
-nlohmann::json &operator--(nlohmann::json &j) {
-  if (j.is_number()) {
-    j = j.get<int>() - 1;
-  }
-  return j;
-}
-
-nlohmann::json operator+(const nlohmann::json &lhs, const int &rhs) {
-  if (lhs.is_number()) {
-    return lhs.get<int>() + rhs;
-  }
-  return nlohmann::json();
-}
-
-nlohmann::json operator-(const nlohmann::json &lhs, const int &rhs) {
-  if (lhs.is_number()) {
-    return lhs.get<int>() - rhs;
-  }
-  return nlohmann::json();
-}
-
-nlohmann::json operator*(const nlohmann::json &lhs, const int &rhs) {
-  if (lhs.is_number()) {
-    return lhs.get<int>() * rhs;
-  }
-  return nlohmann::json();
-}
-
-nlohmann::json operator%(const nlohmann::json &lhs, const int &rhs) {
-  if (lhs.is_number() && rhs != 0) {
-    return lhs.get<int>() % rhs;
-  }
-  return nlohmann::json();
-}
-
-nlohmann::json operator/(const nlohmann::json &lhs, int &rhs) {
-  if (lhs.is_number() && rhs != 0) {
-    return lhs.get<int>() / rhs;
-  }
-  return nlohmann::json();
-}
-
-
-
-std::string operator+(const int &lhs, const std::string &rhs) {
-  return std::string(std::to_string(lhs)) + rhs;
-}
-
-std::string operator+(const std::string &lhs, const int &rhs) {
-  return lhs + std::string(std::to_string(rhs));
-}
-
-bool operator==(const int &lhs, const std::string &rhs) {
-  return std::string(std::to_string(lhs)) == rhs;
-}
-
-bool operator==(const std::string &lhs, const int &rhs) {
-  return lhs == std::string(std::to_string(rhs));
-}
-
-
 
 nlohmann::json JS_concat(const nlohmann::json &arr1,
                          const nlohmann::json &arr2) {
@@ -25590,10 +25509,52 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto x = static_cast<int>(123) ; 
+  auto arr = nlohmann::json{std::string("test"), std::string("test2")} ; 
 
-auto y = std::string("test") ; 
+std::cout << std::string("concat:") << JS_concat(arr, nlohmann::json{static_cast<double>(6), static_cast<double>(7)}) << '\n';
+std::cout << std::string("copyWithin:") << JS_copyWithin(arr, static_cast<double>(0), static_cast<double>(3)) << '\n';
+std::cout << std::string("entries:") << '\n';
 
-std::cout << (x == y) << '\n';
+        int index = 0;
+        for (const auto&  __val__ : JS_entries(arr)) {
+          auto value = __val__[1];
+          std::cout << index << value << '\n';
+          index+=1;
+        }
+std::cout << std::string("every:") << JS_every(arr, [](auto item) { return item; } ) << '\n';
+std::cout << std::string("fill:") << JS_fill(arr, static_cast<double>(0), static_cast<double>(2), static_cast<double>(4)) << '\n';
+std::cout << std::string("filter:") << JS_filter(arr, [](auto item) { return item; } ) << '\n';
+std::cout << std::string("find:") << JS_find(arr, [](auto item) { return (item > static_cast<double>(3)); } ) << '\n';
+std::cout << std::string("findIndex:") << JS_findIndex(arr, [](auto item) { return (item > static_cast<double>(3)); } ) << '\n';
+std::cout << std::string("flat:") << JS_flat(arr) << '\n';
+std::cout << std::string("forEach:") << '\n';
+JS_forEach(arr, [](auto item) { std::cout << item << '\n';
+return; } );
+std::cout << std::string("includes:") << JS_includes(arr, static_cast<double>(3)) << '\n';
+std::cout << std::string("indexOf:") << JS_indexOf(arr, static_cast<double>(3)) << '\n';
+std::cout << std::string("join:") << JS_join(arr, std::string(" - ")) << '\n';
+std::cout << std::string("keys:") << '\n';
+for (const auto& key : JS_keys(arr)) {
+        std::cout << key << '\n';
+      }
+std::cout << std::string("lastIndexOf:") << JS_lastIndexOf(arr, static_cast<double>(3)) << '\n';
+std::cout << std::string("map:") << JS_map(arr, [](auto item) { return (item * static_cast<double>(2)); } ) << '\n';
+std::cout << arr << '\n';
+std::cout << std::string("pop:") << JS_pop(arr) << '\n';
+std::cout << arr << '\n';
+std::cout << std::string("push:") << JS_push(arr, static_cast<double>(6)) << '\n';
+std::cout << std::string("reverse:") << JS_reverse(arr) << '\n';
+std::cout << std::string("shift:") << JS_shift(arr) << '\n';
+std::cout << std::string("slice:") << JS_slice(arr, static_cast<double>(1), static_cast<double>(3)) << '\n';
+std::cout << std::string("some:") << JS_some(arr, [](auto item) { return (item > static_cast<double>(4)); } ) << '\n';
+std::cout << std::string("sort:") << JS_sort(arr) << '\n';
+std::cout << std::string("splice:") << JS_splice(arr, static_cast<double>(1), static_cast<double>(2)) << '\n';
+std::cout << std::string("toLocaleString:") << JS_toLocaleString(arr) << '\n';
+std::cout << std::string("toString:") << JS_toString(arr) << '\n';
+std::cout << std::string("unshift:") << JS_unshift(arr, static_cast<double>(0)) << '\n';
+std::cout << std::string("values:") << '\n';
+for (const auto& value : JS_values(arr)) {
+        std::cout << value << '\n';
+      }
   return 0;
 }  

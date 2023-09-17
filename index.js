@@ -1,30 +1,50 @@
 const acorn = require('acorn');
+const { tsPlugin } = require('acorn-typescript');
 const fs = require('fs').promises;
-const path = require('path');
-const { promisify } = require('util');
 const { exec, spawn } = require('child_process');
 
 const { generateWholeCode } = require('./src/main.js');
 
+async function executeCommand(command, errorMessage) {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        reject(new Error(`${errorMessage}: ${error.message}`));
+        return;
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+}
+
 class CocoCompiler {
-  constructor(_inputFile, _outputFile, _cppFile = "./test/test.cc") {
-    this.inputFile = _inputFile;
-    this.outputFile = _outputFile || this.inputFile.replace('.js', '');
-    this.cppFile = _cppFile || this.inputFile.replace('.js', '.cc');
+  constructor(_buildingOptions = { _cppFile: "./test/test.cc" }, _compilingOptions = {}) {
+    this.inputFile = _buildingOptions.inputFile;
+    this.outputFile = _buildingOptions.outputFile || this.inputFile.replace(/\.js|\.ts|\.coco/, '');
+    this.cppFile = _buildingOptions.cppFile || this.inputFile.replace(/\.js|\.ts|\.coco/, '.cc');
+    this.compilingOptions = _compilingOptions
   }
 
 
   async buildCpp() {
-    if (! await this.fileExists(this.inputFile))
-      return this.printInputFileMissing();
+    try {
+      await fs.access(this.inputFile)
+    } catch (error) {
+      this.printInputFileMissing(this.inputFile);
+      throw error;
+    }
 
     try {
       const code = await fs.readFile(this.inputFile, 'utf-8');
-      const ast = acorn.parse(code);
-      const res = generateWholeCode(ast);
+      const ast = acorn.Parser.extend(tsPlugin()).parse(code, {
+        sourceType: 'module',
+        ecmaVersion: 'latest',
+        locations: true
+      });
+      const res = generateWholeCode(ast, this.compilingOptions);
       await fs.writeFile(this.cppFile, res);
     } catch (error) {
-      console.log('build error: ' + error);
+      throw new Error(`Error building C++ with Coco: ${error.message}`);
     }
 
   }
@@ -32,20 +52,20 @@ class CocoCompiler {
   async compile() {
     try {
       const compileCommand = `g++ ${this.cppFile} -s -o ${this.outputFile} -O3 -ffast-math`;
-      const execPromise = promisify(exec);
-      await execPromise(compileCommand);
+      await executeCommand(compileCommand, 'Error compiling C++ with Coco');
     } catch (error) {
-      console.log('compile error: ' + error);
+      this.printCompilingError(error);
+      throw error;
     }
   }
 
-  async run(returnResult = false) {
+  async run(_returnResult = false) {
     const outputPath = this.outputFile;
     const childProcess = spawn(outputPath);
     let output = '';
 
     childProcess.stdout.on('data', (data) => {
-      if (returnResult) {
+      if (_returnResult) {
         output += data;
       } else {
         console.log(`${data}`);
@@ -56,23 +76,27 @@ class CocoCompiler {
       console.error(`Error: ${data}`);
     });
 
-    await new Promise((resolve) => {
-      childProcess.on('close', (code) => {
-        resolve();
+    try {
+      await new Promise((resolve) => {
+        childProcess.on('close', (code) => {
+          resolve();
+        });
       });
-    });
+    } catch (error) {
+      this.printRunningBinaryError(error);
+      throw error;
+    } finally {
+      process.on("exit", () => {
+        childProcess.kill();
+      });
+    }
+
 
     return output;
   }
 
-  async fileExists(filePath) {
-    try {
-      await fs.access(filePath);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
+
+
 
   printVersion() {
     const packageJson = require('./package.json');
@@ -88,10 +112,19 @@ class CocoCompiler {
     console.log('mypackage -v');
     console.log('mypackage inputFile.js -o outputFile.cc');
   }
-  printInputFileMissing() {
-    console.log('Input file is missing');
-    //TODO: Make this log better
+
+  printInputFileMissing(inputFile) {
+    console.error(`Error: The input file "${inputFile}" does not exist or is inaccessible.`);
+    console.error('Please ensure that the specified input file path is correct and that you have the necessary permissions to access it.');
   }
+  printCompilingError(error) {
+    console.error("Error compiling C++ with Coco: ", error.message);
+  }
+  printRunningBinaryError(error) {
+    console.error("Error running C++ executable:", error.message);
+  }
+
 }
+
 
 module.exports = CocoCompiler;
