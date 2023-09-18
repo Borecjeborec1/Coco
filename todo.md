@@ -1,58 +1,61 @@
 #### TODO
-- classes {Very High}
-- basic node modules {High}
-- this! {High}
-- other data types (undefined/null) {High}
-- fix different data types in array methods {High}
-- built-in objects (Array, String, etc...) {Mid}
-- var vs let {Mid}
-- requires, linking files {Mid}
-- no strict mode (using json for everything) {Mid} HARD!!!
-- dont copy whole json content but include it {Mid}
-- more cli params {Mid}
-- Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
-- == vs === {Mid}
-- Fix flatmap and reduce/reduceright {Low}
-- omptimize the c++ lib files (double->int, double->typename, etc) {Low}
-- block npm modules {Low}
-- optional params fix in JS_ c++ methods  {Low}  
-- Remove unused methods in translation process {Low}
-- escape characters {Low}
-- bigint --> long long double {Low}
-- Typescript discovery {Low}
-- eval {Low}
-- Timers - setInterval/setTimeout {Low}
-- Error Object {Low}
-- Map {Low}
-- Set {Low}
-- fix num.toString(213) -> binary formats? {Very Low}
-- fix double stars and other syntaxes (pointer problems) {Very Low}
 
+-   classes {Very High}
+-   basic node modules {High}
+-   Async/await {High}
+-   this! {High}
+-   other data types (undefined/null) {High}
+-   fix different data types in array methods {High}
+-   built-in (Array, String, etc...) {Mid}
+-   var vs let {Mid}
+-   requires, linking files {Mid}
+-   no strict mode (using json for everything) {Mid} HARD!!!
+-   more cli params {Mid}
+-   Fix issue with same functions in global scope and built-in class scope {Mid}
+-   Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
+-   == vs === {Mid}
+-   Fix flatmap and reduce/reduceright {Low}
+-   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
+-   block npm modules {Low}
+-   optional params fix in JS\_ c++ methods {Low}
+-   Remove unused methods in translation process {Low}
+-   escape characters {Low}
+-   bigint --> long long double {Low}
+-   Typescript discovery {Low}
+-   eval {Low}
+-   Timers - setInterval/setTimeout {Low}
+-   Error Object {Low}
+-   Map {Low}
+-   Set {Low}
+-   fix num.toString(213) -> binary formats? {Very Low}
+-   fix double stars and other syntaxes (pointer problems) {Very Low}
 
 #### FINISHED
-- -std=c++17 discovery {High}
-- array {Very High}
-- string {Very High}
-- bool dont have .toString when printing
-- lambda functions {High}
-- length() -> length {High}
-- +/- prefixes {High}
-- objects {Very High}
-- JSON {High}
-- Migration from custom types to custom functions {Very High}
-- testing even the output of c++ to match the nodejs {Mid}
-- rewrite of data types (number->static_cast<double>) {High}
-- accesing objects [], ., [""] {High}
-- enable mutability in fcs {High}
-- array methods {Very High}
-- more vars inside loop [index, value] of .entries  {Low}
-- pointer params  {Mid}  
-- ignore multiple includes {Very High}
-- Fix compile options for tests {High}
-- template literal {High}
-- regex {High}
-- Typescript variable types {Mid}
-- Typescript types in arguments {Mid}
-- operators for diferent data types -> problem with nlohmann json {High}
-- string operators {High}
-- rewrite bin and index js {Low}
+
+-   -std=c++17 discovery {High}
+-   array {Very High}
+-   string {Very High}
+-   bool dont have .toString when printing
+-   lambda functions {High}
+-   length() -> length {High}
+-   +/- prefixes {High}
+-   objects {Very High}
+-   JSON {High}
+-   Migration from custom types to custom functions {Very High}
+-   testing even the output of c++ to match the nodejs {Mid}
+-   rewrite of data types (number->static_cast<double>) {High}
+-   accesing objects [], ., [""] {High}
+-   enable mutability in fcs {High}
+-   array methods {Very High}
+-   more vars inside loop [index, value] of .entries {Low}
+-   pointer params {Mid}
+-   ignore multiple includes {Very High}
+-   Fix compile options for tests {High}
+-   template literal {High}
+-   regex {High}
+-   Typescript variable types {Mid}
+-   Typescript types in arguments {Mid}
+-   operators for diferent data types -> problem with nlohmann json {High}
+-   string operators {High}
+-   rewrite bin and index js {Low}
+-   dont copy whole json content but include it {Mid}

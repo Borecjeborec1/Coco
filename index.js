@@ -1,6 +1,6 @@
 const acorn = require("acorn")
 const { tsPlugin } = require("acorn-typescript")
-const fs = require("fs").promises
+const fs = require("fs")
 const path = require("path")
 const { exec, spawn } = require("child_process")
 
@@ -33,7 +33,7 @@ class CocoCompiler {
         this.jsonName = "nlohmann-json.hh"
         this.jsonInput = path.join(__dirname, `./src/lib/C++/${this.jsonName}`)
         this.jsonOutput = path.join(
-            path.dirname(this.outputFile),
+            path.dirname(this.cppFile),
             `${this.jsonName}`
         )
         this.compilingOptions = _compilingOptions
@@ -41,22 +41,23 @@ class CocoCompiler {
 
     async buildCpp() {
         try {
-            await fs.access(this.inputFile)
+            await fs.accessSync(this.inputFile)
         } catch (error) {
             this.printInputFileMissing(this.inputFile)
             throw error
         }
 
         try {
-            const code = await fs.readFile(this.inputFile, "utf-8")
+            const code = fs.readFileSync(this.inputFile, "utf-8")
             const ast = acorn.Parser.extend(tsPlugin()).parse(code, {
                 sourceType: "module",
                 ecmaVersion: "latest",
                 locations: true,
             })
             const res = generateWholeCode(ast, this.compilingOptions)
-            await fs.writeFile(this.cppFile, res)
-            await fs.copyFile(this.jsonInput, this.jsonOutput)
+            writeToFileSafely(this.cppFile, res)
+            writeToFileSafely(this.outputFile, "")
+            copyFileSafely(this.jsonInput, this.jsonOutput)
         } catch (error) {
             throw new Error(`Error building C++ with Coco: ${error.message}`)
         }
@@ -141,6 +142,26 @@ class CocoCompiler {
     printRunningBinaryError(error) {
         console.error("Error running C++ executable:", error.message)
     }
+}
+
+function writeToFileSafely(filePath, data) {
+    const folderPath = path.dirname(filePath)
+
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true })
+    }
+
+    fs.writeFileSync(filePath, data, "utf-8")
+}
+
+function copyFileSafely(sourcePath, destinationPath) {
+    const destinationFolder = path.dirname(destinationPath)
+
+    if (!fs.existsSync(destinationFolder)) {
+        fs.mkdirSync(destinationFolder, { recursive: true })
+    }
+
+    fs.copyFileSync(sourcePath, destinationPath)
 }
 
 module.exports = CocoCompiler

@@ -11,6 +11,12 @@ const VALID_USER_TYPES = {
     boolean: "bool",
 }
 
+const IMPLEMENTED_JS_OBJECTS = {
+    JSON: "__JSON__",
+    Math: "__Math__",
+    Number: "__Number__",
+}
+
 let config = { numberDataType: "int", outputBooleans: "true" }
 
 function generateWholeCode(ast, compilingOptions) {
@@ -36,7 +42,7 @@ function addAutoIfNotTypedAlready(variable) {
 }
 
 function generateCpp(ast, compilingOptions) {
-    config = { ...config, ...compilingOptions }
+    if (compilingOptions) config = { ...config, ...compilingOptions }
     try {
         // console.log("Translating:: " + ast.type)
         let x = ast.type
@@ -212,31 +218,15 @@ function generateCpp(ast, compilingOptions) {
         }
         case "MemberExpression": {
             const objectCode = generateCpp(ast.object)
-            const propertyCode = generateCpp(ast.property)
-            if (propertyCode === "length") {
-                return `${objectCode}.length()`
-            } else if (propertyCode.startsWith("std::string(")) {
-                let propertyString = propertyCode.replace(
-                    /std\:\:string\(|\)/g,
-                    ""
-                )
-                return `${objectCode}[${propertyString}]`
-            } else if (
-                propertyCode.startsWith(
-                    `static_cast<${config.numberDataType}>(`
-                )
-            ) {
-                const staticCastRegex = new RegExp(
-                    `static_cast<${config.numberDataType}>(\|)`,
-                    "g"
-                )
-                let propertyString = propertyCode.replace(staticCastRegex, "")
-                return `${objectCode}[${propertyString}]`
-            } else if (objectCode == "this") {
-                return `${propertyCode}`
-            } else {
-                return `${objectCode}["${propertyCode}"]`
+            const propertyCode = ast.property.name
+            if (propertyCode === "length") return `${objectCode}.length()`
+
+            if (objectCode == "this") return propertyCode
+            if (IMPLEMENTED_JS_OBJECTS[objectCode]) {
+                return `${IMPLEMENTED_JS_OBJECTS[objectCode]}::${propertyCode}`
             }
+
+            return `${objectCode}["${propertyCode}"]`
         }
         case "IfStatement": {
             let result = `if (${generateCpp(ast.test)}) {\n${generateCpp(
@@ -409,7 +399,10 @@ function generateCpp(ast, compilingOptions) {
         case "NewExpression": {
             const callee = generateCpp(ast.callee)
             const args = ast.arguments.map((a) => generateCpp(a)).join(", ")
-            return `new ${callee} (${args})`
+            if (IMPLEMENTED_JS_OBJECTS[callee]) {
+                return args
+            }
+            return `${callee} (${args})`
         }
         case "ThrowStatement": {
             const argument = generateCpp(ast.argument)
