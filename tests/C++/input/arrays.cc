@@ -13,8 +13,10 @@
 #include <string>
 
 #include <iostream>
-#include <vector>
+#include <limits>
 #include <string>
+#include <cstdint>
+#include <vector>
 #include <regex>
 
 
@@ -134,21 +136,202 @@ std::string encodeURIComponent(const std::string &component)
 
 
 
-class JSON {
+class __JSON__
+{
 public:
-  static std::string stringify(const nlohmann::json &jsonObj) {
+  static std::string stringify(const nlohmann::json &jsonObj)
+  {
     return jsonObj.dump();
   }
 
-  static nlohmann::json parse(const std::string &jsonString) {
+  static nlohmann::json parse(const std::string &jsonString)
+  {
     return nlohmann::json::parse(jsonString);
   }
 };
+
 #include <iostream>
-#include <limits>
 #include <cmath>
-#include <string>
-#include <cstdint>
+#include <cstdarg>
+#include <limits>
+
+class __Math__
+{
+public:
+    static const double E;
+    static const double LN10;
+    static const double LN2;
+    static const double LOG10E;
+    static const double LOG2E;
+    static const double PI;
+    static const double SQRT1_2;
+    static const double SQRT2;
+
+    static double abs(double x)
+    {
+        return std::abs(x);
+    }
+
+    static double acos(double x)
+    {
+        return std::acos(x);
+    }
+
+    static double acosh(double x)
+    {
+        return std::acosh(x);
+    }
+
+    static double asin(double x)
+    {
+        return std::asin(x);
+    }
+
+    static double asinh(double x)
+    {
+        return std::asinh(x);
+    }
+
+    static double atan(double x)
+    {
+        return std::atan(x);
+    }
+
+    static double atanh(double x)
+    {
+        return std::atanh(x);
+    }
+
+    static double atan2(double y, double x)
+    {
+        return std::atan2(y, x);
+    }
+
+    static double cbrt(double x)
+    {
+        return std::cbrt(x);
+    }
+
+    static double ceil(double x)
+    {
+        return std::ceil(x);
+    }
+
+    static double cos(double x)
+    {
+        return std::cos(x);
+    }
+
+    static double cosh(double x)
+    {
+        return std::cosh(x);
+    }
+
+    static double exp(double x)
+    {
+        return std::exp(x);
+    }
+
+    static double floor(double x)
+    {
+        return std::floor(x);
+    }
+
+    static double log(double x)
+    {
+        return std::log(x);
+    }
+
+    template <typename T>
+    static T min(const T &arg)
+    {
+        return arg;
+    }
+
+    template <typename T>
+    static T max(const T &arg)
+    {
+        return arg;
+    }
+
+    template <typename T, typename... Args>
+    static T min(const T &first, const Args &...args)
+    {
+        T rest = min(args...);
+        return (first < rest) ? first : rest;
+    }
+
+    template <typename T, typename... Args>
+    static T max(const T &first, const Args &...args)
+    {
+        T rest = max(args...);
+        return (first > rest) ? first : rest;
+    }
+    static double pow(double x, double y)
+    {
+        return std::pow(x, y);
+    }
+
+    static double random()
+    {
+        return (double)rand() / RAND_MAX;
+    }
+
+    static double round(double x)
+    {
+        return std::round(x);
+    }
+
+    static int sign(double x)
+    {
+        if (x < 0)
+            return -1;
+        if (x > 0)
+            return 1;
+        return 0;
+    }
+
+    static double sin(double x)
+    {
+        return std::sin(x);
+    }
+
+    static double sinh(double x)
+    {
+        return std::sinh(x);
+    }
+
+    static double sqrt(double x)
+    {
+        return std::sqrt(x);
+    }
+
+    static double tan(double x)
+    {
+        return std::tan(x);
+    }
+
+    static double tanh(double x)
+    {
+        return std::tanh(x);
+    }
+
+    static double trunc(double x)
+    {
+        return (x < 0) ? std::ceil(x) : std::floor(x);
+    }
+};
+
+const double __Math__::E = 2.718281828459045;
+const double __Math__::LN10 = 2.302585092994046;
+const double __Math__::LN2 = 0.6931471805599453;
+const double __Math__::LOG10E = 0.4342944819032518;
+const double __Math__::LOG2E = 1.4426950408889634;
+const double __Math__::PI = 3.141592653589793;
+const double __Math__::SQRT1_2 = 0.7071067811865476;
+const double __Math__::SQRT2 = 1.4142135623730951;
+
+
 
 class __Number__
 {
@@ -1141,17 +1324,52 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  std::cout << std::string("Number.EPSILON:") << Math["floor"](__Number__::EPSILON) << '\n';
-std::cout << std::string("Number.NaN:") << isNaN(__Number__::NaN) << '\n';
-std::cout << std::string("Number.parseFloat:") << __Number__::parseFloat(std::string("3.14")) << '\n';
-std::cout << std::string("Number.parseInt:") << __Number__::parseInt(std::string("42")) << '\n';
-std::cout << std::string("Number.isInteger:") << __Number__::isInteger(static_cast<double>(42)) << '\n';
-std::cout << std::string("Number.isSafeInteger:") << __Number__::isSafeInteger(static_cast<double>(42)) << '\n';
-auto num = static_cast<double>(42) ; 
+  auto arr = nlohmann::json{std::string("test"), std::string("test2")} ; 
 
-std::cout << std::string("Number.prototype.valueOf:") << JS_valueOf(num) << '\n';
-std::cout << std::string("Number.prototype.toString:") << JS_toString(num) << '\n';
-std::cout << std::string("Number.prototype.toPrecision:") << JS_toPrecision(num, static_cast<double>(4)) << '\n';
-std::cout << std::string("Number.prototype.toFixed:") << JS_toFixed(num, static_cast<double>(2)) << '\n';
+std::cout << std::string("concat:") << JS_concat(arr, nlohmann::json{static_cast<double>(6), static_cast<double>(7)}) << '\n';
+std::cout << std::string("copyWithin:") << JS_copyWithin(arr, static_cast<double>(0), static_cast<double>(3)) << '\n';
+std::cout << std::string("entries:") << '\n';
+
+        int index = 0;
+        for (const auto&  __val__ : JS_entries(arr)) {
+          auto value = __val__[1];
+          std::cout << index << value << '\n';
+          index= index + 1;
+        }
+std::cout << std::string("every:") << JS_every(arr, [](auto item) { return item; } ) << '\n';
+std::cout << std::string("fill:") << JS_fill(arr, static_cast<double>(0), static_cast<double>(2), static_cast<double>(4)) << '\n';
+std::cout << std::string("filter:") << JS_filter(arr, [](auto item) { return item; } ) << '\n';
+std::cout << std::string("find:") << JS_find(arr, [](auto item) { return (item > static_cast<double>(3)); } ) << '\n';
+std::cout << std::string("findIndex:") << JS_findIndex(arr, [](auto item) { return (item > static_cast<double>(3)); } ) << '\n';
+std::cout << std::string("flat:") << JS_flat(arr) << '\n';
+std::cout << std::string("forEach:") << '\n';
+JS_forEach(arr, [](auto item) { std::cout << item << '\n';
+return; } );
+std::cout << std::string("includes:") << JS_includes(arr, static_cast<double>(3)) << '\n';
+std::cout << std::string("indexOf:") << JS_indexOf(arr, static_cast<double>(3)) << '\n';
+std::cout << std::string("join:") << JS_join(arr, std::string(" - ")) << '\n';
+std::cout << std::string("keys:") << '\n';
+for (const auto& key : JS_keys(arr)) {
+        std::cout << key << '\n';
+      }
+std::cout << std::string("lastIndexOf:") << JS_lastIndexOf(arr, static_cast<double>(3)) << '\n';
+std::cout << std::string("map:") << JS_map(arr, [](auto item) { return (item * static_cast<double>(2)); } ) << '\n';
+std::cout << arr << '\n';
+std::cout << std::string("pop:") << JS_pop(arr) << '\n';
+std::cout << arr << '\n';
+std::cout << std::string("push:") << JS_push(arr, static_cast<double>(6)) << '\n';
+std::cout << std::string("reverse:") << JS_reverse(arr) << '\n';
+std::cout << std::string("shift:") << JS_shift(arr) << '\n';
+std::cout << std::string("slice:") << JS_slice(arr, static_cast<double>(1), static_cast<double>(3)) << '\n';
+std::cout << std::string("some:") << JS_some(arr, [](auto item) { return (item > static_cast<double>(4)); } ) << '\n';
+std::cout << std::string("sort:") << JS_sort(arr) << '\n';
+std::cout << std::string("splice:") << JS_splice(arr, static_cast<double>(1), static_cast<double>(2)) << '\n';
+std::cout << std::string("toLocaleString:") << JS_toLocaleString(arr) << '\n';
+std::cout << std::string("toString:") << JS_toString(arr) << '\n';
+std::cout << std::string("unshift:") << JS_unshift(arr, static_cast<double>(0)) << '\n';
+std::cout << std::string("values:") << '\n';
+for (const auto& value : JS_values(arr)) {
+        std::cout << value << '\n';
+      }
   return 0;
 }  

@@ -34,7 +34,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Number")
         })
     })
-    describe.only("Given  the Math Class Object", function () {
+    describe("Given  the Math Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Math")
         })
