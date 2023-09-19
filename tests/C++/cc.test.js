@@ -65,10 +65,6 @@ async function compileAndRunTest(fileName) {
     expect(preprocessOutput(cocoResult)).to.equalIgnoreSpaces(
         preprocessOutput(nodeResult)
     )
-    console.log("coco: ")
-    console.log(preprocessOutput(cocoResult))
-    console.log("nodejs: ")
-    console.log(preprocessOutput(nodeResult))
     await cleanupFiles(compileOptions.cppFile, compileOptions.outputFile)
 }
 
