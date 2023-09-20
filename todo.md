@@ -14,6 +14,7 @@
 -   Fix issue with same functions in global scope and built-in class scope {Mid}
 -   Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
 -   == vs === {Mid}
+-   fix exists in callbacks (arr.filter((item) => item)) {Mid}
 -   Fix flatmap and reduce/reduceright {Low}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 -   block npm modules {Low}

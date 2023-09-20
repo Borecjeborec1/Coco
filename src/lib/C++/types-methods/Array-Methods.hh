@@ -66,43 +66,32 @@ bool JS_every(const nlohmann::json &arr, Callable callback)
     return false;
   }
 
-  bool allSatisfied = true;
+  nlohmann::json::value_t expected_type = arr[0].type();
+
   for (const auto &element : arr)
   {
-    nlohmann::json::value_t expected_type = arr[0].type();
-
     if (element.type() != expected_type)
     {
-      allSatisfied = false;
-      break;
+      return false;
     }
 
-    bool satisfiesCallback;
-    if (element.is_boolean())
+    bool satisfiesCallback = false;
+    try
     {
-      satisfiesCallback = callback(element.get<bool>());
+      satisfiesCallback = callback(element);
     }
-    else if (element.is_string())
+    catch (const std::exception &ex)
     {
-      satisfiesCallback = callback(element.get<std::string>());
-    }
-    else if (element.is_number())
-    {
-      satisfiesCallback = callback(element.get<double>());
-    }
-    else
-    {
-      satisfiesCallback = false;
+      return false;
     }
 
     if (!satisfiesCallback)
     {
-      allSatisfied = false;
-      break; // Exit the loop if the callback condition is not met
+      return false;
     }
   }
 
-  return allSatisfied;
+  return true;
 }
 
 nlohmann::json JS_fill(nlohmann::json &arr, double value, int start, int end)
@@ -118,47 +107,107 @@ nlohmann::json JS_fill(nlohmann::json &arr, double value, int start, int end)
   return arr;
 }
 
-nlohmann::json JS_filter(const nlohmann::json &arr,
-                         std::function<bool(double)> callback)
+template <typename Callable>
+nlohmann::json JS_filter(const nlohmann::json &arr, Callable callback)
 {
-  nlohmann::json result;
+  if (arr.empty())
+  {
+    return nlohmann::json::array();
+  }
+
+  nlohmann::json result = nlohmann::json::array();
+
   for (const auto &element : arr)
   {
-    double value = element.get<double>();
-    if (callback(value))
+    bool satisfiesCallback = false;
+    try
     {
-      result.push_back(value);
+      satisfiesCallback = callback(element);
+    }
+    catch (const std::exception &ex)
+    {
+      continue;
+    }
+
+    if (satisfiesCallback)
+    {
+      result.push_back(element);
     }
   }
+
   return result;
 }
 
-nlohmann::json JS_find(const nlohmann::json &arr,
-                       std::function<bool(double)> callback)
+template <typename Callable>
+nlohmann::json JS_find(const nlohmann::json &arr, Callable callback)
 {
-  for (size_t i = 0; i < arr.size(); ++i)
+  if (arr.empty())
   {
-    double value = static_cast<double>(arr[i]);
-    if (callback(value))
-    {
-      return value;
-    }
+    return -1;
   }
-  return nullptr;
-}
 
-int JS_findIndex(const nlohmann::json &arr,
-                 std::function<bool(double)> callback)
-{
-  for (size_t i = 0; i < arr.size(); ++i)
+  nlohmann::json::value_t expected_type = arr[0].type();
+
+  for (const auto &element : arr)
   {
-    double value = static_cast<double>(arr[i]);
-    if (callback(value))
+    if (element.type() != expected_type)
     {
-      return i;
+      continue;
+    }
+
+    try
+    {
+      if (callback(element))
+      {
+        return element;
+      }
+    }
+    catch (const std::exception &ex)
+    {
+      continue;
     }
   }
+
   return -1;
+}
+template <typename Callable>
+int JS_findIndex(const nlohmann::json &arr, Callable callback)
+{
+  if (arr.empty())
+  {
+    return -1; // Return -1 to indicate no matching element found
+  }
+
+  nlohmann::json::value_t expected_type = arr[0].type();
+  int index = 0;
+
+  for (const auto &element : arr)
+  {
+    if (element.type() != expected_type)
+    {
+      return -1; // Return -1 if types are not the same
+    }
+
+    bool satisfiesCallback = false;
+    try
+    {
+      satisfiesCallback = callback(element);
+    }
+    catch (const std::exception &ex)
+    {
+      // Handle exceptions from the callback function
+      return -1;
+    }
+
+    if (satisfiesCallback)
+    {
+      return index; // Return the index of the first matching element
+    }
+
+    index++;
+  }
+
+  return -1; // Return -1 if no matching element is found
 }
 
 nlohmann::json JS_flat(const nlohmann::json &arr, int depth = 1)
@@ -198,13 +247,31 @@ nlohmann::json JS_flat(const nlohmann::json &arr, int depth = 1)
 //   return result;
 // }
 
-void JS_forEach(const nlohmann::json &arr,
-                std::function<void(double)> callback)
+template <typename Callable>
+void JS_forEach(const nlohmann::json &arr, Callable callback)
 {
+  if (arr.empty())
+  {
+    return;
+  }
+
+  nlohmann::json::value_t expected_type = arr[0].type();
+
   for (const auto &element : arr)
   {
-    double value = element.get<double>();
-    callback(value);
+    if (element.type() != expected_type)
+    {
+      continue;
+    }
+
+    try
+    {
+      callback(element);
+    }
+    catch (const std::exception &ex)
+    {
+      continue;
+    }
   }
 }
 
@@ -213,10 +280,18 @@ bool JS_includes(const nlohmann::json &arr, const T &searchElement)
 {
   for (const auto &element : arr)
   {
-    T value = element.get<T>();
-    if (value == searchElement)
+    try
     {
-      return true;
+
+      T value = element.get<T>();
+      if (value == searchElement)
+      {
+        return true;
+      }
+    }
+    catch (const std::exception &ex)
+    {
+      continue;
     }
   }
   return false;
@@ -229,10 +304,18 @@ int JS_indexOf(const nlohmann::json &arr, const T &searchElement,
   fromIndex = std::max(fromIndex, 0);
   for (int i = fromIndex; i < static_cast<int>(arr.size()); i++)
   {
-    T value = arr[i].get<T>();
-    if (value == searchElement)
+    try
     {
-      return i;
+
+      T value = arr[i].get<T>();
+      if (value == searchElement)
+      {
+        return i;
+      }
+    }
+    catch (const std::exception &ex)
+    {
+      continue;
     }
   }
   return -1;
@@ -240,28 +323,18 @@ int JS_indexOf(const nlohmann::json &arr, const T &searchElement,
 
 bool JS_isArray(const nlohmann::json &arr) { return arr.is_array(); }
 
-std::string JS_join(const nlohmann::json &arr,
-                    const std::string &separator = ",")
+std::string JS_join(const nlohmann::json &arr, const std::string &delimiter)
 {
   std::string result;
-  bool firstElement = true;
 
   for (const auto &element : arr)
   {
-    if (!firstElement)
+    if (!result.empty())
     {
-      result += separator;
+      result += delimiter; // Add the delimiter between elements
     }
 
-    if (element.is_string())
-    {
-      result += element.get<std::string>();
-    }
-    else
-    {
-      result += element.dump();
-    }
-    firstElement = false;
+    result += element.dump(); // Convert the element to a string and append it
   }
 
   return result;
@@ -270,29 +343,47 @@ std::string JS_join(const nlohmann::json &arr,
 nlohmann::json JS_keys(const nlohmann::json &arr)
 {
   nlohmann::json result;
-  for (size_t i = 0; i < arr.size(); i++)
+  for (int i = 0; i < arr.size(); i++)
   {
-    result.push_back(static_cast<double>(i));
+    result.push_back(i);
   }
   return result;
 }
 
-int JS_lastIndexOf(const nlohmann::json &arr, double searchElement,
+template <typename T>
+int JS_lastIndexOf(const nlohmann::json &arr, const T &searchElement,
                    int fromIndex = -1)
 {
+  if (arr.empty())
+  {
+    return -1;
+  }
+
   if (fromIndex == -1)
   {
     fromIndex = static_cast<int>(arr.size()) - 1;
   }
-  fromIndex = std::min(fromIndex, static_cast<int>(arr.size()) - 1);
+  else
+  {
+    fromIndex = std::min(fromIndex, static_cast<int>(arr.size()) - 1);
+  }
+
   for (int i = fromIndex; i >= 0; i--)
   {
-    double value = arr[i].get<double>();
-    if (value == searchElement)
+    try
     {
-      return i;
+      T value = arr[i].get<T>();
+      if (value == searchElement)
+      {
+        return i;
+      }
+    }
+    catch (const std::exception &ex)
+    {
+      continue;
     }
   }
+
   return -1;
 }
 
