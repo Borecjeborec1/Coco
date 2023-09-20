@@ -5,7 +5,6 @@
 -   Async/await {High}
 -   this! {High}
 -   other data types (undefined/null) {High}
--   fix different data types in array methods {High}
 -   built-in (Array, String, etc...) {Mid}
 -   var vs let {Mid}
 -   requires, linking files {Mid}
@@ -15,7 +14,6 @@
 -   Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
 -   == vs === {Mid}
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
--   Fix flatmap and reduce/reduceright {Low}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 -   block npm modules {Low}
 -   optional params fix in JS\_ c++ methods {Low}
@@ -60,3 +58,5 @@
 -   string operators {High}
 -   rewrite bin and index js {Low}
 -   dont copy whole json content but include it {Mid}
+-   fix different data types in array methods {High}
+-   Fix flatmap and reduce/reduceright {Low}

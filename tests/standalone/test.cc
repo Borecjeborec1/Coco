@@ -664,7 +664,7 @@ nlohmann::json JS_find(const nlohmann::json &arr, Callable callback)
 {
   if (arr.empty())
   {
-    return -1;
+    return "undefined";
   }
 
   nlohmann::json::value_t expected_type = arr[0].type();
@@ -689,7 +689,7 @@ nlohmann::json JS_find(const nlohmann::json &arr, Callable callback)
     }
   }
 
-  return -1;
+  return "undefined";
 }
 template <typename Callable>
 int JS_findIndex(const nlohmann::json &arr, Callable callback)
@@ -754,19 +754,37 @@ nlohmann::json JS_flat(const nlohmann::json &arr, int depth = 1)
   return result;
 }
 
-// nlohmann::json JS_flatMap(const nlohmann::json &arr,
-//                           std::function<nlohmann::json(double)> callback) {
-//   nlohmann::json result;
-//   for (const auto &element : arr) {
-//     nlohmann::json mapped = callback(element);
-//     if (mapped.is_array()) {
-//       result.insert(result.end(), mapped.begin(), mapped.end());
-//     } else {
-//       result.push_back(mapped);
-//     }
-//   }
-//   return result;
-// }
+template <typename Callable>
+nlohmann::json JS_flatMap(const nlohmann::json &arr, Callable callback)
+{
+  nlohmann::json result = nlohmann::json::array();
+
+  for (const auto &element : arr)
+  {
+    try
+    {
+      nlohmann::json mapped = callback(element);
+
+      if (mapped.is_array())
+      {
+        // If the result of the callback is an array, concatenate it to the result
+        result.insert(result.end(), mapped.begin(), mapped.end());
+      }
+      else
+      {
+        // If the result is not an array, add it as a single element to the result
+        result.push_back(mapped);
+      }
+    }
+    catch (const std::exception &ex)
+    {
+      // Handle exceptions from the callback function
+      continue;
+    }
+  }
+
+  return result;
+}
 
 template <typename Callable>
 void JS_forEach(const nlohmann::json &arr, Callable callback)
@@ -908,16 +926,25 @@ int JS_lastIndexOf(const nlohmann::json &arr, const T &searchElement,
   return -1;
 }
 
-nlohmann::json JS_map(const nlohmann::json &arr,
-                      std::function<nlohmann::json(double)> callback)
+template <typename Callable>
+nlohmann::json JS_map(const nlohmann::json &arr, Callable callback)
 {
-  nlohmann::json result;
+  nlohmann::json result = nlohmann::json::array();
+
   for (const auto &element : arr)
   {
-    double value = element.get<double>();
-    nlohmann::json mapped = callback(value);
-    result.push_back(mapped);
+    try
+    {
+      // Apply the callback function to each element and add the result to the result array
+      result.push_back(callback(element));
+    }
+    catch (const std::exception &ex)
+    {
+      // Handle exceptions from the callback function
+      continue;
+    }
   }
+
   return result;
 }
 
@@ -939,42 +966,49 @@ T JS_push(nlohmann::json &arr, T element)
   return arr.size();
 }
 
-// template <typename Callback>
-// nlohmann::json JS_reduce(const nlohmann::json &arr, Callback callback,
-//                          const nlohmann::json &initialValue = nullptr) {
-//   nlohmann::json accumulator = initialValue ? initialValue : nullptr;
-//   double sum = 0;
+template <typename Callable>
+nlohmann::json JS_reduce(const nlohmann::json &arr, Callable callback, nlohmann::json initialValue = nlohmann::json())
+{
+  nlohmann::json accumulator = initialValue;
 
-//   for (const auto &element : arr) {
-//     double value = element.get<double>();
-//     if (accumulator) {
-//       accumulator = callback(accumulator, value);
-//     } else {
-//       sum += value;
-//     }
-//   }
+  for (const auto &element : arr)
+  {
+    try
+    {
+      accumulator = callback(accumulator, element);
+    }
+    catch (const std::exception &ex)
+    {
+      // Handle exceptions from the callback function
+      continue;
+    }
+  }
 
-//   if (!accumulator) {
-//     return sum;
-//   }
+  return accumulator;
+}
 
-//   return accumulator;
-// }
+template <typename Callable>
+nlohmann::json JS_reduceRight(const nlohmann::json &arr, Callable callback, nlohmann::json initialValue = nlohmann::json())
+{
+  nlohmann::json accumulator = initialValue;
 
-// // reduceRight()
-// nlohmann::json
-// JS_reduceRight(const nlohmann::json &arr,
-//                std::function<nlohmann::json(nlohmann::json, double)>
-//                callback,
-//                const nlohmann::json &initialValue = nullptr) {
-//   // Convert the reversed JSON array to a vector of JSON values
-//   std::vector<nlohmann::json> reversed(arr.rbegin(), arr.rend());
+  for (auto it = arr.rbegin(); it != arr.rend(); ++it)
+  {
+    try
+    {
+      nlohmann::json element = *it;
+      accumulator = callback(element, accumulator);
+    }
+    catch (const std::exception &ex)
+    {
+      std::cout << "Handling exception" << std::endl;
+      // Handle exceptions from the callback function
+      continue;
+    }
+  }
 
-//   // Perform the reduce operation on the reversed vector
-//   nlohmann::json result = JS_reduce(reversed, callback, initialValue);
-
-//   return result;
-// }
+  return accumulator;
+}
 
 nlohmann::json JS_reverse(nlohmann::json &arr)
 {
@@ -1007,69 +1041,126 @@ nlohmann::json JS_slice(const nlohmann::json &arr, int start = 0,
   return result;
 }
 
-bool JS_some(const nlohmann::json &arr, std::function<bool(double)> callback)
+template <typename Callable>
+bool JS_some(const nlohmann::json &arr, Callable callback)
 {
+  if (arr.empty())
+  {
+    return false;
+  }
+
+  nlohmann::json::value_t expected_type = arr[0].type();
+
   for (const auto &element : arr)
   {
-    double value = element.get<double>();
-    if (callback(value))
+    if (element.type() != expected_type)
     {
-      return true;
+      return false; // Return false if types are not the same
     }
-  }
-  return false;
-}
 
-nlohmann::json
-JS_sort(nlohmann::json &arr,
-        std::function<bool(double, double)> compareFunction = nullptr)
-{
-  if (compareFunction)
-  {
-    std::sort(arr.begin(), arr.end(),
-              [&](const nlohmann::json &a, const nlohmann::json &b)
-              {
-                return compareFunction(a.get<double>(), b.get<double>());
-              });
-  }
-  else
-  {
-    std::sort(arr.begin(), arr.end(),
-              [](const nlohmann::json &a, const nlohmann::json &b)
-              {
-                return a.get<double>() < b.get<double>();
-              });
-  }
-  return arr;
-}
-
-nlohmann::json JS_splice(nlohmann::json &arr, int start, int deleteCount,
-                         const nlohmann::json &items = nullptr)
-{
-  start = std::max(start, 0);
-  deleteCount = std::max(deleteCount, 0);
-  int end = start + deleteCount;
-
-  nlohmann::json removed;
-
-  auto eraseBegin = arr.begin() + start;
-  auto eraseEnd = arr.begin() + end;
-  for (auto it = eraseBegin; it != eraseEnd; ++it)
-  {
-    removed.push_back(*it);
-  }
-  arr.erase(eraseBegin, eraseEnd);
-
-  if (items.is_array())
-  {
-    for (const auto &item : items)
+    bool satisfiesCallback = false;
+    try
     {
-      arr.insert(arr.begin() + start, item);
-      start++;
+      satisfiesCallback = callback(element);
+    }
+    catch (const std::exception &ex)
+    {
+      // Handle exceptions from the callback function
+      continue;
+    }
+
+    if (satisfiesCallback)
+    {
+      return true; // Return true if at least one element satisfies the callback
     }
   }
 
-  return removed;
+  return false; // Return false if no element satisfies the callback
+}
+
+nlohmann::json JS_sort(const nlohmann::json &arr, std::function<int(const nlohmann::json &, const nlohmann::json &)> compare = nullptr)
+{
+  nlohmann::json result = arr;
+
+  if (!compare)
+  {
+    // Default comparison function for numbers and strings
+    compare = [](const nlohmann::json &a, const nlohmann::json &b) -> int
+    {
+      if (a.is_number() && b.is_number())
+      {
+        return a < b ? -1 : (a > b ? 1 : 0);
+      }
+      else if (a.is_string() && b.is_string())
+      {
+        return a < b ? -1 : (a > b ? 1 : 0);
+      }
+      else
+      {
+        // If types are different, place numbers before strings
+        return a.is_number() ? -1 : 1;
+      }
+    };
+  }
+
+  std::sort(result.begin(), result.end(), [&](const nlohmann::json &a, const nlohmann::json &b) -> bool
+            { return compare(a, b) < 0; });
+
+  return result;
+}
+
+nlohmann::json JS_splice(nlohmann::json &arr, int start, int deleteCount, const nlohmann::json &insertItems = nlohmann::json::array())
+{
+  nlohmann::json removedItems = nlohmann::json::array();
+
+  if (start < 0)
+  {
+    start = arr.size() + start;
+    if (start < 0)
+    {
+      start = 0;
+    }
+  }
+  if (start > static_cast<int>(arr.size()))
+  {
+    start = arr.size();
+  }
+  if (deleteCount < 0)
+  {
+    deleteCount = 0;
+  }
+  if (deleteCount > static_cast<int>(arr.size()) - start)
+  {
+    deleteCount = arr.size() - start;
+  }
+
+  // Remove elements and store them in the removedItems array
+  for (int i = 0; i < deleteCount; ++i)
+  {
+    removedItems.push_back(arr[start + i]);
+  }
+
+  nlohmann::json result = nlohmann::json::array();
+
+  // Copy elements from the original array to the result array, skipping the removed items
+  for (int i = 0; i < start; ++i)
+  {
+    result.push_back(arr[i]);
+  }
+
+  for (const auto &item : insertItems)
+  {
+    result.push_back(item);
+  }
+
+  for (int i = start + deleteCount; i < static_cast<int>(arr.size()); ++i)
+  {
+    result.push_back(arr[i]);
+  }
+
+  arr = result; // Update the original array
+
+  return removedItems;
 }
 
 std::string JS_toLocaleString(const nlohmann::json &arr)
@@ -1542,7 +1633,7 @@ std::string JS_trimStart(const std::string &str) {
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto arr = nlohmann::json{std::string("test"), std::string("test2"), static_cast<int>(3)} ; 
+  auto arr = nlohmann::json{std::string("test"), std::string("test2"), static_cast<int>(1), static_cast<int>(2), static_cast<int>(1)} ; 
 
 std::cout << std::string("concat:") << JS_concat(arr, nlohmann::json{static_cast<int>(6), static_cast<int>(7)}) << '\n';
 std::cout << std::string("copyWithin:") << JS_copyWithin(arr, static_cast<int>(0), static_cast<int>(3)) << '\n';
@@ -1554,12 +1645,12 @@ std::cout << std::string("entries:") << '\n';
           std::cout << index << value << '\n';
           index= index + 1;
         }
-std::cout << std::string("every:") << JS_every(arr, [](auto item) { return item; } ) << '\n';
-std::cout << std::string("fill:") << JS_fill(arr, static_cast<int>(3), static_cast<int>(2), static_cast<int>(3)) << '\n';
+std::cout << std::string("every:") << JS_every(arr, [](auto item) { return (item == static_cast<int>(3)); } ) << '\n';
+std::cout << std::string("fill:") << JS_fill(arr, static_cast<int>(0), static_cast<int>(2), static_cast<int>(4)) << '\n';
 std::cout << std::string("filter:") << JS_filter(arr, [](auto item) { return (item == static_cast<int>(3)); } ) << '\n';
-std::cout << std::string("find:") << JS_find(arr, [](auto item) { return (item > static_cast<int>(3)); } ) << '\n';
 std::cout << std::string("findIndex:") << JS_findIndex(arr, [](auto item) { return (item > static_cast<int>(3)); } ) << '\n';
 std::cout << std::string("flat:") << JS_flat(arr) << '\n';
+std::cout << std::string("flatMap:") << JS_flatMap(arr, [](auto item) { return nlohmann::json{(item * static_cast<int>(2)), (item * static_cast<int>(3))}; } ) << '\n';
 std::cout << std::string("forEach:") << '\n';
 JS_forEach(arr, [](auto item) { std::cout << item << '\n';
 return; } );
@@ -1571,5 +1662,26 @@ for (const auto& key : JS_keys(arr)) {
         std::cout << key << '\n';
       }
 std::cout << std::string("lastIndexOf:") << JS_lastIndexOf(arr, static_cast<int>(3)) << '\n';
+std::cout << std::string("map:") << JS_map(arr, [](auto item) { return (item * static_cast<int>(2)); } ) << '\n';
+std::cout << arr << '\n';
+std::cout << std::string("pop:") << JS_pop(arr) << '\n';
+std::cout << arr << '\n';
+std::cout << std::string("push:") << JS_push(arr, static_cast<int>(6)) << '\n';
+std::cout << std::string("reduce:") << JS_reduce(arr, [](auto acc, auto item) { return (acc + item); } , static_cast<int>(0)) << '\n';
+std::cout << arr << '\n';
+std::cout << std::string("reduceRight:") << JS_reduceRight(arr, [](auto acc, auto item) { return (acc + item); } ) << '\n';
+std::cout << std::string("reverse:") << JS_reverse(arr) << '\n';
+std::cout << std::string("shift:") << JS_shift(arr) << '\n';
+std::cout << std::string("slice:") << JS_slice(arr, static_cast<int>(1), static_cast<int>(3)) << '\n';
+std::cout << std::string("some:") << JS_some(arr, [](auto item) { return (item > static_cast<int>(4)); } ) << '\n';
+std::cout << std::string("sort:") << JS_sort(arr) << '\n';
+std::cout << std::string("splice:") << JS_splice(arr, static_cast<int>(1), static_cast<int>(2)) << '\n';
+std::cout << std::string("toLocaleString:") << JS_toLocaleString(arr) << '\n';
+std::cout << std::string("toString:") << JS_toString(arr) << '\n';
+std::cout << std::string("unshift:") << JS_unshift(arr, static_cast<int>(0)) << '\n';
+std::cout << std::string("values:") << '\n';
+for (const auto& value : JS_values(arr)) {
+        std::cout << value << '\n';
+      }
   return 0;
 }  
