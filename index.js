@@ -56,7 +56,7 @@ class CocoCompiler {
             })
             const res = generateWholeCode(ast, this.compilingOptions)
             writeToFileSafely(this.cppFile, res)
-            writeToFileSafely(this.outputFile, "")
+            createFolderSafely(this.outputFile, "")
             copyFileSafely(this.jsonInput, this.jsonOutput)
         } catch (error) {
             throw new Error(`Error building C++ with Coco: ${error.message}`)
@@ -145,22 +145,20 @@ class CocoCompiler {
 }
 
 function writeToFileSafely(filePath, data) {
-    const folderPath = path.dirname(filePath)
-
-    if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true })
-    }
-
+    createFolderSafely(filePath)
     fs.writeFileSync(filePath, data, "utf-8")
 }
 
-function copyFileSafely(sourcePath, destinationPath) {
-    const destinationFolder = path.dirname(destinationPath)
+function createFolderSafely(folderPath) {
+    const destinationFolder = path.dirname(folderPath)
 
     if (!fs.existsSync(destinationFolder)) {
         fs.mkdirSync(destinationFolder, { recursive: true })
     }
+}
 
+function copyFileSafely(sourcePath, destinationPath) {
+    createFolderSafely(destinationPath)
     fs.copyFileSync(sourcePath, destinationPath)
 }
 

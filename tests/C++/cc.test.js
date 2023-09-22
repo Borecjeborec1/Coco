@@ -24,7 +24,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("functions")
         })
     })
-    describe.only("Given all built-in Array methods", function () {
+    describe("Given all built-in Array methods", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("arrays")
         })
@@ -37,6 +37,11 @@ describe("Given ALL JS methods", function () {
     describe("Given  the Math Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Math")
+        })
+    })
+    describe.only("Given  the Date Object", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("objects/Date")
         })
     })
 })

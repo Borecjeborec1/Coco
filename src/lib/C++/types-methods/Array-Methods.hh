@@ -458,7 +458,6 @@ nlohmann::json JS_reduce(const nlohmann::json &arr, Callable callback, nlohmann:
     }
     catch (const std::exception &ex)
     {
-      // Handle exceptions from the callback function
       continue;
     }
   }
@@ -480,8 +479,6 @@ nlohmann::json JS_reduceRight(const nlohmann::json &arr, Callable callback, nloh
     }
     catch (const std::exception &ex)
     {
-      std::cout << "Handling exception" << std::endl;
-      // Handle exceptions from the callback function
       continue;
     }
   }

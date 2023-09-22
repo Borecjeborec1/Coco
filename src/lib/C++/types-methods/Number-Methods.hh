@@ -4,7 +4,6 @@
 #include <sstream>
 // Ignore imports end
 
-/////////////////////////// NUMBER METHODS ///////////////////////////////
 double JS_valueOf(double value) { return static_cast<double>(value); }
 std::string JS_toFixed(double value, int decimalPlaces)
 {
@@ -49,7 +48,6 @@ std::string JS_toPrecision(double value, int precision)
 }
 std::string JS_toString(double value)
 {
-  // Trim trailing zeros for non-integer values
   std::ostringstream stream;
   if (std::fmod(value, 1.0) == 0.0)
   {
@@ -71,7 +69,6 @@ bool JS_isNaN(double value) { return std::isnan(value); }
 int JS_valueOf(int value) { return static_cast<int>(value); }
 std::string JS_toString(int value)
 {
-  // Trim trailing zeros for non-integer values
   std::ostringstream stream;
   if (std::fmod(value, 1.0) == 0.0)
   {
@@ -83,5 +80,3 @@ std::string JS_toString(int value)
   }
   return stream.str();
 }
-
-/////////////////////////// NUMBER METHODS END ///////////////////////////////

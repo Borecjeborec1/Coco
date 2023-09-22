@@ -86,3 +86,6 @@ const double __Number__::NEGATIVE_INFINITY = -std::numeric_limits<double>::infin
 const double __Number__::POSITIVE_INFINITY = std::numeric_limits<double>::infinity();
 const int64_t __Number__::MAX_SAFE_INTEGER = std::numeric_limits<int64_t>::max();
 const int64_t __Number__::MIN_SAFE_INTEGER = std::numeric_limits<int64_t>::min();
+
+std::string JS_toString(__Number__ value) { return value.toString(); }
+double JS_valueOf(__Number__ value) { return value.valueOf(); }

@@ -5,13 +5,14 @@
 -   Async/await {High}
 -   this! {High}
 -   other data types (undefined/null) {High}
+-   Date {High}
 -   built-in (Array, String, etc...) {Mid}
+-   fix nans/undefined/nulls {MID}
 -   var vs let {Mid}
 -   requires, linking files {Mid}
 -   no strict mode (using json for everything) {Mid} HARD!!!
 -   more cli params {Mid}
 -   Fix issue with same functions in global scope and built-in class scope {Mid}
--   Check % operator (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Mid}
 -   == vs === {Mid}
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
@@ -21,6 +22,7 @@
 -   escape characters {Low}
 -   bigint --> long long double {Low}
 -   Typescript discovery {Low}
+-   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
 -   eval {Low}
 -   Timers - setInterval/setTimeout {Low}
 -   Error Object {Low}

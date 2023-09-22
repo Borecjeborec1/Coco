@@ -15,7 +15,37 @@ const IMPLEMENTED_JS_OBJECTS = {
     JSON: "__JSON__",
     Math: "__Math__",
     Number: "__Number__",
+    Date: "__Date__",
 }
+
+const IMPLEMENTED_JS_OBJECT_METHODS = [
+    "toISOString",
+    "toString",
+    "toDateString",
+    "toTimeString",
+    "toJSON",
+    "getDate",
+    "getDay",
+    "getFullYear",
+    "getHours",
+    "getMilliseconds",
+    "getMinutes",
+    "getMonth",
+    "getSeconds",
+    "getTime",
+    "getTimezoneOffset",
+    "setFullYear",
+    "setMonth",
+    "setDate",
+    "setHours",
+    "setMinutes",
+    "setSeconds",
+    "setMilliseconds",
+    "toUTCString",
+    "toLocaleString",
+    "toLocaleDateString",
+    "toLocaleTimeString",
+]
 
 let config = { numberDataType: "int", outputBooleans: "true" }
 
@@ -86,8 +116,6 @@ function generateCpp(ast, compilingOptions) {
             return ast.name
         case "Literal": {
             if (ast.typeAnnotation) {
-                console.log("IN LITERALLLL", ast.typeAnnotation)
-                console.log()
                 return ast.value.toString()
             }
             if (ast.value.toString().startsWith("/")) {
@@ -220,10 +248,12 @@ function generateCpp(ast, compilingOptions) {
             const objectCode = generateCpp(ast.object)
             const propertyCode = ast.property.name
             if (propertyCode === "length") return `${objectCode}.length()`
-
             if (objectCode == "this") return propertyCode
             if (IMPLEMENTED_JS_OBJECTS[objectCode]) {
                 return `${IMPLEMENTED_JS_OBJECTS[objectCode]}::${propertyCode}`
+            }
+            if (IMPLEMENTED_JS_OBJECT_METHODS.includes(propertyCode)) {
+                return `${objectCode}.${propertyCode}`
             }
 
             return `${objectCode}["${propertyCode}"]`
@@ -400,7 +430,7 @@ function generateCpp(ast, compilingOptions) {
             const callee = generateCpp(ast.callee)
             const args = ast.arguments.map((a) => generateCpp(a)).join(", ")
             if (IMPLEMENTED_JS_OBJECTS[callee]) {
-                return args
+                return `${IMPLEMENTED_JS_OBJECTS[callee]} (${args})`
             }
             return `${callee} (${args})`
         }
