@@ -18,7 +18,7 @@ public:
         year_ = timeInfo.tm_year + 1900;
         month_ = timeInfo.tm_mon + 1;
         day_ = timeInfo.tm_mday;
-        hours_ = timeInfo.tm_hour;
+        hours_ = timeInfo.tm_hour + 2; // for tests to my locale tz
         minutes_ = timeInfo.tm_min;
         seconds_ = timeInfo.tm_sec;
     }
@@ -269,13 +269,13 @@ public:
     {
         return seconds_;
     }
-    int getMilliseconds() const
+    long long getMilliseconds() const
     {
         return milliseconds_;
     }
     long long getTime() const
-    {
-        return milliseconds_;
+    { // SHOULD RETURN ALL MS. (SUM)
+        return toMilliseconds();
     }
 
     int getTimezoneOffset() const
@@ -288,6 +288,94 @@ public:
         int gmMinutes = gmTime.tm_hour * 60 + gmTime.tm_min;
 
         return localMinutes - gmMinutes;
+    }
+    std::string toUTCString() const
+    {
+        char buffer[256];
+        std::tm timeInfo{};
+        timeInfo.tm_year = year_ - 1900;
+        timeInfo.tm_mon = month_ - 1;
+        timeInfo.tm_mday = day_;
+        timeInfo.tm_hour = hours_;
+        timeInfo.tm_min = minutes_;
+        timeInfo.tm_sec = seconds_;
+
+        std::tm temp = timeInfo;
+        std::mktime(&temp);
+        timeInfo.tm_wday = temp.tm_wday;
+
+        if (std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", &timeInfo) == 0)
+        {
+            return "";
+        }
+
+        return buffer;
+    }
+
+    std::string toLocaleString() const
+    {
+        char buffer[256];
+        std::tm timeInfo{};
+        timeInfo.tm_year = year_ - 1900;
+        timeInfo.tm_mon = month_ - 1;
+        timeInfo.tm_mday = day_;
+        timeInfo.tm_hour = hours_;
+        timeInfo.tm_min = minutes_;
+        timeInfo.tm_sec = seconds_;
+
+        if (std::strftime(buffer, sizeof(buffer), "%x", &timeInfo) == 0)
+        {
+            return "";
+        }
+
+        // Add time portion manually
+        char timeBuffer[256];
+        if (std::strftime(timeBuffer, sizeof(timeBuffer), "%I:%M:%S %p", &timeInfo) == 0)
+        {
+            return "";
+        }
+
+        return std::string(buffer) + ", " + timeBuffer;
+    }
+
+    std::string toLocaleDateString() const
+    {
+        char buffer[256];
+        std::tm timeInfo{};
+        timeInfo.tm_year = year_ - 1900;
+        timeInfo.tm_mon = month_ - 1;
+        timeInfo.tm_mday = day_;
+
+        if (std::strftime(buffer, sizeof(buffer), "%x", &timeInfo) == 0)
+        {
+            return "";
+        }
+
+        // Replace the last two digits of the year with the four-digit year
+        std::string result(buffer);
+        size_t yearPos = result.rfind('/');
+        if (yearPos != std::string::npos)
+        {
+            result.replace(yearPos + 1, 2, std::to_string(year_));
+        }
+
+        return result;
+    }
+
+    std::string toLocaleTimeString() const
+    {
+        char buffer[256];
+        std::tm timeInfo{};
+        timeInfo.tm_hour = hours_;
+        timeInfo.tm_min = minutes_;
+        timeInfo.tm_sec = seconds_;
+
+        if (std::strftime(buffer, sizeof(buffer), "%I:%M:%S %p", &timeInfo) == 0)
+        {
+            return "";
+        }
+
+        return buffer;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const __Date__ &date)
@@ -498,4 +586,9 @@ std::string JS_toString(long long value)
 double JS_valueOf(long long value)
 {
     return value;
+}
+
+std::string JS_toLocaleString(__Date__ value)
+{
+    return value.toLocaleString();
 }

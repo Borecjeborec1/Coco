@@ -12,6 +12,7 @@
 -   requires, linking files {Mid}
 -   no strict mode (using json for everything) {Mid} HARD!!!
 -   more cli params {Mid}
+-   Fix construcotr and prototype {Mid}
 -   Fix issue with same functions in global scope and built-in class scope {Mid}
 -   == vs === {Mid}
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
