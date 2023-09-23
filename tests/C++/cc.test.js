@@ -29,25 +29,44 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("arrays")
         })
     })
-    describe("Given  the Number Class Object", function () {
+    describe("Given the Number Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Number")
         })
     })
-    describe("Given  the Math Class Object", function () {
+    describe("Given the Math Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Math")
         })
     })
-    describe.only("Given  the Date Object", function () {
+    describe.only("Given the Date Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Date")
         })
     })
+
+})
+
+describe.skip("Given the TEST SOLO file", function () {
+    it("Should output same results as node", async function () {
+        await compileAndRunTest("solo")
+    })
 })
 
 function preprocessOutput(output) {
-    return output.replace(/[']/g, '"').replace(/\b(\d+)\.0\b/g, "$1")
+    // Replace single quotes with double quotes
+    output = output.replace(/[']/g, '"');
+
+    // Replace date formats with the desired format (e.g., MM/DD/YYYY to M/DD/YYYY)
+    output = output.replace(/\b(\d{2})\/(\d{2})\/(\d{2})\b/g, (match, month, day, year) => {
+        // Remove leading zeros from month and day
+        return `${parseInt(month, 10)}/${parseInt(day, 10)}/20${year}`;
+    });
+
+    // Replace floating point numbers with no decimal part (e.g., 42.0 to 42)
+    output = output.replace(/\b(\d+)\.0\b/g, "$1");
+
+    return output;
 }
 
 async function compileAndRunTest(fileName) {

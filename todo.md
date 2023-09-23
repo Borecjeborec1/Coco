@@ -5,7 +5,6 @@
 -   Async/await {High}
 -   this! {High}
 -   other data types (undefined/null) {High}
--   Date {High}
 -   built-in (Array, String, etc...) {Mid}
 -   fix nans/undefined/nulls {MID}
 -   var vs let {Mid}
@@ -15,6 +14,8 @@
 -   Fix construcotr and prototype {Mid}
 -   Fix issue with same functions in global scope and built-in class scope {Mid}
 -   == vs === {Mid}
+-   AST types discovery {Mid}
+-   Finish unfinished ast type handling {Mid}
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 -   block npm modules {Low}
@@ -31,6 +32,8 @@
 -   Set {Low}
 -   fix num.toString(213) -> binary formats? {Very Low}
 -   fix double stars and other syntaxes (pointer problems) {Very Low}
+-   options argument inside toLocaleDateString {Very Low}
+-   implement timezone handling in Date {Very Low}
 
 #### FINISHED
 
@@ -63,3 +66,4 @@
 -   dont copy whole json content but include it {Mid}
 -   fix different data types in array methods {High}
 -   Fix flatmap and reduce/reduceright {Low}
+-   Date {High}

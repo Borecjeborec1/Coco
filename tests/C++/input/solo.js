@@ -1,0 +1,7 @@
+const currentDate = new Date()
+console.log(currentDate.getDate())
+// // console.log("Date.prototype.constructor:", currentDate.constructor)
+console.log("Date.prototype.toString:", currentDate.toString())
+console.log("Date.prototype.toDateString:", currentDate.toDateString())
+console.log("Date.prototype.toTimeString:", currentDate.toTimeString())
+console.log("Date.prototype.toISOString:", currentDate.toISOString().toString().substring(0, 5))
