@@ -16,6 +16,7 @@ const IMPLEMENTED_JS_OBJECTS = {
     Math: "__Math__",
     Number: "__Number__",
     Date: "__Date__",
+    String: "__String__",
 }
 
 const IMPLEMENTED_JS_OBJECT_METHODS = [
@@ -430,6 +431,12 @@ function generateCpp(ast, compilingOptions) {
             const callee = generateCpp(ast.callee)
             const args = ast.arguments.map((a) => generateCpp(a)).join(", ")
             if (IMPLEMENTED_JS_OBJECTS[callee]) {
+                console.log("HEREEEEE")
+                if (IMPLEMENTED_JS_OBJECTS[callee] == "__Number__")
+                    return `static_cast<${config.numberDataType}>(${args})`
+                if (IMPLEMENTED_JS_OBJECTS[callee] == "__String__")
+                    return `std::string(${args})`
+
                 return `${IMPLEMENTED_JS_OBJECTS[callee]} (${args})`
             }
             return `${callee} (${args})`
@@ -442,8 +449,8 @@ function generateCpp(ast, compilingOptions) {
             const block = generateCpp(ast.block)
             const handler = ast.handler
                 ? `catch (${generateCpp(ast.handler.param)}) { \n${generateCpp(
-                      ast.handler.body
-                  )} } \n`
+                    ast.handler.body
+                )} } \n`
                 : ""
             const finalizer = ast.finalizer
                 ? `finally { \n${generateCpp(ast.finalizer)} } \n`

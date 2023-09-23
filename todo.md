@@ -34,6 +34,7 @@
 -   fix double stars and other syntaxes (pointer problems) {Very Low}
 -   options argument inside toLocaleDateString {Very Low}
 -   implement timezone handling in Date {Very Low}
+-   String raw static method {Very Low}
 
 #### FINISHED
 
@@ -66,4 +67,5 @@
 -   dont copy whole json content but include it {Mid}
 -   fix different data types in array methods {High}
 -   Fix flatmap and reduce/reduceright {Low}
--   Date {High}
+-   Date Object implementation{High}
+-   String Object implementation{High}

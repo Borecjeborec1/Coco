@@ -817,82 +817,89 @@ const double __Math__::SQRT2 = 1.4142135623730951;
 
 
 
-class __Number__ {
+class __Number__
+{
 public:
-  static const double EPSILON;
-  static const double MAX_VALUE;
-  static const double MIN_VALUE;
-  static const double NaN;
-  static const double NEGATIVE_INFINITY;
-  static const double POSITIVE_INFINITY;
-  static const int64_t MAX_SAFE_INTEGER;
-  static const int64_t MIN_SAFE_INTEGER;
+    static const double EPSILON;
+    static const double MAX_VALUE;
+    static const double MIN_VALUE;
+    static const double NaN;
+    static const double NEGATIVE_INFINITY;
+    static const double POSITIVE_INFINITY;
+    static const int64_t MAX_SAFE_INTEGER;
+    static const int64_t MIN_SAFE_INTEGER;
 
-  static double parseFloat(const std::string &str) { return std::stod(str); }
+    __Number__(double value = 0.0) : value_(value) {}
 
-  static int32_t parseInt(const std::string &str, int radix = 10) {
-    return std::stoi(str, 0, radix);
-  }
+    static double parseFloat(const std::string &str)
+    {
+        return std::stod(str);
+    }
 
-  static bool isFinite(double num) { return std::isfinite(num); }
+    static int32_t parseInt(const std::string &str, int radix = 10)
+    {
+        return std::stoi(str, 0, radix);
+    }
 
-  static bool isInteger(double num) { return std::trunc(num) == num; }
+    static bool isFinite(double num)
+    {
+        return std::isfinite(num);
+    }
 
-  static bool isSafeInteger(double num) {
-    return isInteger(num) && num >= MIN_SAFE_INTEGER && num <= MAX_SAFE_INTEGER;
-  }
+    static bool isInteger(double num)
+    {
+        return std::trunc(num) == num;
+    }
+
+    static bool isSafeInteger(double num)
+    {
+        return isInteger(num) && num >= MIN_SAFE_INTEGER && num <= MAX_SAFE_INTEGER;
+    }
+
+    double valueOf() const
+    {
+        return value_;
+    }
+
+    std::string toString() const
+    {
+        return std::to_string(value_);
+    }
+
+    double toPrecision(int precision) const
+    {
+        if (!std::isfinite(value_) || precision < 1 || precision > 21)
+        {
+            return value_;
+        }
+        return std::stod(std::to_string(value_));
+    }
+
+    double toFixed(int decimalPlaces) const
+    {
+        if (!std::isfinite(value_))
+        {
+            return value_;
+        }
+        double multiplier = std::pow(10.0, decimalPlaces);
+        return std::round(value_ * multiplier) / multiplier;
+    }
+
+private:
+    double value_;
 };
 
 const double __Number__::EPSILON = std::numeric_limits<double>::epsilon();
 const double __Number__::MAX_VALUE = std::numeric_limits<double>::max();
 const double __Number__::MIN_VALUE = std::numeric_limits<double>::min();
 const double __Number__::NaN = std::numeric_limits<double>::quiet_NaN();
-const double __Number__::NEGATIVE_INFINITY =
-    -std::numeric_limits<double>::infinity();
-const double __Number__::POSITIVE_INFINITY =
-    std::numeric_limits<double>::infinity();
-const int64_t __Number__::MAX_SAFE_INTEGER =
-    std::numeric_limits<int64_t>::max();
-const int64_t __Number__::MIN_SAFE_INTEGER =
-    std::numeric_limits<int64_t>::min();
+const double __Number__::NEGATIVE_INFINITY = -std::numeric_limits<double>::infinity();
+const double __Number__::POSITIVE_INFINITY = std::numeric_limits<double>::infinity();
+const int64_t __Number__::MAX_SAFE_INTEGER = std::numeric_limits<int64_t>::max();
+const int64_t __Number__::MIN_SAFE_INTEGER = std::numeric_limits<int64_t>::min();
 
-
-
-class __String__ {
-public:
-  static std::string fromCharCode(const nlohmann::json &charCodes) {
-    std::string result;
-    for (int charCode : charCodes) {
-      result += static_cast<char>(charCode);
-    }
-    return result;
-  }
-
-  static std::string fromCodePoint(const nlohmann::json &codePoints) {
-    std::string result;
-    for (int codePoint : codePoints) {
-      if (codePoint >= 0x10000) {
-        codePoint -= 0x10000;
-        result += static_cast<char>((codePoint >> 10) + 0xD800);
-        result += static_cast<char>((codePoint & 0x3FF) + 0xDC00);
-      } else {
-        result += static_cast<char>(codePoint);
-      }
-    }
-    return result;
-  }
-
-  static std::string raw(const nlohmann::json &strings) {
-    std::string oss = "";
-    for (size_t i = 0; i < strings.size(); ++i) {
-      oss += strings[i];
-      if (i < strings.size() - 1) {
-        oss += "\\";
-      }
-    }
-    return oss;
-  }
-};
+std::string JS_toString(__Number__ value) { return value.toString(); }
+double JS_valueOf(__Number__ value) { return value.valueOf(); }
 
 
 
@@ -2167,10 +2174,56 @@ std::string JS_trimStart(const std::string &str)
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto strObj = std::string(std::string("Hello, World!")) ; 
+  auto currentDate = __Date__ () ; 
 
-std::cout << std::string("String.prototype.length:") << strObj.length() << '\n';
-std::cout << std::string("String.fromCharCode:") << __String__::fromCharCode(static_cast<int>(72), static_cast<int>(101), static_cast<int>(108), static_cast<int>(108), static_cast<int>(111)) << '\n';
-std::cout << std::string("String.fromCodePoint:") << __String__::fromCodePoint(static_cast<int>(72), static_cast<int>(101), static_cast<int>(108), static_cast<int>(108), static_cast<int>(111)) << '\n';
+std::cout << currentDate.getDate() << '\n';
+std::cout << std::string("Date.prototype.toString:") << JS_toString(currentDate) << '\n';
+std::cout << std::string("Date.prototype.toDateString:") << currentDate.toDateString() << '\n';
+std::cout << std::string("Date.prototype.toTimeString:") << currentDate.toTimeString() << '\n';
+std::cout << std::string("Date.prototype.toISOString:") << JS_substring(JS_toString(currentDate.toISOString()), static_cast<double>(0), static_cast<double>(5)) << '\n';
+std::cout << std::string("Date.prototype.toJSON:") << JS_substring(JS_toString(currentDate.toJSON()), static_cast<double>(0), static_cast<double>(5)) << '\n';
+std::cout << std::string("Date.prototype.valueOf:") << JS_substring(JS_toString(JS_valueOf(currentDate)), static_cast<double>(0), static_cast<double>(5)) << '\n';
+std::cout << std::string("Date.prototype.getDate:") << currentDate.getDate() << '\n';
+std::cout << std::string("Date.prototype.getDay:") << currentDate.getDay() << '\n';
+std::cout << std::string("Date.prototype.getFullYear:") << currentDate.getFullYear() << '\n';
+std::cout << std::string("Date.prototype.getHours:") << currentDate.getHours() << '\n';
+std::cout << std::string("Date.prototype.getMinutes:") << currentDate.getMinutes() << '\n';
+std::cout << std::string("Date.prototype.getMonth:") << currentDate.getMonth() << '\n';
+std::cout << std::string("Date.prototype.getSeconds:") << currentDate.getSeconds() << '\n';
+std::cout << std::string("Date.prototype.getTime:") << JS_substring(JS_toString(currentDate.getTime()), static_cast<double>(0), static_cast<double>(5)) << '\n';
+std::cout << std::string("Date.prototype.getTimezoneOffset:") << currentDate.getTimezoneOffset() << '\n';
+std::cout << std::string("Date.now:") << JS_substring(JS_toString(__Date__::now()), static_cast<double>(0), static_cast<double>(5)) << '\n';
+std::cout << std::string("Date.UTC:") << __Date__::UTC(static_cast<double>(2023), static_cast<double>(0), static_cast<double>(15)) << '\n';
+std::cout << std::string("Date.parse:") << __Date__::parse(std::string("2023-01-15T12:00:00Z")) << '\n';
+std::cout << std::string("Date.parse (Invalid Date):") << (__Date__::parse(std::string("Invalid Date")) > static_cast<double>(0)) << '\n';
+currentDate.setFullYear(static_cast<double>(2024));
+std::cout << std::string("Date.prototype.setFullYear:") << '\n';
+std::cout << std::string("Date.prototype.getFullYear:") << currentDate.getFullYear() << '\n';
+currentDate.setMonth(static_cast<double>(4));
+std::cout << std::string("Date.prototype.setMonth:") << '\n';
+std::cout << std::string("Date.prototype.getMonth:") << currentDate.getMonth() << '\n';
+currentDate.setDate(static_cast<double>(29));
+std::cout << std::string("Date.prototype.setDate:") << '\n';
+std::cout << std::string("Date.prototype.getDate:") << currentDate.getDate() << '\n';
+currentDate.setHours(static_cast<double>(10));
+std::cout << std::string("Date.prototype.setHours:") << '\n';
+std::cout << std::string("Date.prototype.getHours:") << currentDate.getHours() << '\n';
+currentDate.setMinutes(static_cast<double>(30));
+std::cout << std::string("Date.prototype.setMinutes:") << '\n';
+std::cout << std::string("Date.prototype.getMinutes:") << currentDate.getMinutes() << '\n';
+currentDate.setSeconds(static_cast<double>(45));
+std::cout << std::string("Date.prototype.setSeconds:") << '\n';
+std::cout << std::string("Date.prototype.getSeconds:") << currentDate.getSeconds() << '\n';
+currentDate.setMilliseconds(static_cast<double>(500));
+std::cout << std::string("Date.prototype.setMilliseconds:") << '\n';
+std::cout << std::string("Date.prototype.getMilliseconds:") << currentDate.getMilliseconds() << '\n';
+std::cout << std::string("Date.prototype.getDay:") << currentDate.getDay() << '\n';
+std::cout << std::string("Date.prototype.toUTCString:") << currentDate.toUTCString() << '\n';
+std::cout << std::string("Date.prototype.toLocaleString:") << JS_toLocaleString(currentDate) << '\n';
+std::cout << std::string("Date.prototype.toLocaleDateString:") << currentDate.toLocaleDateString() << '\n';
+std::cout << std::string("Date.prototype.toLocaleTimeString:") << currentDate.toLocaleTimeString() << '\n';
+auto futureDate = __Date__ (static_cast<double>(2025), static_cast<double>(0), static_cast<double>(1)) ; 
+
+std::cout << std::string("Date.prototype.getTime() vs. futureDate.getTime():") << (currentDate.getTime() < futureDate.getTime()) << (currentDate.getTime() == futureDate.getTime()) << (currentDate.getTime() == futureDate.getTime()) << (currentDate.getTime() > futureDate.getTime()) << (currentDate.getTime() >= futureDate.getTime()) << (currentDate.getTime() <= futureDate.getTime()) << '\n';
   return 0;
 }  

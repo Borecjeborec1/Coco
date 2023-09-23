@@ -39,12 +39,16 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Math")
         })
     })
-    describe.only("Given the Date Object", function () {
+    describe("Given the Date Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Date")
         })
     })
-
+    describe.only("Given the String Object", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("objects/String")
+        })
+    })
 })
 
 describe.skip("Given the TEST SOLO file", function () {

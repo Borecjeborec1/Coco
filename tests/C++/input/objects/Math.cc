@@ -817,82 +817,89 @@ const double __Math__::SQRT2 = 1.4142135623730951;
 
 
 
-class __Number__ {
+class __Number__
+{
 public:
-  static const double EPSILON;
-  static const double MAX_VALUE;
-  static const double MIN_VALUE;
-  static const double NaN;
-  static const double NEGATIVE_INFINITY;
-  static const double POSITIVE_INFINITY;
-  static const int64_t MAX_SAFE_INTEGER;
-  static const int64_t MIN_SAFE_INTEGER;
+    static const double EPSILON;
+    static const double MAX_VALUE;
+    static const double MIN_VALUE;
+    static const double NaN;
+    static const double NEGATIVE_INFINITY;
+    static const double POSITIVE_INFINITY;
+    static const int64_t MAX_SAFE_INTEGER;
+    static const int64_t MIN_SAFE_INTEGER;
 
-  static double parseFloat(const std::string &str) { return std::stod(str); }
+    __Number__(double value = 0.0) : value_(value) {}
 
-  static int32_t parseInt(const std::string &str, int radix = 10) {
-    return std::stoi(str, 0, radix);
-  }
+    static double parseFloat(const std::string &str)
+    {
+        return std::stod(str);
+    }
 
-  static bool isFinite(double num) { return std::isfinite(num); }
+    static int32_t parseInt(const std::string &str, int radix = 10)
+    {
+        return std::stoi(str, 0, radix);
+    }
 
-  static bool isInteger(double num) { return std::trunc(num) == num; }
+    static bool isFinite(double num)
+    {
+        return std::isfinite(num);
+    }
 
-  static bool isSafeInteger(double num) {
-    return isInteger(num) && num >= MIN_SAFE_INTEGER && num <= MAX_SAFE_INTEGER;
-  }
+    static bool isInteger(double num)
+    {
+        return std::trunc(num) == num;
+    }
+
+    static bool isSafeInteger(double num)
+    {
+        return isInteger(num) && num >= MIN_SAFE_INTEGER && num <= MAX_SAFE_INTEGER;
+    }
+
+    double valueOf() const
+    {
+        return value_;
+    }
+
+    std::string toString() const
+    {
+        return std::to_string(value_);
+    }
+
+    double toPrecision(int precision) const
+    {
+        if (!std::isfinite(value_) || precision < 1 || precision > 21)
+        {
+            return value_;
+        }
+        return std::stod(std::to_string(value_));
+    }
+
+    double toFixed(int decimalPlaces) const
+    {
+        if (!std::isfinite(value_))
+        {
+            return value_;
+        }
+        double multiplier = std::pow(10.0, decimalPlaces);
+        return std::round(value_ * multiplier) / multiplier;
+    }
+
+private:
+    double value_;
 };
 
 const double __Number__::EPSILON = std::numeric_limits<double>::epsilon();
 const double __Number__::MAX_VALUE = std::numeric_limits<double>::max();
 const double __Number__::MIN_VALUE = std::numeric_limits<double>::min();
 const double __Number__::NaN = std::numeric_limits<double>::quiet_NaN();
-const double __Number__::NEGATIVE_INFINITY =
-    -std::numeric_limits<double>::infinity();
-const double __Number__::POSITIVE_INFINITY =
-    std::numeric_limits<double>::infinity();
-const int64_t __Number__::MAX_SAFE_INTEGER =
-    std::numeric_limits<int64_t>::max();
-const int64_t __Number__::MIN_SAFE_INTEGER =
-    std::numeric_limits<int64_t>::min();
+const double __Number__::NEGATIVE_INFINITY = -std::numeric_limits<double>::infinity();
+const double __Number__::POSITIVE_INFINITY = std::numeric_limits<double>::infinity();
+const int64_t __Number__::MAX_SAFE_INTEGER = std::numeric_limits<int64_t>::max();
+const int64_t __Number__::MIN_SAFE_INTEGER = std::numeric_limits<int64_t>::min();
 
-
-
-class __String__ {
-public:
-  static std::string fromCharCode(const nlohmann::json &charCodes) {
-    std::string result;
-    for (int charCode : charCodes) {
-      result += static_cast<char>(charCode);
-    }
-    return result;
-  }
-
-  static std::string fromCodePoint(const nlohmann::json &codePoints) {
-    std::string result;
-    for (int codePoint : codePoints) {
-      if (codePoint >= 0x10000) {
-        codePoint -= 0x10000;
-        result += static_cast<char>((codePoint >> 10) + 0xD800);
-        result += static_cast<char>((codePoint & 0x3FF) + 0xDC00);
-      } else {
-        result += static_cast<char>(codePoint);
-      }
-    }
-    return result;
-  }
-
-  static std::string raw(const nlohmann::json &strings) {
-    std::string oss = "";
-    for (size_t i = 0; i < strings.size(); ++i) {
-      oss += strings[i];
-      if (i < strings.size() - 1) {
-        oss += "\\";
-      }
-    }
-    return oss;
-  }
-};
+std::string JS_toString(__Number__ value) { return value.toString(); }
+double JS_valueOf(__Number__ value) { return value.valueOf(); }
 
 
 
@@ -2167,10 +2174,40 @@ std::string JS_trimStart(const std::string &str)
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto strObj = std::string(std::string("Hello, World!")) ; 
-
-std::cout << std::string("String.prototype.length:") << strObj.length() << '\n';
-std::cout << std::string("String.fromCharCode:") << __String__::fromCharCode(static_cast<int>(72), static_cast<int>(101), static_cast<int>(108), static_cast<int>(108), static_cast<int>(111)) << '\n';
-std::cout << std::string("String.fromCodePoint:") << __String__::fromCodePoint(static_cast<int>(72), static_cast<int>(101), static_cast<int>(108), static_cast<int>(108), static_cast<int>(111)) << '\n';
+  std::cout << std::string("Math.E:") << __Math__::round(__Math__::E) << '\n';
+std::cout << std::string("Math.LN10:") << __Math__::floor(__Math__::LN10) << '\n';
+std::cout << std::string("Math.LN2:") << __Math__::floor(__Math__::LN2) << '\n';
+std::cout << std::string("Math.LOG10E:") << __Math__::round(__Math__::LOG10E) << '\n';
+std::cout << std::string("Math.LOG2E:") << __Math__::round(__Math__::LOG2E) << '\n';
+std::cout << std::string("Math.PI:") << __Math__::round(__Math__::PI) << '\n';
+std::cout << std::string("Math.SQRT1_2:") << __Math__::round(__Math__::SQRT1_2) << '\n';
+std::cout << std::string("Math.SQRT2:") << __Math__::round(__Math__::SQRT2) << '\n';
+std::cout << std::string("Math.abs:") << __Math__::round(__Math__::abs(static_cast<double>(0)-static_cast<double>(42))) << '\n';
+std::cout << std::string("Math.acos:") << __Math__::round(__Math__::acos(static_cast<double>(0.5))) << '\n';
+std::cout << std::string("Math.acosh:") << __Math__::round(__Math__::acosh(static_cast<double>(2))) << '\n';
+std::cout << std::string("Math.asin:") << __Math__::round(__Math__::asin(static_cast<double>(0.5))) << '\n';
+std::cout << std::string("Math.asinh:") << __Math__::round(__Math__::asinh(static_cast<double>(1))) << '\n';
+std::cout << std::string("Math.atan:") << __Math__::round(__Math__::atan(static_cast<double>(0.5))) << '\n';
+std::cout << std::string("Math.atanh:") << __Math__::round(__Math__::atanh(static_cast<double>(0.5))) << '\n';
+std::cout << std::string("Math.atan2:") << __Math__::round(__Math__::atan2(static_cast<double>(1), static_cast<double>(2))) << '\n';
+std::cout << std::string("Math.cbrt:") << __Math__::round(__Math__::cbrt(static_cast<double>(27))) << '\n';
+std::cout << std::string("Math.ceil:") << __Math__::ceil(static_cast<double>(41.1)) << '\n';
+std::cout << std::string("Math.cos:") << __Math__::round(__Math__::cos(__Math__::PI)) << '\n';
+std::cout << std::string("Math.cosh:") << __Math__::round(__Math__::cosh(static_cast<double>(0))) << '\n';
+std::cout << std::string("Math.exp:") << __Math__::round(__Math__::exp(static_cast<double>(1))) << '\n';
+std::cout << std::string("Math.floor:") << __Math__::floor(static_cast<double>(41.9)) << '\n';
+std::cout << std::string("Math.log:") << __Math__::round(__Math__::log(static_cast<double>(10))) << '\n';
+std::cout << std::string("Math.max:") << __Math__::round(__Math__::max(static_cast<double>(5), static_cast<double>(2), static_cast<double>(8), static_cast<double>(1))) << '\n';
+std::cout << std::string("Math.min:") << __Math__::round(__Math__::min(static_cast<double>(5), static_cast<double>(2), static_cast<double>(8), static_cast<double>(1))) << '\n';
+std::cout << std::string("Math.pow:") << __Math__::round(__Math__::pow(static_cast<double>(2), static_cast<double>(3))) << '\n';
+std::cout << std::string("Math.random:") << __Math__::round(__Math__::random()) << '\n';
+std::cout << std::string("Math.round:") << __Math__::round(static_cast<double>(41.5)) << '\n';
+std::cout << std::string("Math.sign:") << __Math__::sign(static_cast<double>(0)-static_cast<double>(3)) << '\n';
+std::cout << std::string("Math.sin:") << __Math__::round(__Math__::sin((__Math__::PI / static_cast<double>(6)))) << '\n';
+std::cout << std::string("Math.sinh:") << __Math__::round(__Math__::sinh(static_cast<double>(0))) << '\n';
+std::cout << std::string("Math.sqrt:") << __Math__::round(__Math__::sqrt(static_cast<double>(25))) << '\n';
+std::cout << std::string("Math.tan:") << __Math__::round(__Math__::tan((__Math__::PI / static_cast<double>(4)))) << '\n';
+std::cout << std::string("Math.tanh:") << __Math__::round(__Math__::tanh(static_cast<double>(0))) << '\n';
+std::cout << std::string("Math.trunc:") << __Math__::floor(static_cast<double>(42.9)) << '\n';
   return 0;
 }  
