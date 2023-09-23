@@ -6,8 +6,9 @@
 -   this! {High}
 -   other data types (undefined/null) {High}
 -   built-in (Array, String, etc...) {Mid}
--   fix nans/undefined/nulls {MID}
+-   fix nans/undefined/nulls {Mid}
 -   var vs let {Mid}
+-   RegExp Object {Mid}
 -   requires, linking files {Mid}
 -   no strict mode (using json for everything) {Mid} HARD!!!
 -   more cli params {Mid}
@@ -70,3 +71,4 @@
 -   Date Object implementation{High}
 -   String Object implementation{High}
 -   Hadle !! operator {Low}
+-   Array Object implementation{High}

@@ -10,16 +10,16 @@
 #include <cmath>
 #include <iomanip>
 
+#include <iostream>
+#include <vector>
 #include <string>
 
-#include <iostream>
+#include <string>
 #include <ctime>
 #include <chrono>
 #include <cstdarg>
 #include <limits>
-#include <string>
 #include <cstdint>
-#include <vector>
 #include <regex>
 
 
@@ -136,6 +136,22 @@ std::string encodeURIComponent(const std::string &component)
   }
   return encoded;
 }
+
+
+
+class __Array__ {
+public:
+  static bool isArray(const nlohmann::json &obj) { return obj.is_array(); }
+
+  template <typename... Args> static nlohmann::json from(Args... elements) {
+    std::vector<nlohmann::json> jsonArray = {elements...};
+    return jsonArray;
+  }
+
+  template <typename... Args> static nlohmann::json of(Args... elements) {
+    return from(elements...);
+  }
+};
 
 
 
@@ -2204,20 +2220,11 @@ std::string JS_trimStart(const std::string &str)
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto good = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(std::string("test"))) ; 
+  auto someArray = nlohmann::json{nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3)}, nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3)}} ; 
 
-auto good2 = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(std::string("test"))) ; 
-
-auto bad = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(std::string("test"))) ; 
-
-auto bad2 = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(static_cast<int>(12321))) ; 
-
-auto bad3 = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(true)) ; 
-
-std::cout << good << '\n';
-std::cout << good2 << '\n';
-std::cout << bad << '\n';
-std::cout << bad2 << '\n';
-std::cout << bad3 << '\n';
+std::cout << std::string("Array([1, 2, 3]):") << someArray << '\n';
+std::cout << std::string("Array.isArray(someArray):") << JS_isArray(someArray) << '\n';
+std::cout << std::string("Array.from:") << __Array__::from(std::string("hello")) << '\n';
+std::cout << std::string("Array.of:") << __Array__::of(static_cast<int>(1), static_cast<int>(2), static_cast<int>(3), std::string("hello")) << '\n';
   return 0;
 }  

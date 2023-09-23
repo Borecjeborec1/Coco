@@ -18,9 +18,10 @@ const IMPLEMENTED_JS_OBJECTS = {
     Date: "__Date__",
     String: "__String__",
     Boolean: "__Boolean__",
+    Array: "__Array__",
 }
 
-const IMPLEMENTED_JS_OBJECT_METHODS = [
+const IMPLEMENTED_DATE_METHODS = [
     "toISOString",
     "toString",
     "toDateString",
@@ -216,6 +217,9 @@ function generateCpp(ast, compilingOptions) {
                             .slice(0, argCount)
                             .map(generateCpp)
                             .join(", ")
+                        if (IMPLEMENTED_JS_OBJECTS[variableName]) {
+                            return `${name}(${args})`
+                        }
                         return `${name}(${variableName}, ${args})`
                     } else {
                         return `${name}(${variableName})`
@@ -225,13 +229,15 @@ function generateCpp(ast, compilingOptions) {
 
             if (ast.callee.type === "Identifier") {
                 const constructorName = ast.callee.name;
-
                 if (constructorName === "Boolean") {
                     return `JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(${generateCpp(ast.arguments[0])}))`;
                 } else if (constructorName === "String") {
                     return `std::string(${generateCpp(ast.arguments[0])})`;
                 } else if (constructorName === "Number") {
                     return `static_cast<${config.numberDataType}>(${generateCpp(ast.arguments[0])})`;
+                } else if (constructorName === "Array") {
+                    let idk = ast.arguments.map(generateCpp).join(", ")
+                    return `nlohmann::json{${idk}}`;
                 }
             }
 
@@ -267,7 +273,7 @@ function generateCpp(ast, compilingOptions) {
             if (IMPLEMENTED_JS_OBJECTS[objectCode]) {
                 return `${IMPLEMENTED_JS_OBJECTS[objectCode]}::${propertyCode}`
             }
-            if (IMPLEMENTED_JS_OBJECT_METHODS.includes(propertyCode)) {
+            if (IMPLEMENTED_DATE_METHODS.includes(propertyCode)) {
                 return `${objectCode}.${propertyCode}`
             }
 
@@ -453,6 +459,8 @@ function generateCpp(ast, compilingOptions) {
                     return `std::string(${args})`
                 if (callee == "Boolean")
                     return `JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(${args}))`
+                if (callee == "Array")
+                    return `${args}`
                 return `${IMPLEMENTED_JS_OBJECTS[callee]} (${args})`
             }
             return `${callee} (${args})`

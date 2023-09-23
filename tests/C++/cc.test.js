@@ -24,7 +24,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("functions")
         })
     })
-    describe("Given all built-in Array methods", function () {
+    describe("Given all built-in ARRAY methods", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("arrays")
         })
@@ -39,19 +39,24 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Math")
         })
     })
-    describe("Given the Date Object", function () {
+    describe("Given the Date Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Date")
         })
     })
-    describe("Given the String Object", function () {
+    describe("Given the String Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/String")
         })
     })
-    describe("Given the Bool Object", function () {
+    describe("Given the Bool Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Bool")
+        })
+    })
+    describe.only("Given the Array Class Object", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("objects/Array")
         })
     })
 })

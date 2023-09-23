@@ -6,6 +6,6 @@ const bad3 = new Boolean(true);
 
 console.log(good)
 console.log(good2)
-console.log(bad)
-console.log(bad2)
-console.log(bad3)
+console.log(!bad)
+console.log(!bad2)
+console.log(!bad3)
