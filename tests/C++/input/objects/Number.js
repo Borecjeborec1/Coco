@@ -15,6 +15,7 @@ console.log("Number.isInteger:", Number.isInteger(42))
 console.log("Number.isSafeInteger:", Number.isSafeInteger(42))
 
 const num = new Number(42)
+const num2 = Number(42)
 console.log("Number.prototype.valueOf:", num.valueOf())
 console.log("Number.prototype.toString:", num.toString())
 console.log("Number.prototype.toPrecision:", num.toPrecision(4))

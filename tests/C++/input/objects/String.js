@@ -1,5 +1,6 @@
 // Create a String object for testing
 const strObj = new String("Hello, World!");
+const strObj2 = String("Hello, World!");
 
 // String Object Properties
 // console.log("String.prototype.constructor:", strObj.constructor);

@@ -69,3 +69,4 @@
 -   Fix flatmap and reduce/reduceright {Low}
 -   Date Object implementation{High}
 -   String Object implementation{High}
+-   Hadle !! operator {Low}

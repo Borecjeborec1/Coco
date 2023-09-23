@@ -17,6 +17,7 @@ const IMPLEMENTED_JS_OBJECTS = {
     Number: "__Number__",
     Date: "__Date__",
     String: "__String__",
+    Boolean: "__Boolean__",
 }
 
 const IMPLEMENTED_JS_OBJECT_METHODS = [
@@ -221,6 +222,19 @@ function generateCpp(ast, compilingOptions) {
                     }
                 }
             }
+
+            if (ast.callee.type === "Identifier") {
+                const constructorName = ast.callee.name;
+
+                if (constructorName === "Boolean") {
+                    return `JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(${generateCpp(ast.arguments[0])}))`;
+                } else if (constructorName === "String") {
+                    return `std::string(${generateCpp(ast.arguments[0])})`;
+                } else if (constructorName === "Number") {
+                    return `static_cast<${config.numberDataType}>(${generateCpp(ast.arguments[0])})`;
+                }
+            }
+
             return `${callee}(${ast.arguments.map(generateCpp).join(", ")})`
         }
         case "FunctionExpression":
@@ -279,6 +293,8 @@ function generateCpp(ast, compilingOptions) {
                 return `typeid(${argument}).name()`
             } else if (operator === "-") {
                 return `static_cast<${config.numberDataType}>(0)-${argument}`
+            } else if (operator === "!") {
+                return `JS_CAST_ExclamationBoolean(${argument})`;
             }
             return `${operator}${argument} `
         }
@@ -431,12 +447,12 @@ function generateCpp(ast, compilingOptions) {
             const callee = generateCpp(ast.callee)
             const args = ast.arguments.map((a) => generateCpp(a)).join(", ")
             if (IMPLEMENTED_JS_OBJECTS[callee]) {
-                console.log("HEREEEEE")
-                if (IMPLEMENTED_JS_OBJECTS[callee] == "__Number__")
+                if (callee == "Number")
                     return `static_cast<${config.numberDataType}>(${args})`
-                if (IMPLEMENTED_JS_OBJECTS[callee] == "__String__")
+                if (callee == "String")
                     return `std::string(${args})`
-
+                if (callee == "Boolean")
+                    return `JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(${args}))`
                 return `${IMPLEMENTED_JS_OBJECTS[callee]} (${args})`
             }
             return `${callee} (${args})`

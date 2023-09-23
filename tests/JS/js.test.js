@@ -365,7 +365,7 @@ describe("generating comparison and logical operators", function () {
 
     it("should convert logical NOT operator", function () {
         const jsCode = "!x;"
-        const expectedCppCode = "!x;" //TODO: Check why its not (!x)
+        const expectedCppCode = "JS_CAST_ExclamationBoolean(x);"
 
         expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
             expectedCppCode

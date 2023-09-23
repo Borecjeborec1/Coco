@@ -10,11 +10,11 @@
 #include <cmath>
 #include <iomanip>
 
+#include <string>
+
 #include <iostream>
 #include <ctime>
 #include <chrono>
-
-#include <string>
 #include <cstdarg>
 #include <limits>
 #include <string>
@@ -137,6 +137,21 @@ std::string encodeURIComponent(const std::string &component)
   return encoded;
 }
 
+
+
+bool JS_CAST_ExclamationBoolean(int value) { return !(value != 0); }
+
+bool JS_CAST_ExclamationBoolean(double value) { return !(value != 0.0); }
+
+bool JS_CAST_ExclamationBoolean(const std::string &value) {
+  return !(!value.empty());
+}
+
+bool JS_CAST_ExclamationBoolean(bool value) { return !value; }
+
+bool JS_CAST_ExclamationBoolean(const nlohmann::json &value) {
+  return !(!value.empty());
+}
 
 
 class __Date__ {
@@ -856,42 +871,64 @@ const int64_t __Number__::MAX_SAFE_INTEGER =
 const int64_t __Number__::MIN_SAFE_INTEGER =
     std::numeric_limits<int64_t>::min();
 
-
+#include <iostream>
+#include <string>
+#include <sstream>
 
 class __String__ {
 public:
-  static std::string fromCharCode(const nlohmann::json &charCodes) {
+  template <typename... Args>
+  static std::string fromCharCode(Args... charCodes) {
     std::string result;
-    for (int charCode : charCodes) {
-      result += static_cast<char>(charCode);
-    }
+    appendChars(result, charCodes...);
     return result;
   }
 
-  static std::string fromCodePoint(const nlohmann::json &codePoints) {
+  template <typename... Args>
+  static std::string fromCodePoint(Args... codePoints) {
     std::string result;
-    for (int codePoint : codePoints) {
-      if (codePoint >= 0x10000) {
-        codePoint -= 0x10000;
-        result += static_cast<char>((codePoint >> 10) + 0xD800);
-        result += static_cast<char>((codePoint & 0x3FF) + 0xDC00);
-      } else {
-        result += static_cast<char>(codePoint);
-      }
-    }
+    appendCodePoints(result, codePoints...);
     return result;
   }
 
-  static std::string raw(const nlohmann::json &strings) {
-    std::string oss = "";
-    for (size_t i = 0; i < strings.size(); ++i) {
-      oss += strings[i];
-      if (i < strings.size() - 1) {
-        oss += "\\";
-      }
-    }
-    return oss;
+  // static std::string raw(const std::vector<std::string> &strings) {
+  //   std::ostringstream oss;
+  //   for (size_t i = 0; i < strings.size(); ++i) {
+  //     oss << strings[i];
+  //     if (i < strings.size() - 1) {
+  //       oss << "\\";
+  //     }
+  //   }
+  //   return oss.str();
+  // }
+
+private:
+  // Helper function to append characters to the result string
+  template <typename... Args>
+  static void appendChars(std::string &result, int charCode, Args... args) {
+    result += static_cast<char>(charCode);
+    appendChars(result, args...);
   }
+
+  // Base case for appendChars to end recursion
+  static void appendChars(std::string &) {}
+
+  // Helper function to append code points to the result string
+  template <typename... Args>
+  static void appendCodePoints(std::string &result, int codePoint,
+                               Args... args) {
+    if (codePoint >= 0x10000) {
+      codePoint -= 0x10000;
+      result += static_cast<char>((codePoint >> 10) + 0xD800);
+      result += static_cast<char>((codePoint & 0x3FF) + 0xDC00);
+    } else {
+      result += static_cast<char>(codePoint);
+    }
+    appendCodePoints(result, args...);
+  }
+
+  // Base case for appendCodePoints to end recursion
+  static void appendCodePoints(std::string &) {}
 };
 
 
@@ -2167,10 +2204,20 @@ std::string JS_trimStart(const std::string &str)
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto strObj = std::string(std::string("Hello, World!")) ; 
+  auto good = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(std::string("test"))) ; 
 
-std::cout << std::string("String.prototype.length:") << strObj.length() << '\n';
-std::cout << std::string("String.fromCharCode:") << __String__::fromCharCode(static_cast<int>(72), static_cast<int>(101), static_cast<int>(108), static_cast<int>(108), static_cast<int>(111)) << '\n';
-std::cout << std::string("String.fromCodePoint:") << __String__::fromCodePoint(static_cast<int>(72), static_cast<int>(101), static_cast<int>(108), static_cast<int>(108), static_cast<int>(111)) << '\n';
+auto good2 = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(std::string("test"))) ; 
+
+auto bad = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(std::string("test"))) ; 
+
+auto bad2 = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(static_cast<int>(12321))) ; 
+
+auto bad3 = JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(true)) ; 
+
+std::cout << good << '\n';
+std::cout << good2 << '\n';
+std::cout << bad << '\n';
+std::cout << bad2 << '\n';
+std::cout << bad3 << '\n';
   return 0;
 }  

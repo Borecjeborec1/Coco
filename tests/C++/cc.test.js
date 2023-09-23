@@ -44,9 +44,14 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Date")
         })
     })
-    describe.only("Given the String Object", function () {
+    describe("Given the String Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/String")
+        })
+    })
+    describe("Given the Bool Object", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("objects/Bool")
         })
     })
 })
@@ -93,7 +98,7 @@ async function compileAndRunTest(fileName) {
     expect(preprocessOutput(cocoResult)).to.equalIgnoreSpaces(
         preprocessOutput(nodeResult)
     )
-    await cleanupFiles(compileOptions.cppFile, compileOptions.outputFile)
+    await cleanupFiles(compileOptions.cppFile, compileOptions.outputFile, path.join(path.dirname(compileOptions.cppFile), "nlohmann-json.hh"))
 }
 
 async function runInNode(input) {
