@@ -16,10 +16,10 @@ console.log("Date.prototype.getMinutes:", currentDate.getMinutes())
 console.log("Date.prototype.getMonth:", currentDate.getMonth())
 console.log("Date.prototype.getSeconds:", currentDate.getSeconds())
 // console.log("Date.prototype.getTime:", currentDate.getTime())
-// console.log(
-//     "Date.prototype.getTimezoneOffset:",
-//     currentDate.getTimezoneOffset()
-// )
+console.log(
+    "Date.prototype.getTimezoneOffset:",
+    currentDate.getTimezoneOffset()
+)
 
 // // Date Object Methods
 console.log("Date.now:", Date.now().toString().substring(0, 5))
@@ -53,7 +53,7 @@ console.log("Date.prototype.getMilliseconds:", currentDate.getMilliseconds())
 console.log("Date.prototype.getDay:", currentDate.getDay())
 
 // Other Methods
-// console.log("Date.prototype.toUTCString:", currentDate.toUTCString()) // moved by 2 hours
+console.log("Date.prototype.toUTCString:", currentDate.toUTCString()) // moved by 2 hours
 // console.log("Date.prototype.toLocaleString:", currentDate.toLocaleString()) // Working with extra 0 on start
 // console.log(
 //     "Date.prototype.toLocaleDateString:",

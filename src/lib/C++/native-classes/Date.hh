@@ -55,8 +55,8 @@ public:
     static long long UTC(int year, int month, int day, int hours = 0, int minutes = 0, int seconds = 0, int milliseconds = 0)
     {
         std::tm timeInfo{};
-        timeInfo.tm_year = year - 1900; // Adjust year to years since 1900
-        timeInfo.tm_mon = month;        // Month is 0-based in std::tm
+        timeInfo.tm_year = year - 1900;
+        timeInfo.tm_mon = month;
         timeInfo.tm_mday = day;
         timeInfo.tm_hour = hours + 1;
         timeInfo.tm_min = minutes;
@@ -274,7 +274,7 @@ public:
         return milliseconds_;
     }
     long long getTime() const
-    { // SHOULD RETURN ALL MS. (SUM)
+    {
         return toMilliseconds();
     }
 
@@ -287,7 +287,7 @@ public:
         int localMinutes = localTime.tm_hour * 60 + localTime.tm_min;
         int gmMinutes = gmTime.tm_hour * 60 + gmTime.tm_min;
 
-        return localMinutes - gmMinutes;
+        return gmMinutes - localMinutes;
     }
     std::string toUTCString() const
     {
@@ -300,11 +300,17 @@ public:
         timeInfo.tm_min = minutes_;
         timeInfo.tm_sec = seconds_;
 
-        std::tm temp = timeInfo;
-        std::mktime(&temp);
-        timeInfo.tm_wday = temp.tm_wday;
+        // Calculate the UTC time using mktime
+        std::time_t utcTime = std::mktime(&timeInfo);
 
-        if (std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", &timeInfo) == 0)
+        if (utcTime == -1)
+        {
+            return "";
+        }
+
+        utcTime += (getTimezoneOffset() * 60);
+
+        if (std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", utcTime) == 0)
         {
             return "";
         }
@@ -351,7 +357,6 @@ public:
             return "";
         }
 
-        // Replace the last two digits of the year with the four-digit year
         std::string result(buffer);
         size_t yearPos = result.rfind('/');
         if (yearPos != std::string::npos)
