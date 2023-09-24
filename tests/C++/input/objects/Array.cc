@@ -2291,7 +2291,11 @@ std::string JS_trimStart(const std::string &str)
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  using myPath = __path__;
-std::cout << std::string("path.join:") << myPath::join(std::string("/test"), std::string("user"), std::string("folder1"), std::string(".."), std::string("folder2"), std::string("file.txt")) << '\n';
+  auto someArray = nlohmann::json{nlohmann::json{static_cast<double>(1), static_cast<double>(2), static_cast<double>(3)}, nlohmann::json{static_cast<double>(1), static_cast<double>(2), static_cast<double>(3)}} ; 
+
+std::cout << std::string("Array([1, 2, 3]):") << someArray << '\n';
+std::cout << std::string("Array.isArray(someArray):") << JS_isArray(Array, someArray) << '\n';
+std::cout << std::string("Array.from:") << __Array__::from(std::string("hello")) << '\n';
+std::cout << std::string("Array.of:") << __Array__::of(static_cast<double>(1), static_cast<double>(2), static_cast<double>(3), std::string("hello")) << '\n';
   return 0;
 }  

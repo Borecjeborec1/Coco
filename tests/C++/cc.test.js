@@ -54,7 +54,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Bool")
         })
     })
-    describe.only("Given the Array Class Object", function () {
+    describe("Given the Array Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Array")
         })
@@ -69,18 +69,21 @@ describe.skip("Given the TEST SOLO file", function () {
 
 function preprocessOutput(output) {
     // Replace single quotes with double quotes
-    output = output.replace(/[']/g, '"');
+    output = output.replace(/[']/g, '"')
 
     // Replace date formats with the desired format (e.g., MM/DD/YYYY to M/DD/YYYY)
-    output = output.replace(/\b(\d{2})\/(\d{2})\/(\d{2})\b/g, (match, month, day, year) => {
-        // Remove leading zeros from month and day
-        return `${parseInt(month, 10)}/${parseInt(day, 10)}/20${year}`;
-    });
+    output = output.replace(
+        /\b(\d{2})\/(\d{2})\/(\d{2})\b/g,
+        (match, month, day, year) => {
+            // Remove leading zeros from month and day
+            return `${parseInt(month, 10)}/${parseInt(day, 10)}/20${year}`
+        }
+    )
 
     // Replace floating point numbers with no decimal part (e.g., 42.0 to 42)
-    output = output.replace(/\b(\d+)\.0\b/g, "$1");
+    output = output.replace(/\b(\d+)\.0\b/g, "$1")
 
-    return output;
+    return output
 }
 
 async function compileAndRunTest(fileName) {
@@ -103,7 +106,11 @@ async function compileAndRunTest(fileName) {
     expect(preprocessOutput(cocoResult)).to.equalIgnoreSpaces(
         preprocessOutput(nodeResult)
     )
-    await cleanupFiles(compileOptions.cppFile, compileOptions.outputFile, path.join(path.dirname(compileOptions.cppFile), "nlohmann-json.hh"))
+    await cleanupFiles(
+        compileOptions.cppFile,
+        compileOptions.outputFile,
+        path.join(path.dirname(compileOptions.cppFile), "nlohmann-json.hh")
+    )
 }
 
 async function runInNode(input) {
