@@ -94,6 +94,11 @@ function addAutoIfNotTypedAlready(variable) {
     return needAutoType(variable) ? addAutoType(variable) : variable;
 }
 
+function isRegexString(value) {
+    const regexPattern = /^\/((?!\/).)+\/[gimsu]*$/;
+    return typeof value === "string" && regexPattern.test(value);
+}
+
 function generateCpp(ast, compilingOptions) {
     if (compilingOptions) config = { ...config, ...compilingOptions };
     try {
@@ -158,26 +163,21 @@ function generateCpp(ast, compilingOptions) {
             if (ast.typeAnnotation) {
                 return ast.value.toString();
             }
-            if (ast.value.toString().startsWith("/")) {
-                if (/\/(.+)\/([a-z]*)/.test(ast.value)) {
-                    // Check if it's a regex
-                    const [, pattern, flags] = ast.value
-                        .toString()
-                        .match(/\/(.+)\/([a-z]*)/);
-                    let regexFlags = "std::regex::ECMAScript";
-                    if (flags.includes("i"))
-                        regexFlags += " | std::regex::icase";
-                    if (flags.includes("m"))
-                        regexFlags += " | std::regex::multiline";
-                    if (flags.includes("s"))
-                        regexFlags += " | std::regex::dotall";
-                    if (flags.includes("x"))
-                        regexFlags += " | std::regex::extended";
-                    if (flags.includes("U"))
-                        regexFlags += " | std::regex::ungreedy";
+            if (isRegexString(ast.value)) {
+                const [, pattern, flags] = ast.value
+                    .toString()
+                    .match(/\/(.+)\/([a-z]*)/);
+                let regexFlags = "std::regex::ECMAScript";
+                if (flags.includes("i")) regexFlags += " | std::regex::icase";
+                if (flags.includes("m"))
+                    regexFlags += " | std::regex::multiline";
+                if (flags.includes("s")) regexFlags += " | std::regex::dotall";
+                if (flags.includes("x"))
+                    regexFlags += " | std::regex::extended";
+                if (flags.includes("U"))
+                    regexFlags += " | std::regex::ungreedy";
 
-                    return `std::regex("${pattern}", ${regexFlags})`;
-                }
+                return `std::regex("${pattern}", ${regexFlags})`;
             }
             if (typeof ast.value === "string") {
                 return `std::string("${ast.value}")`;

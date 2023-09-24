@@ -641,19 +641,7 @@ nlohmann::json JS_splice(nlohmann::json &arr, int start, int deleteCount, const 
 
 std::string JS_toLocaleString(const nlohmann::json &arr)
 {
-  std::string result = "";
-
-  for (size_t i = 0; i < arr.size(); i++)
-  {
-    if (i > 0)
-    {
-      result += ", ";
-    }
-
-    result += arr[i].dump();
-  }
-
-  return result;
+  return arr.dump();
 }
 
 std::string JS_toSource(const nlohmann::json &arr)
