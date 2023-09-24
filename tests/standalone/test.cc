@@ -141,16 +141,34 @@ std::string encodeURIComponent(const std::string &component)
 
 class __Array__ {
 public:
-  static bool isArray(const nlohmann::json &obj) { return obj.is_array(); }
-
-  template <typename... Args> static nlohmann::json from(Args... elements) {
-    std::vector<nlohmann::json> jsonArray = {elements...};
-    return jsonArray;
+  static nlohmann::json from(const nlohmann::json &obj) {
+    if (obj.is_string()) {
+      std::string str = obj;
+      nlohmann::json jsonArray;
+      for (char c : str) {
+        jsonArray.push_back(std::string(1, c));
+      }
+      return jsonArray;
+    } else {
+      return {};
+    }
   }
 
   template <typename... Args> static nlohmann::json of(Args... elements) {
-    return from(elements...);
+    nlohmann::json jsonArray;
+    addElementsToArray(jsonArray, elements...);
+    return jsonArray;
   }
+
+private:
+  template <typename T, typename... Args>
+  static void addElementsToArray(nlohmann::json &jsonArray, T element,
+                                 Args... elements) {
+    jsonArray.push_back(element);
+    addElementsToArray(jsonArray, elements...);
+  }
+
+  static void addElementsToArray(nlohmann::json &jsonArray) {}
 };
 
 
@@ -947,6 +965,52 @@ private:
   static void appendCodePoints(std::string &) {}
 };
 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+class __path__ {
+public:
+  static std::string basename(const std::string &path,
+                              const std::string &suffix = "") {
+    std::string base = path.substr(path.find_last_of('/') + 1);
+    if (suffix.empty() ||
+        base.substr(base.length() - suffix.length()) != suffix) {
+      return base;
+    }
+    return base.substr(0, base.length() - suffix.length());
+  }
+
+  static char delimiter() { return '/'; }
+
+  static std::string dirname(const std::string &path) {
+    size_t found = path.find_last_of('/');
+    if (found != std::string::npos) {
+      return path.substr(0, found);
+    }
+    return "";
+  }
+
+  static std::string extname(const std::string &path) {
+    size_t found = path.find_last_of('.');
+    if (found != std::string::npos && found > path.find_last_of('/')) {
+      return path.substr(found);
+    }
+    return "";
+  }
+
+  static std::string join(const std::vector<std::string> &paths) {
+    std::string result;
+    for (const std::string &path : paths) {
+      if (!result.empty() && result.back() != '/') {
+        result += '/';
+      }
+      result += path;
+    }
+    return result;
+  }
+};
 
 
 nlohmann::json &operator+=(nlohmann::json &j, int x) {
@@ -2220,11 +2284,7 @@ std::string JS_trimStart(const std::string &str)
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto someArray = nlohmann::json{nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3)}, nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3)}} ; 
-
-std::cout << std::string("Array([1, 2, 3]):") << someArray << '\n';
-std::cout << std::string("Array.isArray(someArray):") << JS_isArray(someArray) << '\n';
-std::cout << std::string("Array.from:") << __Array__::from(std::string("hello")) << '\n';
-std::cout << std::string("Array.of:") << __Array__::of(static_cast<int>(1), static_cast<int>(2), static_cast<int>(3), std::string("hello")) << '\n';
+  using IDKPATH = __path__;
+std::cout << std::string("HELLO WORLD!") << '\n';
   return 0;
 }  

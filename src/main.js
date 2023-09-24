@@ -21,6 +21,21 @@ const IMPLEMENTED_JS_OBJECTS = {
     Array: "__Array__",
 }
 
+const ARRAY_DATA_TYPES = [
+    "Array",
+    "Int8Array",
+    "Uint8Array",
+    "Uint8ClampedArray",
+    "Int16Array",
+    "Uint16Array",
+    "Int32Array",
+    "Uint32Array",
+    "BigInt64Array",
+    "BigUint64Array",
+    "Float32Array",
+    "Float64Array",
+]
+
 const IMPLEMENTED_DATE_METHODS = [
     "toISOString",
     "toString",
@@ -50,8 +65,11 @@ const IMPLEMENTED_DATE_METHODS = [
     "toLocaleTimeString",
 ]
 
-let config = { numberDataType: "int", outputBooleans: "true" }
+const ALLOWED_MODULES = {
+    path: "__path__",
+}
 
+let config = { numberDataType: "int", outputBooleans: "true" }
 function generateWholeCode(ast, compilingOptions) {
     config = { ...config, ...compilingOptions }
     const mainBody = generateCpp(ast)
@@ -104,7 +122,23 @@ function generateCpp(ast, compilingOptions) {
             const type = typeAnnotation
                 ? generateCpp(typeAnnotation.typeAnnotation)
                 : ""
-            const declarationType = mapUserType(type) ? "" : "auto" // Handle const declaration
+            const declarationType = mapUserType(type) ? "" : "auto" //TODO: Handle const declaration
+
+            if (
+                ast.declarations[0].init.type === "CallExpression" &&
+                ast.declarations[0].init.callee.type === "Identifier" &&
+                ast.declarations[0].init.callee.name === "require" &&
+                ast.declarations[0].init.arguments.length === 1 &&
+                ast.declarations[0].init.arguments[0].type === "Literal"
+            ) {
+                const moduleName = ast.declarations[0].init.arguments[0].value
+                const variableName = ast.declarations[0].id.name
+                if (ALLOWED_MODULES[moduleName]) {
+                    return `using ${variableName} = ${ALLOWED_MODULES[moduleName]};`
+                }
+                return ""
+            }
+
             return `${declarationType} ${declarations}; \n`
         }
         case "VariableDeclarator":
@@ -228,16 +262,20 @@ function generateCpp(ast, compilingOptions) {
             }
 
             if (ast.callee.type === "Identifier") {
-                const constructorName = ast.callee.name;
+                const constructorName = ast.callee.name
                 if (constructorName === "Boolean") {
-                    return `JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(${generateCpp(ast.arguments[0])}))`;
+                    return `JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(${generateCpp(
+                        ast.arguments[0]
+                    )}))`
                 } else if (constructorName === "String") {
-                    return `std::string(${generateCpp(ast.arguments[0])})`;
+                    return `std::string(${generateCpp(ast.arguments[0])})`
                 } else if (constructorName === "Number") {
-                    return `static_cast<${config.numberDataType}>(${generateCpp(ast.arguments[0])})`;
-                } else if (constructorName === "Array") {
+                    return `static_cast<${config.numberDataType}>(${generateCpp(
+                        ast.arguments[0]
+                    )})`
+                } else if (ARRAY_DATA_TYPES.includes(constructorName)) {
                     let idk = ast.arguments.map(generateCpp).join(", ")
-                    return `nlohmann::json{${idk}}`;
+                    return `nlohmann::json{${idk}}`
                 }
             }
 
@@ -300,7 +338,7 @@ function generateCpp(ast, compilingOptions) {
             } else if (operator === "-") {
                 return `static_cast<${config.numberDataType}>(0)-${argument}`
             } else if (operator === "!") {
-                return `JS_CAST_ExclamationBoolean(${argument})`;
+                return `JS_CAST_ExclamationBoolean(${argument})`
             }
             return `${operator}${argument} `
         }
@@ -455,12 +493,13 @@ function generateCpp(ast, compilingOptions) {
             if (IMPLEMENTED_JS_OBJECTS[callee]) {
                 if (callee == "Number")
                     return `static_cast<${config.numberDataType}>(${args})`
-                if (callee == "String")
-                    return `std::string(${args})`
+                if (callee == "String") return `std::string(${args})`
                 if (callee == "Boolean")
                     return `JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(${args}))`
-                if (callee == "Array")
-                    return `${args}`
+                if (ARRAY_DATA_TYPES.includes(callee)) {
+                    let idk = ast.arguments.map(generateCpp).join(", ")
+                    return `nlohmann::json{${idk}}`
+                }
                 return `${IMPLEMENTED_JS_OBJECTS[callee]} (${args})`
             }
             return `${callee} (${args})`
@@ -473,8 +512,8 @@ function generateCpp(ast, compilingOptions) {
             const block = generateCpp(ast.block)
             const handler = ast.handler
                 ? `catch (${generateCpp(ast.handler.param)}) { \n${generateCpp(
-                    ast.handler.body
-                )} } \n`
+                      ast.handler.body
+                  )} } \n`
                 : ""
             const finalizer = ast.finalizer
                 ? `finally { \n${generateCpp(ast.finalizer)} } \n`
