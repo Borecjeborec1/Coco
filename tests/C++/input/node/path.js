@@ -36,3 +36,12 @@ console.log(
     "path.relative:",
     path.relative("/test/user/folder1", "/test/user/folder2")
 );
+
+const formattedPath = path.format({
+    root: "/",
+    dir: "/test/user",
+    base: "file.txt",
+    ext: ".txt",
+    name: "file",
+});
+console.log("Formatted Path:", formattedPath);

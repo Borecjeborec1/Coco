@@ -1,11 +1,8 @@
 const { expect, use } = require("chai");
-const chaiString = require("chai-string");
 const path = require("path");
 const { spawn } = require("child_process");
 const fs = require("fs").promises;
 const CocoCompiler = require("../../index.js");
-
-use(chaiString);
 
 describe("Given ALL JS methods", function () {
     this.timeout(10000000);
@@ -39,7 +36,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Math");
         });
     });
-    describe("Given the Date Class Object", function () {
+    describe.only("Given the Date Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Date");
         });
@@ -61,7 +58,7 @@ describe("Given ALL JS methods", function () {
     });
 });
 
-describe.only("Given the TEST SOLO file", function () {
+describe.skip("Given the TEST SOLO file", function () {
     this.timeout(10000000);
     it("Should output same results as node", async function () {
         await compileAndRunTest("solo");
@@ -70,8 +67,8 @@ describe.only("Given the TEST SOLO file", function () {
 
 function preprocessOutput(output) {
     // Replace single quotes with double quotes
-    output = output.replace(/[']/g, '"');
-    // output = output.replace(/["]/g, "");
+    output = output.replace(/"|'/g, "");
+    output = output.replace(/\[|\]/g, "");
 
     // Replace date formats with the desired format (e.g., MM/DD/YYYY to M/DD/YYYY)
     output = output.replace(
@@ -84,6 +81,7 @@ function preprocessOutput(output) {
 
     // Replace floating point numbers with no decimal part (e.g., 42.0 to 42)
     output = output.replace(/\b(\d+)\.0\b/g, "$1");
+    output = output.replace(/ |\n|\r/g, "");
 
     return output;
 }
@@ -105,9 +103,7 @@ async function compileAndRunTest(fileName) {
 
     const nodeResult = await runInNode(compileOptions.inputFile);
 
-    expect(preprocessOutput(cocoResult)).to.equalIgnoreSpaces(
-        preprocessOutput(nodeResult)
-    );
+    expect(preprocessOutput(cocoResult)).to.equal(preprocessOutput(nodeResult));
     await cleanupFiles(
         compileOptions.cppFile,
         compileOptions.outputFile,

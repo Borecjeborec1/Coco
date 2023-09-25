@@ -257,6 +257,47 @@ public:
 
     return path;
   }
+  static std::string format(const nlohmann::json &pathObject)
+  {
+    std::string result;
+
+    if (pathObject.find("dir") != pathObject.end())
+    {
+      result += pathObject["dir"];
+    }
+    else
+    {
+      if (pathObject.find("root") != pathObject.end())
+      {
+        result += pathObject["root"];
+      }
+    }
+
+    if (pathObject.find("base") != pathObject.end())
+    {
+      result += sep;
+      result += pathObject["base"];
+    }
+    else
+    {
+      if (pathObject.find("name") != pathObject.end())
+      {
+        result += sep;
+        result += pathObject["name"];
+      }
+
+      if (pathObject.find("ext") != pathObject.end())
+      {
+        if (pathObject["ext"].empty() || pathObject["ext"][0] != '.')
+        {
+          result += '.';
+        }
+        result += pathObject["ext"];
+      }
+    }
+
+    return result;
+  }
 
 private:
   template <typename T, typename... Args>

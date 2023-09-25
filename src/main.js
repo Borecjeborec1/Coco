@@ -292,7 +292,6 @@ function generateCpp(ast, compilingOptions) {
                     return `nlohmann::json{${idk}}`;
                 }
             }
-            console.log("HERERERE", callee);
             return `${callee}(${ast.arguments.map(generateCpp).join(", ")})`;
         }
         case "FunctionExpression":
