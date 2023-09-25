@@ -314,5 +314,13 @@ private:
   }
 };
 
+#ifdef _WIN32
 char __path__::sep = '\\';
+#else
+char __path__::sep = '/';
+#endif
+#ifdef _WIN32
 char __path__::delimiter = ';';
+#else
+char __path__::delimiter = ':';
+#endif

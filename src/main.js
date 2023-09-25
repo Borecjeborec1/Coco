@@ -67,6 +67,7 @@ const IMPLEMENTED_DATE_METHODS = [
 
 const ALLOWED_MODULES = {
     path: "__path__",
+    os: "__os__",
 };
 
 const OBJECTS_WITH_STATIC_GLOBAL_METHODS = ["Date", "Array"]; // Array holding names that have static methods, that are also global, and custom user variable names for node modules

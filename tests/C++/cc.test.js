@@ -36,7 +36,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Math");
         });
     });
-    describe.only("Given the Date Class Object", function () {
+    describe("Given the Date Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Date");
         });
@@ -56,9 +56,14 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Array");
         });
     });
+    describe("Given the PATH NODE MODULE", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("node/path");
+        });
+    });
 });
 
-describe.skip("Given the TEST SOLO file", function () {
+describe.only("Given the TEST SOLO file", function () {
     this.timeout(10000000);
     it("Should output same results as node", async function () {
         await compileAndRunTest("solo");

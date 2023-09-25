@@ -5,7 +5,7 @@
 -   Async/await {High}
 -   this! {High}
 -   other data types (undefined/null) {High}
--   built-in (Array, String, etc...) {Mid}
+-   Remove unused methods in translation process {High}
 -   fix nans/undefined/nulls {Mid}
 -   var vs let {Mid}
 -   RegExp Object {Mid}
@@ -21,11 +21,11 @@
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 -   block npm modules {Low}
 -   optional params fix in JS\_ c++ methods {Low}
--   Remove unused methods in translation process {Low}
 -   escape characters {Low}
 -   bigint --> long long double {Low}
 -   Typescript discovery {Low}
 -   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
+-   need for custom c++ compiling flags (-liphlpapi -lws2_32) {Low}
 -   eval {Low}
 -   Timers - setInterval/setTimeout {Low}
 -   Error Object {Low}
@@ -35,7 +35,8 @@
 -   fix double stars and other syntaxes (pointer problems) {Very Low}
 -   options argument inside toLocaleDateString {Very Low}
 -   implement timezone handling in Date {Very Low}
--   String raw static method {Very Low}
+-   String raw static method {Very Very Very Low}
+-   cpu model and cpu speed in os module {Very Very Very Low}
 
 #### FINISHED
 
@@ -72,3 +73,4 @@
 -   String Object implementation{High}
 -   Hadle !! operator {Low}
 -   Array Object implementation{High}
+-   built-in (Array, String, etc...) {Mid}
