@@ -111,7 +111,6 @@ public:
 
     static std::string hostname()
     {
-// Platform-specific code to get the hostname
 #ifdef _WIN32
         char computerName[256];
         DWORD size = sizeof(computerName);
@@ -146,7 +145,7 @@ public:
         {
             if (osvi.dwMajorVersion == 10 && osvi.dwMinorVersion == 0 && osvi.dwBuildNumber == 19042)
             {
-                return "x86_64"; // Windows reports x86_64 for 64-bit on this version
+                return "x86_64";
             }
             else
             {
@@ -265,7 +264,6 @@ public:
     }
     static std::string tmpdir()
     {
-// Platform-specific code to get the temporary directory
 #ifdef _WIN32
         const char *tempDir = std::getenv("TEMP");
         if (tempDir != nullptr)
@@ -281,7 +279,7 @@ public:
             }
             else
             {
-                return "C:\\Windows\\Temp"; // Default Windows temporary directory
+                return "C:\\Windows\\Temp";
             }
         }
 #else
@@ -292,13 +290,12 @@ public:
         }
         else
         {
-            return "/tmp"; // Default POSIX temporary directory
+            return "/tmp";
         }
 #endif
     }
     static long long totalmem()
     {
-// Platform-specific code to get the total system memory
 #ifdef _WIN32
         MEMORYSTATUSEX memoryStatus;
         memoryStatus.dwLength = sizeof(MEMORYSTATUSEX);
@@ -325,7 +322,6 @@ public:
     }
     static std::string type()
     {
-// Platform-specific code to get the operating system name
 #ifdef _WIN32
         return "Windows_NT";
 #elif defined(__linux__)
@@ -352,12 +348,9 @@ public:
     }
     static long long uptime()
     {
-// Platform-specific code to get the system uptime
 #ifdef _WIN32
-        // Use the GetTickCount64 function to get the system uptime in milliseconds
         return static_cast<long long>(GetTickCount64() / 1000);
 #else
-        // Use the sysinfo function to get the system uptime in seconds
         struct sysinfo info;
         if (sysinfo(&info) != -1)
         {
@@ -365,7 +358,7 @@ public:
         }
         else
         {
-            return -1; // Error occurred
+            return -1;
         }
 #endif
     }
@@ -390,9 +383,7 @@ public:
     {
         nlohmann::json networkInterfacesJson;
 
-// Platform-specific code to get network interface information
 #ifdef _WIN32
-        // Windows code to get network interfaces
         IP_ADAPTER_ADDRESSES *adapterAddresses = nullptr;
         ULONG outBufLen = 0;
 
@@ -432,7 +423,7 @@ public:
                         addressJson["mac"] = "";
                         addressJson["internal"] = false;
                         addressJson["scopeid"] = 0;
-                        addressJson["cidr"] = ""; // You can calculate CIDR if needed
+                        addressJson["cidr"] = "";
 
                         addressesJson.push_back(addressJson);
                     }
@@ -467,7 +458,7 @@ public:
                     addressJson["mac"] = "";
                     addressJson["internal"] = (ifa->ifa_flags & IFF_LOOPBACK) != 0;
                     addressJson["scopeid"] = 0;
-                    addressJson["cidr"] = ""; // You can calculate CIDR if needed
+                    addressJson["cidr"] = "";
                     addressesJson.push_back(addressJson);
                 }
                 else if (sockaddrPtr->sa_family == AF_INET6)
@@ -483,7 +474,7 @@ public:
                         addressJson["mac"] = "";
                         addressJson["internal"] = (ifa->ifa_flags & IFF_LOOPBACK) != 0;
                         addressJson["scopeid"] = ipv6Address->sin6_scope_id;
-                        addressJson["cidr"] = ""; // You can calculate CIDR if needed
+                        addressJson["cidr"] = "";
                         addressesJson.push_back(addressJson);
                     }
                 }
@@ -528,10 +519,10 @@ public:
                 ULONGLONG idleTotalTime = idleTimeValue.QuadPart;
 
                 cpuInfo["times"]["user"] = static_cast<double>(userTimeValue.QuadPart) / totalTime * 1000.0;
-                cpuInfo["times"]["nice"] = 0; // Windows doesn't have nice values
+                cpuInfo["times"]["nice"] = 0;
                 cpuInfo["times"]["sys"] = static_cast<double>(kernelTimeValue.QuadPart) / totalTime * 1000.0;
                 cpuInfo["times"]["idle"] = static_cast<double>(idleTotalTime) / totalTime * 1000.0;
-                cpuInfo["times"]["irq"] = 0; // Windows doesn't have IRQ values
+                cpuInfo["times"]["irq"] = 0;
             }
 
             cpusArray.push_back(cpuInfo);
