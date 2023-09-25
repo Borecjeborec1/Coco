@@ -20,6 +20,10 @@
 #include <cstdarg>
 #include <limits>
 #include <cstdint>
+
+#include <fstream>
+#include <functional>
+#include <algorithm>
 #include <regex>
 
 
@@ -965,59 +969,930 @@ private:
   static void appendCodePoints(std::string &) {}
 };
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <algorithm>
 
-class __path__ {
+
+class __fs__
+{
 public:
+    static void readFile(const std::string &path, const std::function<void(std::string err, std::string data)> &callback)
+    {
+        std::ifstream file(path);
+        if (!file.is_open())
+        {
+            callback("Error opening file", "");
+            return;
+        }
+
+        std::string content((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+        file.close();
+
+        callback("", content);
+    }
+
+    static std::string readFileSync(const std::string &path)
+    {
+        std::ifstream file(path);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("Error opening file");
+        }
+
+        std::string content((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+        file.close();
+
+        return content;
+    }
+};
+
+
+
+#ifdef _WIN32
+#include <WinSock2.h>
+#include <Windows.h>
+#include <ShlObj.h>
+#include <iphlpapi.h>
+#include <ws2tcpip.h>
+#include <Pdh.h>
+#pragma comment(lib, "Pdh.lib")
+#pragma comment(lib, "iphlpapi.lib")
+#else
+#include <sys/utsname.h>
+#include <sys/param.h>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <sys/sysctl.h>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
+class __os__
+{
+public:
+    static std::string EOL;
+    static std::string devNull;
+    static nlohmann::json constants;
+    static std::string arch()
+    {
+#if defined(__arm__)
+        return "arm";
+#elif defined(__aarch64__)
+        return "arm64";
+#elif defined(__i386__)
+        return "ia32";
+#elif defined(__mips__)
+        return "mips";
+#elif defined(__mipsel__)
+        return "mipsel";
+#elif defined(__powerpc__) || defined(__ppc__) || defined(__PPC__)
+        return "ppc";
+#elif defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__)
+        return "ppc64";
+#elif defined(__riscv) && defined(__LP64__)
+        return "riscv64";
+#elif defined(__s390__)
+        return "s390";
+#elif defined(__s390x__)
+        return "s390x";
+#else
+        return "x64";
+#endif
+    }
+
+    static long long freemem()
+    {
+#ifdef _WIN32
+        MEMORYSTATUSEX memoryStatus;
+        memoryStatus.dwLength = sizeof(MEMORYSTATUSEX);
+        GlobalMemoryStatusEx(&memoryStatus);
+        return static_cast<long long>(memoryStatus.ullAvailPhys);
+#else
+        int mib[2] = {CTL_HW, HW_USERMEM};
+        long long userMemory;
+        size_t len = sizeof(userMemory);
+        sysctl(mib, 2, &userMemory, &len, NULL, 0);
+        return userMemory;
+#endif
+    }
+
+    static std::string homedir()
+    {
+#ifdef _WIN32
+        const char *userProfile = std::getenv("USERPROFILE");
+        if (userProfile != nullptr)
+        {
+            return userProfile;
+        }
+        else
+        {
+            wchar_t profilePath[MAX_PATH];
+            if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, profilePath)))
+            {
+                auto wst = std::wstring(profilePath);
+                return std::string(wst.begin(), wst.end());
+            }
+        }
+        return "";
+#else
+        const char *home = std::getenv("HOME");
+        if (home != nullptr)
+        {
+            return home;
+        }
+        else
+        {
+            struct passwd *pw = getpwuid(geteuid());
+            if (pw != nullptr)
+            {
+                return pw->pw_dir;
+            }
+        }
+        return "";
+#endif
+    }
+
+    static std::string hostname()
+    {
+#ifdef _WIN32
+        char computerName[256];
+        DWORD size = sizeof(computerName);
+        if (GetComputerNameA(computerName, &size))
+        {
+            return computerName;
+        }
+        else
+        {
+            return "";
+        }
+#else
+        char hostname[HOST_NAME_MAX];
+        if (gethostname(hostname, sizeof(hostname)) == 0)
+        {
+            return hostname;
+        }
+        else
+        {
+            return "";
+        }
+#endif
+    }
+
+    static std::string machine()
+    {
+#ifdef _WIN32
+        OSVERSIONINFOEX osvi;
+        ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+        if (GetVersionEx((OSVERSIONINFO *)&osvi))
+        {
+            if (osvi.dwMajorVersion == 10 && osvi.dwMinorVersion == 0 && osvi.dwBuildNumber == 19042)
+            {
+                return "x86_64";
+            }
+            else
+            {
+                SYSTEM_INFO sysInfo;
+                GetNativeSystemInfo(&sysInfo);
+                switch (sysInfo.wProcessorArchitecture)
+                {
+                case PROCESSOR_ARCHITECTURE_ARM:
+                    return "arm";
+                case PROCESSOR_ARCHITECTURE_ARM64:
+                    return "arm64";
+                case PROCESSOR_ARCHITECTURE_IA64:
+                    return "ia64";
+                case PROCESSOR_ARCHITECTURE_AMD64:
+                    return "x86_64";
+                case PROCESSOR_ARCHITECTURE_INTEL:
+                    return "i686";
+                default:
+                    return "";
+                }
+            }
+        }
+        else
+        {
+            return "";
+        }
+#else
+        struct utsname sysInfo;
+        if (uname(&sysInfo) == 0)
+        {
+            return sysInfo.machine;
+        }
+        else
+        {
+            return "";
+        }
+#endif
+    }
+
+    static std::string platform()
+    {
+#ifdef _WIN32
+        return "win32";
+#elif defined(__linux__)
+        struct utsname sysInfo;
+        if (uname(&sysInfo) == 0)
+        {
+            if (std::string(sysInfo.sysname) == "Linux")
+            {
+                return "linux";
+            }
+        }
+        return "";
+#else
+        struct utsname sysInfo;
+        if (uname(&sysInfo) == 0)
+        {
+            if (std::string(sysInfo.sysname) == "Darwin")
+            {
+                return "darwin";
+            }
+            else if (std::string(sysInfo.sysname) == "FreeBSD")
+            {
+                return "freebsd";
+            }
+            else if (std::string(sysInfo.sysname) == "OpenBSD")
+            {
+                return "openbsd";
+            }
+            else if (std::string(sysInfo.sysname) == "NetBSD")
+            {
+                return "netbsd";
+            }
+            else if (std::string(sysInfo.sysname) == "AIX")
+            {
+                return "aix";
+            }
+            else if (std::string(sysInfo.sysname) == "SunOS")
+            {
+                return "sunos";
+            }
+        }
+        return "";
+#endif
+    }
+
+    static std::string release()
+    {
+#ifdef _WIN32
+        OSVERSIONINFOEX osvi;
+        ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+        if (GetVersionEx((OSVERSIONINFO *)&osvi))
+        {
+            std::string releaseInfo = "Windows ";
+            releaseInfo += std::to_string(osvi.dwMajorVersion);
+            releaseInfo += ".";
+            releaseInfo += std::to_string(osvi.dwMinorVersion);
+            return releaseInfo;
+        }
+        else
+        {
+            return "";
+        }
+#else
+        struct utsname sysInfo;
+        if (uname(&sysInfo) == 0)
+        {
+            return sysInfo.release;
+        }
+        else
+        {
+            return "";
+        }
+#endif
+    }
+    static std::string tmpdir()
+    {
+#ifdef _WIN32
+        const char *tempDir = std::getenv("TEMP");
+        if (tempDir != nullptr)
+        {
+            return tempDir;
+        }
+        else
+        {
+            const char *tmpDir = std::getenv("TMP");
+            if (tmpDir != nullptr)
+            {
+                return tmpDir;
+            }
+            else
+            {
+                return "C:\\Windows\\Temp";
+            }
+        }
+#else
+        const char *tmpDir = std::getenv("TMPDIR");
+        if (tmpDir != nullptr)
+        {
+            return tmpDir;
+        }
+        else
+        {
+            return "/tmp";
+        }
+#endif
+    }
+    static long long totalmem()
+    {
+#ifdef _WIN32
+        MEMORYSTATUSEX memoryStatus;
+        memoryStatus.dwLength = sizeof(MEMORYSTATUSEX);
+        if (GlobalMemoryStatusEx(&memoryStatus))
+        {
+            return static_cast<long long>(memoryStatus.ullTotalPhys);
+        }
+        else
+        {
+            return 0;
+        }
+#else
+        long long pageSize = sysconf(_SC_PAGE_SIZE);
+        long long pageCount = sysconf(_SC_PHYS_PAGES);
+        if (pageSize > 0 && pageCount > 0)
+        {
+            return pageSize * pageCount;
+        }
+        else
+        {
+            return 0;
+        }
+#endif
+    }
+    static std::string type()
+    {
+#ifdef _WIN32
+        return "Windows_NT";
+#elif defined(__linux__)
+        struct utsname sysInfo;
+        if (uname(&sysInfo) == 0)
+        {
+            return sysInfo.sysname;
+        }
+        else
+        {
+            return "";
+        }
+#else
+        struct utsname sysInfo;
+        if (uname(&sysInfo) == 0)
+        {
+            return sysInfo.sysname;
+        }
+        else
+        {
+            return "";
+        }
+#endif
+    }
+    static long long uptime()
+    {
+#ifdef _WIN32
+        return static_cast<long long>(GetTickCount64() / 1000);
+#else
+        struct sysinfo info;
+        if (sysinfo(&info) != -1)
+        {
+            return static_cast<long long>(info.uptime);
+        }
+        else
+        {
+            return -1;
+        }
+#endif
+    }
+    static std::string version()
+    {
+        OSVERSIONINFOEX osvi;
+        ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+
+        if (GetVersionEx((OSVERSIONINFO *)&osvi))
+        {
+            return std::to_string(osvi.dwMajorVersion) + "." +
+                   std::to_string(osvi.dwMinorVersion) + "." +
+                   std::to_string(osvi.dwBuildNumber);
+        }
+        else
+        {
+            return "";
+        }
+    }
+    static nlohmann::json networkInterfaces()
+    {
+        nlohmann::json networkInterfacesJson;
+
+#ifdef _WIN32
+        IP_ADAPTER_ADDRESSES *adapterAddresses = nullptr;
+        ULONG outBufLen = 0;
+
+        if (GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_INCLUDE_PREFIX, nullptr, nullptr, &outBufLen) == ERROR_BUFFER_OVERFLOW)
+        {
+            adapterAddresses = (IP_ADAPTER_ADDRESSES *)malloc(outBufLen);
+            if (GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_INCLUDE_PREFIX, nullptr, adapterAddresses, &outBufLen) == NO_ERROR)
+            {
+                for (IP_ADAPTER_ADDRESSES *adapter = adapterAddresses; adapter; adapter = adapter->Next)
+                {
+                    nlohmann::json addressesJson;
+
+                    for (IP_ADAPTER_UNICAST_ADDRESS *address = adapter->FirstUnicastAddress; address; address = address->Next)
+                    {
+                        nlohmann::json addressJson;
+                        sockaddr *sockaddrPtr = address->Address.lpSockaddr;
+
+                        if (sockaddrPtr->sa_family == AF_INET)
+                        {
+                            sockaddr_in *ipv4Address = reinterpret_cast<sockaddr_in *>(sockaddrPtr);
+                            addressJson["address"] = inet_ntoa(ipv4Address->sin_addr);
+                            addressJson["netmask"] = "";
+                            addressJson["family"] = "IPv4";
+                        }
+                        else if (sockaddrPtr->sa_family == AF_INET6)
+                        {
+                            sockaddr_in6 *ipv6Address = reinterpret_cast<sockaddr_in6 *>(sockaddrPtr);
+                            char ipv6AddressStr[INET6_ADDRSTRLEN];
+                            if (inet_ntop(AF_INET6, &(ipv6Address->sin6_addr), ipv6AddressStr, INET6_ADDRSTRLEN))
+                            {
+                                addressJson["address"] = ipv6AddressStr;
+                                addressJson["netmask"] = "";
+                                addressJson["family"] = "IPv6";
+                            }
+                        }
+
+                        addressJson["mac"] = "";
+                        addressJson["internal"] = false;
+                        addressJson["scopeid"] = 0;
+                        addressJson["cidr"] = "";
+
+                        addressesJson.push_back(addressJson);
+                    }
+
+                    networkInterfacesJson[adapter->AdapterName] = addressesJson;
+                }
+            }
+
+            free(adapterAddresses);
+        }
+#else
+        struct ifaddrs *ifAddrStruct = nullptr;
+        if (getifaddrs(&ifAddrStruct) == 0)
+        {
+            for (struct ifaddrs *ifa = ifAddrStruct; ifa; ifa = ifa->ifa_next)
+            {
+                if (!ifa->ifa_addr)
+                {
+                    continue;
+                }
+
+                nlohmann::json addressesJson;
+                sockaddr *sockaddrPtr = ifa->ifa_addr;
+
+                if (sockaddrPtr->sa_family == AF_INET)
+                {
+                    sockaddr_in *ipv4Address = reinterpret_cast<sockaddr_in *>(sockaddrPtr);
+                    nlohmann::json addressJson;
+                    addressJson["address"] = inet_ntoa(ipv4Address->sin_addr);
+                    addressJson["netmask"] = inet_ntoa(reinterpret_cast<sockaddr_in *>(ifa->ifa_netmask)->sin_addr);
+                    addressJson["family"] = "IPv4";
+                    addressJson["mac"] = "";
+                    addressJson["internal"] = (ifa->ifa_flags & IFF_LOOPBACK) != 0;
+                    addressJson["scopeid"] = 0;
+                    addressJson["cidr"] = "";
+                    addressesJson.push_back(addressJson);
+                }
+                else if (sockaddrPtr->sa_family == AF_INET6)
+                {
+                    sockaddr_in6 *ipv6Address = reinterpret_cast<sockaddr_in6 *>(sockaddrPtr);
+                    char ipv6AddressStr[INET6_ADDRSTRLEN];
+                    if (inet_ntop(AF_INET6, &(ipv6Address->sin6_addr), ipv6AddressStr, INET6_ADDRSTRLEN))
+                    {
+                        nlohmann::json addressJson;
+                        addressJson["address"] = ipv6AddressStr;
+                        addressJson["netmask"] = "";
+                        addressJson["family"] = "IPv6";
+                        addressJson["mac"] = "";
+                        addressJson["internal"] = (ifa->ifa_flags & IFF_LOOPBACK) != 0;
+                        addressJson["scopeid"] = ipv6Address->sin6_scope_id;
+                        addressJson["cidr"] = "";
+                        addressesJson.push_back(addressJson);
+                    }
+                }
+
+                networkInterfacesJson[ifa->ifa_name] = addressesJson;
+            }
+
+            freeifaddrs(ifAddrStruct);
+        }
+#endif
+
+        return networkInterfacesJson;
+    }
+
+    static nlohmann::json cpus()
+    {
+        nlohmann::json cpusArray;
+
+#ifdef _WIN32
+        SYSTEM_INFO sysInfo;
+        GetSystemInfo(&sysInfo);
+        DWORD numCores = sysInfo.dwNumberOfProcessors;
+
+        for (DWORD core = 0; core < numCores; core++)
+        {
+            nlohmann::json cpuInfo;
+            cpuInfo["model"] = "Unknown";
+            cpuInfo["speed"] = 0;
+
+            FILETIME idleTime, kernelTime, userTime;
+            if (GetSystemTimes(&idleTime, &kernelTime, &userTime))
+            {
+                ULARGE_INTEGER idleTimeValue, kernelTimeValue, userTimeValue;
+                idleTimeValue.LowPart = idleTime.dwLowDateTime;
+                idleTimeValue.HighPart = idleTime.dwHighDateTime;
+                kernelTimeValue.LowPart = kernelTime.dwLowDateTime;
+                kernelTimeValue.HighPart = kernelTime.dwHighDateTime;
+                userTimeValue.LowPart = userTime.dwLowDateTime;
+                userTimeValue.HighPart = userTime.dwHighDateTime;
+
+                ULONGLONG totalTime = kernelTimeValue.QuadPart + userTimeValue.QuadPart;
+                ULONGLONG idleTotalTime = idleTimeValue.QuadPart;
+
+                cpuInfo["times"]["user"] = static_cast<double>(userTimeValue.QuadPart) / totalTime * 1000.0;
+                cpuInfo["times"]["nice"] = 0;
+                cpuInfo["times"]["sys"] = static_cast<double>(kernelTimeValue.QuadPart) / totalTime * 1000.0;
+                cpuInfo["times"]["idle"] = static_cast<double>(idleTotalTime) / totalTime * 1000.0;
+                cpuInfo["times"]["irq"] = 0;
+            }
+
+            cpusArray.push_back(cpuInfo);
+        }
+#else
+        std::ifstream cpuInfoFile("/proc/cpuinfo");
+        std::string line;
+        nlohmann::json cpuInfo;
+
+        while (std::getline(cpuInfoFile, line))
+        {
+            if (line.empty())
+            {
+                cpusArray.push_back(cpuInfo);
+                cpuInfo = nlohmann::json();
+            }
+            else
+            {
+                size_t colonPos = line.find(':');
+                if (colonPos != std::string::npos)
+                {
+                    std::string key = line.substr(0, colonPos);
+                    std::string value = line.substr(colonPos + 1);
+                    key.erase(std::remove_if(key.begin(), key.end(), ::isspace), key.end());
+                    value.erase(std::remove_if(value.begin(), value.end(), ::isspace), value.end());
+                    cpuInfo[key] = value;
+                }
+            }
+        }
+#endif
+
+        return cpusArray;
+    }
+};
+
+#ifdef _WIN32
+std::string __os__::EOL = "\n";
+#else
+std::string __os__::EOL = "\r\n";
+#endif
+
+#ifdef _WIN32
+std::string __os__::devNull = "\\\\.\\nul";
+#else
+std::string __os__::devNull = "/dev/null";
+#endif
+
+nlohmann::json constants = {};
+
+
+class __path__
+{
+public:
+  static char sep;
+  static char delimiter;
   static std::string basename(const std::string &path,
-                              const std::string &suffix = "") {
+                              const std::string &suffix = "")
+  {
     std::string base = path.substr(path.find_last_of('/') + 1);
     if (suffix.empty() ||
-        base.substr(base.length() - suffix.length()) != suffix) {
+        base.substr(base.length() - suffix.length()) != suffix)
+    {
       return base;
     }
     return base.substr(0, base.length() - suffix.length());
   }
 
-  static char delimiter() { return '/'; }
-
-  static std::string dirname(const std::string &path) {
+  static std::string dirname(const std::string &path)
+  {
     size_t found = path.find_last_of('/');
-    if (found != std::string::npos) {
+    if (found != std::string::npos)
+    {
       return path.substr(0, found);
     }
     return "";
   }
 
-  static std::string extname(const std::string &path) {
+  static std::string extname(const std::string &path)
+  {
     size_t found = path.find_last_of('.');
-    if (found != std::string::npos && found > path.find_last_of('/')) {
+    if (found != std::string::npos && found > path.find_last_of('/'))
+    {
       return path.substr(found);
     }
     return "";
   }
 
-  template <typename... Args> static std::string join(Args... args) {
+  template <typename... Args>
+  static std::string join(Args... args)
+  {
     std::string result;
     joinInternal(result, args...);
+    if (!result.empty() && result.back() == sep)
+    {
+      result.pop_back();
+    }
+    return result;
+  }
+  static bool isAbsolute(const std::string &path)
+  {
+    if (path.empty())
+    {
+      return false;
+    }
+
+    if (path[0] == sep || path[0] == '/')
+    {
+      return true;
+    }
+
+    if (path.length() >= 3 && std::isalpha(path[0]) && path[1] == ':' &&
+        (path[2] == sep || path[2] == '/'))
+    {
+      return true;
+    }
+
+    return false;
+  }
+  static std::string normalize(const std::string &path)
+  {
+    if (path.empty())
+    {
+      return ".";
+    }
+
+    char separator = sep;
+
+    std::vector<std::string> segments;
+    size_t start = 0;
+    size_t end = 0;
+    while ((end = path.find_first_of("/\\", start)) != std::string::npos)
+    {
+      std::string segment = path.substr(start, end - start);
+      start = end + 1;
+
+      if (segment == "..")
+      {
+        if (!segments.empty() && segments.back() != "..")
+        {
+          segments.pop_back();
+        }
+        else
+        {
+          segments.push_back("..");
+        }
+      }
+      else if (segment != "." && !segment.empty())
+      {
+        segments.push_back(segment);
+      }
+    }
+
+    std::string lastSegment = path.substr(start);
+
+    if (lastSegment == "..")
+    {
+      if (!segments.empty() && segments.back() != "..")
+      {
+        segments.pop_back();
+      }
+      else
+      {
+        segments.push_back("..");
+      }
+    }
+    else if (lastSegment != "." && !lastSegment.empty())
+    {
+      segments.push_back(lastSegment);
+    }
+
+    std::string normalizedPath;
+    for (const std::string &segment : segments)
+    {
+      normalizedPath += segment;
+      normalizedPath += separator;
+    }
+
+    if (!path.empty() && (path.back() == '/' || path.back() == '\\'))
+    {
+      normalizedPath += separator;
+    }
+
+    if (isAbsolute(path))
+    {
+      if (normalizedPath.empty() || normalizedPath[0] != separator)
+      {
+        normalizedPath = separator + normalizedPath;
+      }
+    }
+    if (!normalizedPath.empty() && normalizedPath.back() == sep)
+    {
+      normalizedPath.pop_back();
+    }
+    return normalizedPath;
+  }
+  static nlohmann::json parse(const std::string &path)
+  {
+    nlohmann::json result;
+
+    size_t lastSeparatorPos = path.find_last_of("/\\");
+    std::string dir, base;
+    if (lastSeparatorPos != std::string::npos)
+    {
+      dir = path.substr(0, lastSeparatorPos);
+      base = path.substr(lastSeparatorPos + 1);
+    }
+    else
+    {
+      dir = path;
+      base = path; // Set base to path if there's no separator
+    }
+
+    size_t rootEnd = 0;
+    if (isAbsolute(path))
+    {
+      // Check for Windows-style drive letter
+      if (path.size() > 2 && path[1] == ':' && (path[2] == '/' || path[2] == '\\'))
+      {
+        rootEnd = 3; // Include drive letter and slash (e.g., "C:/")
+      }
+      else
+      {
+        rootEnd = 1; // Just a single slash for other absolute paths
+      }
+    }
+
+    size_t extPos = base.find_last_of('.');
+    std::string root = path.substr(0, rootEnd);
+    std::string ext = (extPos != std::string::npos) ? base.substr(extPos) : "";
+    std::string name =
+        (extPos != std::string::npos) ? base.substr(0, extPos) : base;
+
+    result["root"] = root;
+    result["dir"] = dir;
+    result["base"] = base;
+    result["ext"] = ext;
+    result["name"] = name;
+
+    return result;
+  }
+  static std::string relative(const std::string &from, const std::string &to)
+  {
+    std::string sep = std::string(1, __path__::sep);
+
+    std::string normalizedFrom = normalize(from);
+    std::string normalizedTo = normalize(to);
+
+    std::vector<std::string> fromSegments;
+    std::vector<std::string> toSegments;
+    size_t start = 0;
+    size_t end = 0;
+
+    while ((end = normalizedFrom.find(sep, start)) != std::string::npos)
+    {
+      std::string seg = normalizedFrom.substr(start, end - start);
+      std::string segment = normalizedTo.substr(start, end - start);
+      fromSegments.push_back(seg);
+      toSegments.push_back(segment);
+      start = end + 1;
+    }
+    fromSegments.push_back(normalizedFrom.substr(start));
+    toSegments.push_back(normalizedTo.substr(start));
+
+    size_t commonPrefixLength = 0;
+    while (commonPrefixLength < fromSegments.size() &&
+           commonPrefixLength < toSegments.size() &&
+           fromSegments[commonPrefixLength] == toSegments[commonPrefixLength])
+    {
+      commonPrefixLength++;
+    }
+
+    std::string relativePath;
+    for (size_t i = commonPrefixLength; i < fromSegments.size(); i++)
+    {
+      relativePath += "..";
+      relativePath += sep;
+    }
+
+    for (size_t i = commonPrefixLength; i < toSegments.size(); i++)
+    {
+      relativePath += toSegments[i];
+      relativePath += sep;
+    }
+
+    if (!relativePath.empty())
+    {
+      relativePath.pop_back();
+    }
+
+    return relativePath;
+  }
+  static std::string toNamespacedPath(const std::string &path)
+  {
+    if (!path.empty() && path[1] == ':' && (path[2] == '/' || path[2] == '\\'))
+    {
+      return "\\\\?\\" + path;
+    }
+
+    return path;
+  }
+  static std::string format(const nlohmann::json &pathObject)
+  {
+    std::string result;
+
+    if (pathObject.find("dir") != pathObject.end())
+    {
+      result += pathObject["dir"];
+    }
+    else
+    {
+      if (pathObject.find("root") != pathObject.end())
+      {
+        result += pathObject["root"];
+      }
+    }
+
+    if (pathObject.find("base") != pathObject.end())
+    {
+      result += sep;
+      result += pathObject["base"];
+    }
+    else
+    {
+      if (pathObject.find("name") != pathObject.end())
+      {
+        result += sep;
+        result += pathObject["name"];
+      }
+
+      if (pathObject.find("ext") != pathObject.end())
+      {
+        if (pathObject["ext"].empty() || pathObject["ext"][0] != '.')
+        {
+          result += '.';
+        }
+        result += pathObject["ext"];
+      }
+    }
+
     return result;
   }
 
 private:
   template <typename T, typename... Args>
-  static void joinInternal(std::string &result, const T &first, Args... args) {
+  static void joinInternal(std::string &result, const T &first, Args... args)
+  {
     result += first;
-    result += '/';
+    result += sep;
     joinInternal(result, args...);
   }
 
-  static void joinInternal(std::string &result) {
+  static void joinInternal(std::string &result)
+  {
     // Do nothing, this is the base case
   }
 };
+
+#ifdef _WIN32
+char __path__::sep = '\\';
+#else
+char __path__::sep = '/';
+#endif
+#ifdef _WIN32
+char __path__::delimiter = ';';
+#else
+char __path__::delimiter = ':';
+#endif
 
 
 nlohmann::json &operator+=(nlohmann::json &j, int x) {
@@ -1767,19 +2642,7 @@ nlohmann::json JS_splice(nlohmann::json &arr, int start, int deleteCount, const 
 
 std::string JS_toLocaleString(const nlohmann::json &arr)
 {
-  std::string result = "";
-
-  for (size_t i = 0; i < arr.size(); i++)
-  {
-    if (i > 0)
-    {
-      result += ", ";
-    }
-
-    result += arr[i].dump();
-  }
-
-  return result;
+  return arr.dump();
 }
 
 std::string JS_toSource(const nlohmann::json &arr)
@@ -2291,7 +3154,14 @@ std::string JS_trimStart(const std::string &str)
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  using myPath = __path__;
-std::cout << std::string("path.join:") << myPath::join(std::string("/test"), std::string("user"), std::string("folder1"), std::string(".."), std::string("folder2"), std::string("file.txt")) << '\n';
+  using fs = __fs__;
+fs::readFile(std::string("./time.py"), [](auto er, auto data) { 
+std::cout << std::string("ere") << '\n';
+std::cout << data << '\n'; 
+ } );
+auto data = fs::readFileSync(std::string("./time.py")) ; 
+
+std::cout << std::string("HEYO") << '\n';
+std::cout << data << '\n';
   return 0;
 }  
