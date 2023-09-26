@@ -5,7 +5,6 @@
 -   Async/await {High}
 -   this! {High}
 -   other data types (undefined/null) {High}
--   Remove unused methods in translation process {High}
 -   fix nans/undefined/nulls {Mid}
 -   var vs let {Mid}
 -   RegExp Object {Mid}
@@ -78,3 +77,4 @@
 -   Array Object implementation{High}
 -   built-in (Array, String, etc...) {Mid}
 -   Fix "nonoptions" in node module methods, eg function overload {Mid}
+-   Remove unused methods in translation process {High}

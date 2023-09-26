@@ -1,6 +1,6 @@
 // Ignore imports
 #include <string>
-#include "nlohmann-json.hh"
+#include "../nlohmann-json.hh"
 // Ignore imports end
 
 bool JS_CAST_ExclamationBoolean(int value) { return !(value != 0); }

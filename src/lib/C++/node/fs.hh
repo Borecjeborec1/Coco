@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <random>
-#include "nlohmann-json.hh"
+#include "../nlohmann-json.hh"
 #include <thread>
 // Ignore imports end
 
@@ -265,7 +265,7 @@ public:
         }
     }
 
-    static void chmod(const std::string &path, int mode = 0, const std::function<void(std::string err)> &callback)
+    static void chmod(const std::string &path, int mode, const std::function<void(std::string err)> &callback)
     {
         try
         {
@@ -348,7 +348,7 @@ public:
         }
     }
 
-    static void copyFile(const std::string &src, const std::string &dest, int mode = 0, const std::function<void(std::string err)> &callback)
+    static void copyFile(const std::string &src, const std::string &dest, int mode, const std::function<void(std::string err)> &callback)
     {
         try
         {

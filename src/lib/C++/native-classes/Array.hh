@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "nlohmann-json.hh"
+#include "../nlohmann-json.hh"
 // Ignore imports end
 
 class __Array__ {

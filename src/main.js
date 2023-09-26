@@ -72,7 +72,25 @@ const ALLOWED_MODULES = {
 };
 
 const OBJECTS_WITH_STATIC_GLOBAL_METHODS = ["Date", "Array"]; // Array holding names that have static methods, that are also global, and custom user variable names for node modules
-const user_defined_variable_names = [];
+const userDefinedVariableNames = [];
+const DEFAULT_IMPORTS = [
+    "nlohmann-json.hh",
+    "Global-functions.hh",
+    "Array-methods.hh",
+    "Boolean-methods.hh",
+    "String-methods.hh",
+    "Number-methods.hh",
+    "json-operators.hh",
+    "string-operators.hh",
+    "Array.hh",
+    "Bool.hh",
+    "Date.hh",
+    "JSON.hh",
+    "Math.hh",
+    "Number.hh",
+    "String.hh",
+];
+const neededImports = [];
 let config = { numberDataType: "int", outputBooleans: "true" };
 function generateWholeCode(ast, compilingOptions) {
     config = { ...config, ...compilingOptions };
@@ -99,6 +117,21 @@ function addAutoIfNotTypedAlready(variable) {
 function isRegexString(value) {
     const regexPattern = /^\/((?!\/).)+\/[gimsu]*$/;
     return typeof value === "string" && regexPattern.test(value);
+}
+
+function getAllFiles(dir, fileList = []) {
+    const files = fs.readdirSync(dir);
+
+    files.forEach((file) => {
+        const filePath = path.join(dir, file);
+        if (fs.statSync(filePath).isDirectory()) {
+            getAllFiles(filePath, fileList);
+        } else {
+            fileList.push(filePath);
+        }
+    });
+
+    return fileList;
 }
 
 function generateCpp(ast, compilingOptions) {
@@ -143,7 +176,8 @@ function generateCpp(ast, compilingOptions) {
                 const moduleName = ast.declarations[0].init.arguments[0].value;
                 const variableName = ast.declarations[0].id.name;
                 if (ALLOWED_MODULES[moduleName]) {
-                    user_defined_variable_names.push(variableName);
+                    userDefinedVariableNames.push(variableName);
+                    neededImports.push(variableName);
                     return `using ${variableName} = ${ALLOWED_MODULES[moduleName]};`;
                 }
                 return "";
@@ -255,7 +289,7 @@ function generateCpp(ast, compilingOptions) {
                     ast.callee.object.name || generateCpp(ast.callee.object); // Ensure that nested methods get called right
                 if (
                     jsFunction &&
-                    !user_defined_variable_names.includes(variableName)
+                    !userDefinedVariableNames.includes(variableName)
                 ) {
                     const { name, argCount } = jsFunction;
                     if (ast.arguments && ast.arguments.length > 0) {
@@ -323,7 +357,7 @@ function generateCpp(ast, compilingOptions) {
             const propertyCode = ast.property.name;
             if (propertyCode === "length") return `${objectCode}.length()`;
             if (objectCode == "this") return propertyCode;
-            if (user_defined_variable_names.includes(objectCode))
+            if (userDefinedVariableNames.includes(objectCode))
                 return `${objectCode}::${propertyCode}`;
 
             if (IMPLEMENTED_JS_OBJECTS[objectCode])
@@ -584,117 +618,66 @@ function generateCpp(ast, compilingOptions) {
         case "TSAnyKeyword": {
             return "auto ";
         }
-        // case "ClassDeclaration": {
-        //   console.log("here")
-        //   const className = generateCpp(ast.id);
-        //   let constructorParams = ""
-        //   let constructorInits = ""
-        //   let constructorInitClass = ` class local_class {
-        //     public:
-        //       REPLACE_CONTENT
-        // } local;`
-        //   let classMethods = ""
-        //   for (let i = 0; i < ast.body.body.length; ++i) {
-        //     const generated = generateCpp(ast.body.body[i])
-        //     console.log(generated)
-        //     if (generated.isConstructor) {
-        //       constructorInits = generated.constructorInits
-        //       constructorInitClass = constructorInitClass.replace("REPLACE_CONTENT", constructorInits.split("\n").map(row => {
-        //         let items = row.split("=")
-        //         return `decltype(${items[1]}) ${items[0]}`
-        //       }).join("\n"))
-        //       constructorParams = generated.constructorParams
-        //     } else {
-        //       classMethods += generated.classMethod + "\n"
-        //     }
-        //   }
-        //   console.log(`auto ${className} = [](${constructorParams}) {\n ${constructorInitClass}\n${constructorInits} \n ${classMethods}\n};`)
-        //   return `auto ${className} = [](${constructorParams}) {\n ${constructorInitClass}\n${constructorInits} \n ${classMethods}\n};`;
-        // }
+        case "ClassDeclaration": {
+            const className = ast.id.name;
+            const classBody = ast.body.body.map(generateCpp).join("\n");
 
-        // case "MethodDefinition": {
-        //   if (ast.kind === "constructor") {
-        //     const constructorParams = ast.value.params.map(generateCpp).map(el => "auto " + el).join(", ");
-        //     const body = generateCpp(ast.value.body);
-        //     const constructorInits = body.replace(/this\./g, 'local.');
-        //     console.log("HERE", constructorInits)
-        //     return { constructorInits, isConstructor: true, constructorParams };
-        //   } else {
-        //     const methodName = ast.key.name;
-        //     const params = ast.value.params.map(generateCpp).map(el => "auto " + el).join(", ");
-        //     console.log(params)
-        //     const body = generateCpp(ast.value.body);
-        //     const modifiedBody = body.replace(/this\./g, '');
-        //     return { classMethod: `auto ${methodName}(${params}) {\n${modifiedBody}\n}`, isConstructor: false };
-        //   }
-        // }
+            return `class ${className} {\n${classBody}\n};`;
+        }
+
+        case "MethodDefinition": {
+            console.log(ast.key);
+            const methodName = ast.key.name;
+            const methodParams = ast.value.params
+                .map(generateCpp)
+                .map(addAutoIfNotTypedAlready)
+                .join(", ");
+            const methodBody = generateCpp(ast.value.body);
+
+            if (ast.kind === "constructor") {
+                // // Constructor method
+                // console.log(ast.parent);
+                // return `${ast.parent.name}(${methodParams}) {\n${methodBody}\n}`;
+            } else {
+                // Regular method
+                return `auto ${methodName}(${methodParams}) {\n${methodBody}\n}`;
+            }
+        }
         default:
             console.log(`Unsupported AST node type: ${ast.type} `);
     }
 }
 
-function loadLibFiles(libFolderPath) {
-    let combinedContent = "";
-    const includes = [];
-    function processFile(filePath) {
-        const fileContent = fs.readFileSync(filePath, "utf-8");
-        if (
-            (path.extname(filePath) === ".hh" ||
-                path.extname(filePath) === ".hpp") &&
-            path.basename(filePath) != "nlohmann-json.hh"
-        ) {
-            const regex =
-                /\/\/ Ignore imports\r\n([\s\S]*?)\/\/ Ignore imports end/g;
-
-            const modifiedInput = fileContent
-                .toString()
-                .replace(regex, (match, capturedContent) => {
-                    includes.push(capturedContent);
-                    return "";
-                });
-            combinedContent += "\n" + modifiedInput;
-        }
-    }
-
-    function exploreFolder(folderPath) {
-        const files = fs.readdirSync(folderPath);
-
-        files.forEach((file) => {
-            const filePath = path.join(folderPath, file);
-            const stats = fs.statSync(filePath);
-
-            if (stats.isDirectory()) {
-                exploreFolder(filePath);
-            } else {
-                processFile(filePath);
-            }
-        });
-    }
-    function filterImports(e) {
-        return e && !e.includes("hh") && e.includes("#include");
-    }
-    exploreFolder(libFolderPath);
-    const nonDuplicateImports = [...new Set(includes.join("\n").split("\r\n"))];
-    const filteredImports = nonDuplicateImports
-        .filter(filterImports)
-        .join("\n");
-
-    return filteredImports + "\n" + combinedContent;
-}
-
 function joinCppParts(mainBody = "") {
-    const loadedLibFiles = loadLibFiles(path.join(__dirname, "./lib/C++"));
     const coutModifier = config.outputBooleans
         ? "std::cout.setf(std::ios::boolalpha);"
         : "";
+    const rootDirectory = "/lib/C++";
+
+    const allFiles = getAllFiles(__dirname + rootDirectory);
+    const includeStatements = allFiles
+
+        .filter(
+            (filePath) =>
+                DEFAULT_IMPORTS.includes(path.basename(filePath)) ||
+                neededImports.includes(path.basename(filePath))
+        )
+        .map((filePath) => {
+            const libIndex = filePath.indexOf("lib");
+
+            const extractedPath = filePath.substring(libIndex);
+            return `#include "./${extractedPath
+                .replace("C++\\", "")
+                .replace(/\\/g, "/")}"`;
+        })
+        .join("\n");
+
     return `
 
 // All new includes goes here
 #include <chrono>
-#include "nlohmann-json.hh"
-
-// All Built-in JSMethods goes here
-${loadedLibFiles}
+#include <iostream>
+${includeStatements}
 
 // Main Function (Have to be the only main function)
 int main(){
