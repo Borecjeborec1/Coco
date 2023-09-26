@@ -17,7 +17,6 @@
 -   Fix issue with same functions in global scope and built-in class scope {Mid}
 -   == vs === {Mid}
 -   Fix empty json key acessment {Mid}
--   Fix "nonoptions" in node module methods, eg function overload {Mid}
 -   AST types discovery {Mid}
 -   Finish unfinished ast type handling {Mid}
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
@@ -78,3 +77,4 @@
 -   Hadle !! operator {Low}
 -   Array Object implementation{High}
 -   built-in (Array, String, etc...) {Mid}
+-   Fix "nonoptions" in node module methods, eg function overload {Mid}

@@ -34,7 +34,7 @@ public:
         callback("", content);
     }
 
-    static std::string readFileSync(const std::string &path, const std::string &encoding)
+    static std::string readFileSync(const std::string &path, const std::string &encoding = "utf8")
     {
         std::ifstream file(path);
         if (!file.is_open())
@@ -62,7 +62,7 @@ public:
         callback("");
     }
 
-    static void writeFileSync(const std::string &path, const std::string &data)
+    static void writeFileSync(const std::string &path, const std::string &data = "")
     {
         std::ofstream file(path);
         if (!file.is_open())
@@ -245,7 +245,7 @@ public:
         }
     }
 
-    static void appendFileSync(const std::string &path, const std::string &data)
+    static void appendFileSync(const std::string &path, const std::string &data = "")
     {
         try
         {
@@ -265,7 +265,7 @@ public:
         }
     }
 
-    static void chmod(const std::string &path, int mode, const std::function<void(std::string err)> &callback)
+    static void chmod(const std::string &path, int mode = 0, const std::function<void(std::string err)> &callback)
     {
         try
         {
@@ -348,7 +348,7 @@ public:
         }
     }
 
-    static void copyFile(const std::string &src, const std::string &dest, int mode, const std::function<void(std::string err)> &callback)
+    static void copyFile(const std::string &src, const std::string &dest, int mode = 0, const std::function<void(std::string err)> &callback)
     {
         try
         {
@@ -405,6 +405,65 @@ public:
             callback(e.what());
         }
     }
+
+    static void copyFile(const std::string &src, const std::string &dest, const std::function<void(std::string err)> &callback)
+    {
+        try
+        {
+#ifdef _WIN32
+            if (!CopyFileA(src.c_str(), dest.c_str(), true))
+            {
+                callback("Error copying file");
+                return;
+            }
+#else
+            int src_fd = ::open(src.c_str(), O_RDONLY);
+            if (src_fd == -1)
+            {
+                callback(std::strerror(errno));
+                return;
+            }
+
+            int dest_fd = ::open(dest.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if (dest_fd == -1)
+            {
+                ::close(src_fd);
+
+                callback(std::strerror(errno));
+                return;
+            }
+
+            ssize_t bytes_copied = sendfile(dest_fd, src_fd, nullptr, 0);
+            if (bytes_copied == -1)
+            {
+                ::close(src_fd);
+                ::close(dest_fd);
+
+                callback(std::strerror(errno));
+                return;
+            }
+
+            ::close(src_fd);
+            ::close(dest_fd);
+
+            if ((mode & 1) != 0 && bytes_copied > 0)
+            {
+                if (std::remove(dest.c_str()) != 0)
+                {
+                    callback(std::strerror(errno));
+                    return;
+                }
+            }
+#endif
+
+            callback("");
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what());
+        }
+    }
+
     static void copyFileSync(const std::string &src, const std::string &dest, int mode = 0)
     {
         try
@@ -505,6 +564,29 @@ public:
         try
         {
             std::string encoding = options.contains("encoding") ? options["encoding"].get<std::string>() : "utf8";
+
+            std::string tmpDir = generateTempDirName(prefix);
+
+            if (std::filesystem::create_directory(tmpDir))
+            {
+                callback("", tmpDir);
+            }
+            else
+            {
+                throw std::runtime_error("Error creating temporary directory");
+            }
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what(), "");
+        }
+    }
+
+    static void mkdtemp(const std::string &prefix, const std::function<void(std::string err, std::string tmpDir)> &callback)
+    {
+        try
+        {
+            std::string encoding = "utf8";
 
             std::string tmpDir = generateTempDirName(prefix);
 
@@ -774,6 +856,58 @@ public:
         }
     }
 
+    static void rmdir(const std::string &path, const std::function<void(std::string err)> &callback)
+    {
+        try
+        {
+            nlohmann::json options = {};
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
+
+            if (recursive)
+            {
+                int maxRetries = options.contains("maxRetries") ? options["maxRetries"].get<int>() : 0;
+                int retryDelay = options.contains("retryDelay") ? options["retryDelay"].get<int>() : 100;
+                std::error_code ec;
+                std::filesystem::remove_all(path, ec);
+
+                if (ec)
+                {
+                    if (maxRetries > 0)
+                    {
+                        int retries = 0;
+                        while (retries < maxRetries)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(retryDelay));
+                            std::error_code retryEc;
+                            std::filesystem::remove_all(path, retryEc);
+                            if (!retryEc)
+                            {
+                                callback("");
+                                return;
+                            }
+                            retries++;
+                            retryDelay += 100;
+                        }
+                    }
+                    callback(ec.message());
+                }
+                else
+                {
+                    callback("");
+                }
+            }
+            else
+            {
+                std::filesystem::remove(path);
+                callback("");
+            }
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what());
+        }
+    }
+
     static void rmdirSync(const std::string &path, const nlohmann::json &options = {})
     {
         try
@@ -824,6 +958,82 @@ public:
     {
         try
         {
+            bool force = options.contains("force") ? options["force"].get<bool>() : false;
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
+
+            if (recursive)
+            {
+                int maxRetries = options.contains("maxRetries") ? options["maxRetries"].get<int>() : 0;
+                int retryDelay = options.contains("retryDelay") ? options["retryDelay"].get<int>() : 100;
+
+                std::error_code ec;
+                std::filesystem::remove_all(path, ec);
+
+                if (ec)
+                {
+                    if (!force)
+                    {
+                        callback(ec.message());
+                        return;
+                    }
+
+                    if (maxRetries > 0)
+                    {
+                        int retries = 0;
+                        while (retries < maxRetries)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(retryDelay));
+                            std::error_code retryEc;
+                            std::filesystem::remove_all(path, retryEc);
+                            if (!retryEc)
+                            {
+                                callback("");
+                                return;
+                            }
+                            retries++;
+                            retryDelay += 100;
+                        }
+                    }
+
+                    callback(ec.message());
+                }
+                else
+                {
+                    callback("");
+                }
+            }
+            else
+            {
+                if (force || std::filesystem::exists(path))
+                {
+                    std::error_code ec;
+                    std::filesystem::remove(path, ec);
+                    if (ec)
+                    {
+                        callback(ec.message());
+                    }
+                    else
+                    {
+                        callback("");
+                    }
+                }
+                else
+                {
+                    callback("");
+                }
+            }
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what());
+        }
+    }
+
+    static void rm(const std::string &path, const std::function<void(std::string err)> &callback)
+    {
+        try
+        {
+            nlohmann::json options = {};
             bool force = options.contains("force") ? options["force"].get<bool>() : false;
             bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
 
@@ -1014,7 +1224,65 @@ public:
         }
     }
 
-    // Synchronous version - statSync
+    static void stat(const std::string &path, const std::function<void(nlohmann::json err, nlohmann::json stats)> &callback)
+    {
+        try
+        {
+
+            bool useBigInt = false;
+
+            std::filesystem::path filePath(path);
+            if (!std::filesystem::exists(filePath))
+            {
+                callback("File does not exist", nullptr);
+                return;
+            }
+
+            std::filesystem::file_status fileStatus = std::filesystem::status(filePath);
+            nlohmann::json stats;
+
+            if (std::filesystem::is_regular_file(fileStatus))
+            {
+                stats["isFile"] = true;
+                stats["isDirectory"] = false;
+                stats["isSymbolicLink"] = std::filesystem::is_symlink(filePath);
+            }
+            else if (std::filesystem::is_directory(fileStatus))
+            {
+                stats["isFile"] = false;
+                stats["isDirectory"] = true;
+                stats["isSymbolicLink"] = std::filesystem::is_symlink(filePath);
+            }
+            else if (std::filesystem::is_symlink(fileStatus))
+            {
+                stats["isFile"] = false;
+                stats["isDirectory"] = false;
+                stats["isSymbolicLink"] = true;
+            }
+
+            if (useBigInt)
+            {
+                stats["size"] = static_cast<uint64_t>(std::filesystem::file_size(filePath));
+                stats["atime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["mtime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["ctime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+            }
+            else
+            {
+                stats["size"] = static_cast<int64_t>(std::filesystem::file_size(filePath));
+                stats["atime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["mtime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["ctime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+            }
+
+            callback("", stats);
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what(), nullptr);
+        }
+    }
+
     static nlohmann::json statSync(const std::string &path, const nlohmann::json &options = {})
     {
         try

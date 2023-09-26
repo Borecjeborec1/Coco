@@ -61,9 +61,19 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("node/path");
         });
     });
+    describe("Given the OS NODE MODULE", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("node/os");
+        });
+    });
+    describe.only("Given the FS NODE MODULE", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("node/fs");
+        });
+    });
 });
 
-describe.only("Given the TEST SOLO file", function () {
+describe.skip("Given the TEST SOLO file", function () {
     this.timeout(10000000);
     it("Should output same results as node", async function () {
         await compileAndRunTest("solo");
