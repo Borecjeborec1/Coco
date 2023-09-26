@@ -21,3 +21,5 @@ fs.mkdirSync("./testDirr");
 fs.rmdirSync("./testDirr");
 let idkdk = fs.statSync("./time.py");
 console.log(idkdk);
+
+// Missing test for other fs methods

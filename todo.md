@@ -17,6 +17,7 @@
 -   Fix issue with same functions in global scope and built-in class scope {Mid}
 -   == vs === {Mid}
 -   Fix empty json key acessment {Mid}
+-   Fix "nonoptions" in node module methods, eg function overload {Mid}
 -   AST types discovery {Mid}
 -   Finish unfinished ast type handling {Mid}
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
@@ -39,6 +40,7 @@
 -   implement timezone handling in Date {Very Low}
 -   String raw static method {Very Very Very Low}
 -   cpu model and cpu speed in os module {Very Very Very Low}
+-   birth time in fs.stats {Very Very Very Low}
 
 #### FINISHED
 

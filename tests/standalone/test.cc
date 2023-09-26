@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <random>
+#include <thread>
 #include <algorithm>
 #include <regex>
 
@@ -1045,7 +1046,6 @@ public:
             std::filesystem::path filePath(path);
             std::filesystem::perms permissions = std::filesystem::status(filePath).permissions();
 
-            // Check if the specified access mode is granted
             bool hasAccess = true;
 
             if ((mode & std::filesystem::perms::owner_read) != std::filesystem::perms::none && (permissions & std::filesystem::perms::owner_read) == std::filesystem::perms::none)
@@ -1086,7 +1086,6 @@ public:
         }
         catch (const std::exception &e)
         {
-            // Handle other errors
             callback(e.what());
         }
     }
@@ -1098,7 +1097,6 @@ public:
             std::filesystem::path filePath(path);
             std::filesystem::perms permissions = std::filesystem::status(filePath).permissions();
 
-            // Check if the specified access mode is granted
             bool hasAccess = true;
 
             if ((permissions & std::filesystem::perms::owner_read) == std::filesystem::perms::none)
@@ -1139,7 +1137,6 @@ public:
         }
         catch (const std::exception &e)
         {
-            // Handle other errors
             callback(e.what());
         }
     }
@@ -1151,7 +1148,6 @@ public:
             std::filesystem::path filePath(path);
             std::filesystem::perms permissions = std::filesystem::status(filePath).permissions();
 
-            // Check if the specified access mode is granted
             bool hasAccess = true;
 
             if ((mode & std::filesystem::perms::owner_read) != std::filesystem::perms::none && (permissions & std::filesystem::perms::owner_read) == std::filesystem::perms::none)
@@ -1188,7 +1184,6 @@ public:
         }
         catch (const std::exception &e)
         {
-            // Handle other errors
             throw std::runtime_error(e.what());
         }
     }
@@ -1315,7 +1310,6 @@ public:
         }
         catch (const std::exception &e)
         {
-            // Handle other errors
             throw std::runtime_error(e.what());
         }
     }
@@ -1377,7 +1371,7 @@ public:
             callback(e.what());
         }
     }
-    static void copyFileSync(const std::string &src, const std::string &dest, int mode)
+    static void copyFileSync(const std::string &src, const std::string &dest, int mode = 0)
     {
         try
         {
@@ -1398,7 +1392,6 @@ public:
             {
                 ::close(src_fd);
 
-                // Handle errors
                 throw std::runtime_error(std::strerror(errno));
             }
 
@@ -1432,7 +1425,7 @@ public:
     {
         try
         {
-            bool recursive = options.value("recursive", false);
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
 
             if (recursive)
             {
@@ -1451,11 +1444,11 @@ public:
         }
     }
 
-    static std::string mkdirSync(const std::string &path, const nlohmann::json &options)
+    static std::string mkdirSync(const std::string &path, const nlohmann::json &options = {})
     {
         try
         {
-            bool recursive = options.value("recursive", false);
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
 
             if (recursive)
             {
@@ -1477,12 +1470,10 @@ public:
     {
         try
         {
-            std::string encoding = options.value("encoding", "utf8");
+            std::string encoding = options.contains("encoding") ? options["encoding"].get<std::string>() : "utf8";
 
-            // Generate a unique temporary directory name
             std::string tmpDir = generateTempDirName(prefix);
 
-            // Create the temporary directory
             if (std::filesystem::create_directory(tmpDir))
             {
                 callback("", tmpDir);
@@ -1498,17 +1489,14 @@ public:
         }
     }
 
-    // Synchronous version - mkdtempSync
-    static std::string mkdtempSync(const std::string &prefix, const nlohmann::json &options)
+    static std::string mkdtempSync(const std::string &prefix, const nlohmann::json &options = {})
     {
         try
         {
-            std::string encoding = options.value("encoding", "utf8");
+            std::string encoding = options.contains("encoding") ? options["encoding"].get<std::string>() : "utf8";
 
-            // Generate a unique temporary directory name
             std::string tmpDir = generateTempDirName(prefix);
 
-            // Create the temporary directory
             if (std::filesystem::create_directory(tmpDir))
             {
                 return tmpDir;
@@ -1527,9 +1515,9 @@ public:
     {
         try
         {
-            std::string encoding = options.value("encoding", "utf8");
-            bool withFileTypes = options.value("withFileTypes", false);
-            bool recursive = options.value("recursive", false);
+            std::string encoding = options.contains("encoding") ? options["encoding"].get<std::string>() : "utf8";
+            bool withFileTypes = options.contains("withFileTypes") ? options["withFileTypes"].get<bool>() : false;
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
 
             std::vector<nlohmann::json> fileList;
 
@@ -1581,9 +1569,9 @@ public:
         try
         {
             nlohmann::json options = {};
-            std::string encoding = options.value("encoding", "utf8");
-            bool withFileTypes = options.value("withFileTypes", false);
-            bool recursive = options.value("recursive", false);
+            std::string encoding = options.contains("encoding") ? options["encoding"].get<std::string>() : "utf8";
+            bool withFileTypes = options.contains("withFileTypes") ? options["withFileTypes"].get<bool>() : false;
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
 
             std::vector<nlohmann::json> fileList;
 
@@ -1630,8 +1618,7 @@ public:
         }
     }
 
-    // Synchronous version - readdirSync
-    static nlohmann::json readdirSync(const std::string &path, const nlohmann::json &options = nlohmann::json{{"encoding", "utf3218"}})
+    static nlohmann::json readdirSync(const std::string &path, const nlohmann::json &options = {})
     {
         std::string encoding = options.contains("encoding") ? options["encoding"].get<std::string>() : "utf8";
         bool withFileTypes = options.contains("withFileTypes") ? options["withFileTypes"].get<bool>() : false;
@@ -1677,11 +1664,438 @@ public:
         return fileList;
     }
 
+    static void rename(const std::string &oldPath, const std::string &newPath, const std::function<void(std::string err)> &callback)
+    {
+        try
+        {
+            std::filesystem::rename(oldPath, newPath);
+            callback("");
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what());
+        }
+    }
+
+    static void renameSync(const std::string &oldPath, const std::string &newPath)
+    {
+        try
+        {
+            std::filesystem::rename(oldPath, newPath);
+        }
+        catch (const std::exception &e)
+        {
+            throw std::runtime_error(e.what());
+        }
+    }
+
+    static void rmdir(const std::string &path, const nlohmann::json &options, const std::function<void(std::string err)> &callback)
+    {
+        try
+        {
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
+
+            if (recursive)
+            {
+                int maxRetries = options.contains("maxRetries") ? options["maxRetries"].get<int>() : 0;
+                int retryDelay = options.contains("retryDelay") ? options["retryDelay"].get<int>() : 100;
+                std::error_code ec;
+                std::filesystem::remove_all(path, ec);
+
+                if (ec)
+                {
+                    if (maxRetries > 0)
+                    {
+                        int retries = 0;
+                        while (retries < maxRetries)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(retryDelay));
+                            std::error_code retryEc;
+                            std::filesystem::remove_all(path, retryEc);
+                            if (!retryEc)
+                            {
+                                callback("");
+                                return;
+                            }
+                            retries++;
+                            retryDelay += 100;
+                        }
+                    }
+                    callback(ec.message());
+                }
+                else
+                {
+                    callback("");
+                }
+            }
+            else
+            {
+                std::filesystem::remove(path);
+                callback("");
+            }
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what());
+        }
+    }
+
+    static void rmdirSync(const std::string &path, const nlohmann::json &options = {})
+    {
+        try
+        {
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
+
+            if (recursive)
+            {
+                int maxRetries = options.contains("maxRetries") ? options["maxRetries"].get<int>() : 0;
+                int retryDelay = options.contains("retryDelay") ? options["retryDelay"].get<int>() : 100;
+
+                std::error_code ec;
+                std::filesystem::remove_all(path, ec);
+
+                if (ec)
+                {
+                    if (maxRetries > 0)
+                    {
+                        int retries = 0;
+                        while (retries < maxRetries)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(retryDelay));
+                            std::error_code retryEc;
+                            std::filesystem::remove_all(path, retryEc);
+                            if (!retryEc)
+                            {
+                                return;
+                            }
+                            retries++;
+                            retryDelay += 100;
+                        }
+                    }
+                    throw std::runtime_error(ec.message());
+                }
+            }
+            else
+            {
+                std::filesystem::remove(path);
+            }
+        }
+        catch (const std::exception &e)
+        {
+            throw std::runtime_error(e.what());
+        }
+    }
+
+    static void rm(const std::string &path, const nlohmann::json &options, const std::function<void(std::string err)> &callback)
+    {
+        try
+        {
+            bool force = options.contains("force") ? options["force"].get<bool>() : false;
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
+
+            if (recursive)
+            {
+                int maxRetries = options.contains("maxRetries") ? options["maxRetries"].get<int>() : 0;
+                int retryDelay = options.contains("retryDelay") ? options["retryDelay"].get<int>() : 100;
+
+                std::error_code ec;
+                std::filesystem::remove_all(path, ec);
+
+                if (ec)
+                {
+                    if (!force)
+                    {
+                        callback(ec.message());
+                        return;
+                    }
+
+                    if (maxRetries > 0)
+                    {
+                        int retries = 0;
+                        while (retries < maxRetries)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(retryDelay));
+                            std::error_code retryEc;
+                            std::filesystem::remove_all(path, retryEc);
+                            if (!retryEc)
+                            {
+                                callback("");
+                                return;
+                            }
+                            retries++;
+                            retryDelay += 100;
+                        }
+                    }
+
+                    callback(ec.message());
+                }
+                else
+                {
+                    callback("");
+                }
+            }
+            else
+            {
+                if (force || std::filesystem::exists(path))
+                {
+                    std::error_code ec;
+                    std::filesystem::remove(path, ec);
+                    if (ec)
+                    {
+                        callback(ec.message());
+                    }
+                    else
+                    {
+                        callback("");
+                    }
+                }
+                else
+                {
+                    callback("");
+                }
+            }
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what());
+        }
+    }
+
+    static void rmSync(const std::string &path, const nlohmann::json &options = {})
+    {
+        try
+        {
+            bool force = options.contains("force") ? options["force"].get<bool>() : false;
+            bool recursive = options.contains("recursive") ? options["recursive"].get<bool>() : false;
+
+            if (recursive)
+            {
+                int maxRetries = options.contains("maxRetries") ? options["maxRetries"].get<int>() : 0;
+                int retryDelay = options.contains("retryDelay") ? options["retryDelay"].get<int>() : 100;
+
+                std::error_code ec;
+                std::filesystem::remove_all(path, ec);
+
+                if (ec)
+                {
+                    if (!force)
+                    {
+                        throw std::runtime_error(ec.message());
+                    }
+
+                    if (maxRetries > 0)
+                    {
+                        int retries = 0;
+                        while (retries < maxRetries)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(retryDelay));
+                            std::error_code retryEc;
+                            std::filesystem::remove_all(path, retryEc);
+                            if (!retryEc)
+                            {
+                                return;
+                            }
+                            retries++;
+                            retryDelay += 100;
+                        }
+                    }
+
+                    throw std::runtime_error(ec.message());
+                }
+            }
+            else
+            {
+                if (force || std::filesystem::exists(path))
+                {
+                    std::error_code ec;
+                    std::filesystem::remove(path, ec);
+                    if (ec)
+                    {
+                        throw std::runtime_error(ec.message());
+                    }
+                }
+            }
+        }
+        catch (const std::exception &e)
+        {
+            throw std::runtime_error(e.what());
+        }
+    }
+
+    static void stat(const std::string &path, const nlohmann::json &options, const std::function<void(nlohmann::json err, nlohmann::json stats)> &callback)
+    {
+        try
+        {
+            bool useBigInt = options.contains("bigint") ? options["bigint"].get<bool>() : false;
+
+            std::filesystem::path filePath(path);
+            if (!std::filesystem::exists(filePath))
+            {
+                callback("File does not exist", nullptr);
+                return;
+            }
+
+            std::filesystem::file_status fileStatus = std::filesystem::status(filePath);
+            nlohmann::json stats;
+
+            if (std::filesystem::is_regular_file(fileStatus))
+            {
+                stats["isFile"] = true;
+                stats["isDirectory"] = false;
+                stats["isSymbolicLink"] = std::filesystem::is_symlink(filePath);
+            }
+            else if (std::filesystem::is_directory(fileStatus))
+            {
+                stats["isFile"] = false;
+                stats["isDirectory"] = true;
+                stats["isSymbolicLink"] = std::filesystem::is_symlink(filePath);
+            }
+            else if (std::filesystem::is_symlink(fileStatus))
+            {
+                stats["isFile"] = false;
+                stats["isDirectory"] = false;
+                stats["isSymbolicLink"] = true;
+            }
+
+            if (useBigInt)
+            {
+                stats["size"] = static_cast<uint64_t>(std::filesystem::file_size(filePath));
+                stats["atime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["mtime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["ctime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+            }
+            else
+            {
+                stats["size"] = static_cast<int64_t>(std::filesystem::file_size(filePath));
+                stats["atime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["mtime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["ctime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+            }
+
+            callback("", stats);
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what(), nullptr);
+        }
+    }
+
+    // Synchronous version - statSync
+    static nlohmann::json statSync(const std::string &path, const nlohmann::json &options = {})
+    {
+        try
+        {
+            bool useBigInt = options.contains("bigint") ? options["bigint"].get<bool>() : false;
+
+            std::filesystem::path filePath(path);
+            if (!std::filesystem::exists(filePath))
+            {
+                return "File does not exist";
+            }
+
+            std::filesystem::file_status fileStatus = std::filesystem::status(filePath);
+            nlohmann::json stats;
+
+            if (std::filesystem::is_regular_file(fileStatus))
+            {
+                stats["isFile"] = true;
+                stats["isDirectory"] = false;
+                stats["isSymbolicLink"] = std::filesystem::is_symlink(filePath);
+            }
+            else if (std::filesystem::is_directory(fileStatus))
+            {
+                stats["isFile"] = false;
+                stats["isDirectory"] = true;
+                stats["isSymbolicLink"] = std::filesystem::is_symlink(filePath);
+            }
+            else if (std::filesystem::is_symlink(fileStatus))
+            {
+                stats["isFile"] = false;
+                stats["isDirectory"] = false;
+                stats["isSymbolicLink"] = true;
+            }
+
+            if (useBigInt)
+            {
+                stats["size"] = static_cast<uint64_t>(std::filesystem::file_size(filePath));
+                stats["atime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["mtime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["ctime"] = static_cast<uint64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+            }
+            else
+            {
+                stats["size"] = static_cast<int64_t>(std::filesystem::file_size(filePath));
+                stats["atime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["mtime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+                stats["ctime"] = static_cast<int64_t>(std::filesystem::last_write_time(filePath).time_since_epoch().count());
+            }
+
+            return stats;
+        }
+        catch (const std::exception &e)
+        {
+            return e.what();
+        }
+    }
+    static void truncate(const std::string &path, int len, const std::function<void(std::string error, std::string data)> &callback)
+    {
+        try
+        {
+            std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::trunc);
+            if (!file)
+            {
+                callback("Failed to open file", nullptr);
+                return;
+            }
+
+            file.seekp(len, std::ios::beg);
+            file.write("", 1);
+
+            if (!file)
+            {
+                callback("Failed to truncate file", nullptr);
+                return;
+            }
+
+            file.close();
+            callback("", nullptr);
+        }
+        catch (const std::exception &e)
+        {
+            callback(e.what(), nullptr);
+        }
+    }
+
+    static nlohmann::json truncateSync(const std::string &path, int len)
+    {
+        try
+        {
+            std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::trunc);
+            if (!file)
+            {
+                return "Failed to open file";
+            }
+
+            file.seekp(len, std::ios::beg);
+            file.write("", 1);
+
+            if (!file)
+            {
+                return "Failed to truncate file";
+            }
+
+            file.close();
+            return nullptr;
+        }
+        catch (const std::exception &e)
+        {
+            return e.what();
+        }
+    }
+
 private:
-    // Generate a unique temporary directory name
     static std::string generateTempDirName(const std::string &prefix)
     {
-        // Generate six random characters
         static const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         static const size_t charsetSize = sizeof(charset) - 1;
         static std::random_device rd;
@@ -1694,7 +2108,6 @@ private:
             randomChars += charset[distr(gen)];
         }
 
-        // Concatenate the prefix and random characters
         return prefix + randomChars;
     }
 };
@@ -3850,8 +4263,28 @@ std::string JS_trimStart(const std::string &str)
 int main(){
   std::cout.setf(std::ios::boolalpha);
   using fs = __fs__;
-auto idk = fs::readdirSync(std::string("."), nlohmann::json{}) ; 
+fs::readFile(std::string("./time.py"), [](auto er, auto data) { 
+std::cout << std::string("in readfile") << '\n';
+std::cout << JS_toString(data) << '\n'; 
+ } );
+auto data = fs::readFileSync(std::string("./time.py"), std::string("utf-8")) ; 
+
+std::cout << data << '\n';
+fs::writeFile(std::string("./time2.py"), std::string("data"), [](auto er) { 
+std::cout << std::string("in writefile") << '\n'; 
+ } );
+fs::writeFileSync(std::string("./time2.py"), std::string("xDDDDDD"));
+fs::access(std::string("./time2.py"), [](auto e) { 
+ 
+ } );
+fs::appendFileSync(std::string("./time2.py"), std::string("test"));
+auto idk = fs::readdirSync(std::string(".")) ; 
 
 std::cout << idk << '\n';
+fs::mkdirSync(std::string("./testDirr"));
+fs::rmdirSync(std::string("./testDirr"));
+auto idkdk = fs::statSync(std::string("./time.py")) ; 
+
+std::cout << idkdk << '\n';
   return 0;
 }  
