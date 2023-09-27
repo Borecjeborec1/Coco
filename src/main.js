@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+const acorn = require("acorn");
+const { tsPlugin } = require("acorn-typescript");
 
 const { BUILTIN_JS_FUNCTIONS } = require("./lib/JS/Builtin-functions.js");
 const VALID_USER_TYPES = {
@@ -91,12 +93,15 @@ const DEFAULT_IMPORTS = [
     "String.hh",
 ];
 const neededImports = [];
-let config = { numberDataType: "int", outputBooleans: "true" };
+let config = { numberDataType: "int", outputBooleans: true, isModule: false };
 function generateWholeCode(ast, compilingOptions) {
     config = { ...config, ...compilingOptions };
     const mainBody = generateCpp(ast);
-    return joinCppParts(mainBody);
+    return compilingOptions.isModule ? mainBody : joinCppParts(mainBody);
 }
+
+let linkedFilesContent = [];
+let linkedFilesName = [];
 
 function mapUserType(type) {
     return VALID_USER_TYPES[type];
@@ -165,7 +170,6 @@ function generateCpp(ast, compilingOptions) {
                 ? generateCpp(typeAnnotation.typeAnnotation)
                 : "";
             const declarationType = mapUserType(type) ? "" : "auto"; //TODO: Handle const declaration
-
             if (
                 ast.declarations[0].init.type === "CallExpression" &&
                 ast.declarations[0].init.callee.type === "Identifier" &&
@@ -180,21 +184,55 @@ function generateCpp(ast, compilingOptions) {
                     neededImports.push(variableName);
                     return `using ${variableName} = ${ALLOWED_MODULES[moduleName]};`;
                 }
+                if (
+                    !fs.existsSync(
+                        path.join(path.dirname(config.cppFile), moduleName)
+                    )
+                ) {
+                    return "";
+                }
+                const linkedFilePath = path.join(
+                    path.dirname(config.cppFile),
+                    moduleName
+                );
+                const linkedContent = fs.readFileSync(linkedFilePath, "utf-8");
+                const linkedAst = acorn.Parser.extend(tsPlugin()).parse(
+                    linkedContent,
+                    {
+                        sourceType: "module",
+                        ecmaVersion: "latest",
+                        locations: true,
+                    }
+                );
+                const linkedFileContent = generateWholeCode(linkedAst, {
+                    isModule: true,
+                });
+                linkedFilesContent.push(linkedFileContent + "\n");
+                linkedFilesName.push(variableName);
                 return "";
             }
 
             return `${declarationType} ${declarations}; \n`;
         }
-        case "VariableDeclarator":
+        case "VariableDeclarator": {
             if (ast.id.typeAnnotation) {
                 return `${generateCpp(ast.id)} = ${ast.init.raw} `;
             }
             return `${generateCpp(ast.id)} = ${generateCpp(ast.init)} `;
-        case "Identifier":
+        }
+        case "Identifier": {
             if (ast.typeAnnotation) {
                 return `${generateCpp(ast.typeAnnotation)} ${ast.name} `;
             }
-            return ast.name;
+            switch (ast.name) {
+                case "__dirname":
+                    return `"${__dirname}"`;
+                case "__filename":
+                    return `"${__filename}"`;
+                default:
+                    return ast.name;
+            }
+        }
         case "Literal": {
             if (ast.typeAnnotation) {
                 return ast.value.toString();
@@ -357,15 +395,17 @@ function generateCpp(ast, compilingOptions) {
             const propertyCode = ast.property.name;
             if (propertyCode === "length") return `${objectCode}.length()`;
             if (objectCode == "this") return propertyCode;
+            if (objectCode == "exports") return "auto " + propertyCode;
             if (userDefinedVariableNames.includes(objectCode))
                 return `${objectCode}::${propertyCode}`;
-
+            if (linkedFilesName.includes(objectCode)) {
+                return `${objectCode}::${propertyCode}`;
+            }
             if (IMPLEMENTED_JS_OBJECTS[objectCode])
                 return `${IMPLEMENTED_JS_OBJECTS[objectCode]}::${propertyCode}`;
 
             if (IMPLEMENTED_DATE_METHODS.includes(propertyCode))
                 return `${objectCode}.${propertyCode}`;
-
             return `${objectCode}["${propertyCode}"]`;
         }
         case "IfStatement": {
@@ -453,8 +493,14 @@ function generateCpp(ast, compilingOptions) {
             }
         }
         case "ForStatement": {
-            let init = generateCpp(ast.init);
-            let test = generateCpp(ast.test);
+            let init = generateCpp(ast.init).replace(
+                `static_cast<${config.numberDataType}>`,
+                "static_cast<long long>"
+            );
+            let test = generateCpp(ast.test).replace(
+                `static_cast<${config.numberDataType}>`,
+                "static_cast<long long>"
+            );
             let update = generateCpp(ast.update);
             let body = generateCpp(ast.body);
             return `for (${init} ${test}; ${update}) { \n${body} \n } `;
@@ -626,7 +672,6 @@ function generateCpp(ast, compilingOptions) {
         }
 
         case "MethodDefinition": {
-            console.log(ast.key);
             const methodName = ast.key.name;
             const methodParams = ast.value.params
                 .map(generateCpp)
@@ -643,6 +688,18 @@ function generateCpp(ast, compilingOptions) {
                 return `auto ${methodName}(${methodParams}) {\n${methodBody}\n}`;
             }
         }
+
+        // case "ImportDeclaration":
+        //     // Extract the module specifier from the import statement
+        //     const importPath = ast.source.value;
+
+        //     // Resolve the file path to the actual file location
+        //     const resolvedImportPath = resolveFilePath(importPath);
+        //     console.log("IN IMPORT");
+        //     // Generate the C++ #include statement using the .hh extension
+        //     const includeStatement = `#include "${resolvedImportPath}.hh"`;
+
+        //     return includeStatement;
         default:
             console.log(`Unsupported AST node type: ${ast.type} `);
     }
@@ -671,13 +728,20 @@ function joinCppParts(mainBody = "") {
                 .replace(/\\/g, "/")}"`;
         })
         .join("\n");
-
+    let externalNamespaces = "";
+    for (let i = 0; i < linkedFilesContent.length; ++i) {
+        externalNamespaces += `namespace ${linkedFilesName[i]} {
+                ${linkedFilesContent[i]}
+            };`;
+    }
     return `
 
 // All new includes goes here
 #include <chrono>
 #include <iostream>
 ${includeStatements}
+
+${externalNamespaces}
 
 // Main Function (Have to be the only main function)
 int main(){

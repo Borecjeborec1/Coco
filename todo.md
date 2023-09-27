@@ -4,15 +4,13 @@
 -   basic node modules {High}
 -   Async/await {High}
 -   this! {High}
--   other data types (undefined/null) {High}
--   fix nans/undefined/nulls {Mid}
+-   other data types (undefined/null/nan) {High}
 -   var vs let {Mid}
 -   RegExp Object {Mid}
 -   requires, linking files {Mid}
--   no strict mode (using json for everything) {Mid} HARD!!!
 -   more cli params {Mid}
 -   Fix construcotr and prototype {Mid}
--   Implement **dirname, **filename etc {Mid}
+-   Export compile options to cpp generation for linking files{Mid}
 -   Fix issue with same functions in global scope and built-in class scope {Mid}
 -   == vs === {Mid}
 -   Fix empty json key acessment {Mid}
@@ -78,3 +76,8 @@
 -   built-in (Array, String, etc...) {Mid}
 -   Fix "nonoptions" in node module methods, eg function overload {Mid}
 -   Remove unused methods in translation process {High}
+-   Handle objects like \_\_dirname, \_\_filename
+
+#### Maybe but in long future
+
+-   no strict mode (using json for everything) HARD!!!

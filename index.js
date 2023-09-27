@@ -31,7 +31,12 @@ class CocoCompiler {
             _buildingOptions.cppFile ||
             this.inputFile.replace(/\.js|\.ts|\.coco/, ".cc");
 
-        this.compilingOptions = _compilingOptions;
+        this.compilingOptions = {
+            inputFile: this.inputFile,
+            outputFile: this.outputFile,
+            cppFile: this.cppFile,
+            ..._compilingOptions,
+        };
     }
 
     async buildCpp() {

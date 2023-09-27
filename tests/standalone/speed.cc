@@ -18,18 +18,26 @@
 #include "./lib/types-methods/Number-methods.hh"
 #include "./lib/types-methods/String-methods.hh"
 
-namespace test {
-                auto sum = [](auto a, auto b) { 
-return (a + b);  
- };
-auto test = sum;
-
-            };
-
 // Main Function (Have to be the only main function)
-int main(){
+int main()
+{
   std::cout.setf(std::ios::boolalpha);
-  
-std::cout << test::test(static_cast<int>(2), static_cast<int>(3)) << '\n';
+
+  auto speedTest = std::chrono::high_resolution_clock::now();
+  auto sum = static_cast<long long unsigned>(0);
+
+  for (auto i = static_cast<long long>(0);
+       (i < static_cast<long long>(10000000002)); i++)
+  {
+    sum = sum + ((i * i) / i);
+  }
+  std::cout << sum << '\n';
+
+  auto end_time = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+      end_time - speedTest);
+
+  std::cout << "speedTest: " << duration.count() << "ms" << std::endl;
+
   return 0;
-}  
+}
