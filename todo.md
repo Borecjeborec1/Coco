@@ -5,25 +5,18 @@
 -   Async/await {High}
 -   this! {High}
 -   other data types (undefined/null/nan) {High}
--   var vs let {Mid}
--   RegExp Object {Mid}
 -   requires, linking files {Mid}
+-   RegExp Object {Mid}
 -   more cli params {Mid}
--   Fix construcotr and prototype {Mid}
--   Export compile options to cpp generation for linking files{Mid}
--   Fix issue with same functions in global scope and built-in class scope {Mid}
--   == vs === {Mid}
--   Fix empty json key acessment {Mid}
+-   Optimize compiling errors (missing nodemodule, wrog statements, etc) {Mid}
+-   Object destructuring {Mid}
 -   AST types discovery {Mid}
--   Finish unfinished ast type handling {Mid}
--   fix exists in callbacks (arr.filter((item) => item)) {Mid}
+-   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
--   block npm modules {Low}
 -   optional params fix in JS\_ c++ methods {Low}
 -   escape characters {Low}
 -   bigint --> long long double {Low}
 -   Typescript discovery {Low}
--   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
 -   need for custom c++ compiling flags (-liphlpapi -lws2_32) {Low}
 -   eval {Low}
 -   Timers - setInterval/setTimeout {Low}
@@ -37,6 +30,25 @@
 -   String raw static method {Very Very Very Low}
 -   cpu model and cpu speed in os module {Very Very Very Low}
 -   birth time in fs.stats {Very Very Very Low}
+-   C++ Linking
+-   Readme
+
+###### In Future
+
+-   var vs let {Mid}
+-   == vs === {Mid}
+
+###### Maybe in long long future
+
+-   no strict mode (using json for everything) HARD!!!
+
+###### Bugs
+
+-   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
+-   fix exists in callbacks (arr.filter((item) => item)) {Mid}
+-   Fix empty json key acessment {Mid}
+-   Fix constructor and prototype {Mid}
+-   Fix the module.exports {Mid}
 
 #### FINISHED
 
@@ -77,7 +89,6 @@
 -   Fix "nonoptions" in node module methods, eg function overload {Mid}
 -   Remove unused methods in translation process {High}
 -   Handle objects like \_\_dirname, \_\_filename
-
-#### Maybe but in long future
-
--   no strict mode (using json for everything) HARD!!!
+-   block npm modules {Low}
+-   Fix issue with same functions in global scope and built-in class scope (Date.toString gets called as JS_toString(Date)) {Mid}
+-   Export compile options to cpp generation for linking files{Mid}

@@ -19,8 +19,10 @@
 #include "./lib/types-methods/String-methods.hh"
 
 namespace test {
-                auto sum = [](auto a, auto b) { 
-return (a + b);  
+                auto someVariable = static_cast<int>(123) ; 
+
+auto sum = [](auto a, auto b) { 
+return ((a + b) + someVariable);  
  };
 auto test = sum;
 
