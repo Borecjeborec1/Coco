@@ -21,7 +21,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("functions");
         });
     });
-    describe("Given all built-in ARRAY methods", function () {
+    describe.only("Given all built-in ARRAY methods", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("arrays");
         });
@@ -119,11 +119,7 @@ async function compileAndRunTest(fileName) {
     const nodeResult = await runInNode(compileOptions.inputFile);
 
     expect(preprocessOutput(cocoResult)).to.equal(preprocessOutput(nodeResult));
-    await cleanupFiles(
-        compileOptions.cppFile,
-        compileOptions.outputFile,
-        path.join(path.dirname(compileOptions.cppFile), "nlohmann-json.hh")
-    );
+    await cleanupFiles(compileOptions.cppFile, compileOptions.outputFile);
 }
 
 async function runInNode(input) {

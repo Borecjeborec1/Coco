@@ -8,14 +8,13 @@
 -   requires, linking files {Mid}
 -   RegExp Object {Mid}
 -   more cli params {Mid}
--   Optimize compiling errors (missing nodemodule, wrog statements, etc) {Mid}
+-   Optimize compiling errors (missing nodemodule, wrong statements, etc) {Mid}
 -   Object destructuring {Mid}
 -   AST types discovery {Mid}
 -   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
+-   bigint --> long long double {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
--   optional params fix in JS\_ c++ methods {Low}
 -   escape characters {Low}
--   bigint --> long long double {Low}
 -   Typescript discovery {Low}
 -   need for custom c++ compiling flags (-liphlpapi -lws2_32) {Low}
 -   eval {Low}
@@ -27,9 +26,11 @@
 -   fix double stars and other syntaxes (pointer problems) {Very Low}
 -   options argument inside toLocaleDateString {Very Low}
 -   implement timezone handling in Date {Very Low}
+-   Fix concate for JS_array and more arguments {Very Low}
 -   String raw static method {Very Very Very Low}
 -   cpu model and cpu speed in os module {Very Very Very Low}
 -   birth time in fs.stats {Very Very Very Low}
+-   Add groups to string JS_match {Very Very Very Low}
 -   C++ Linking
 -   Readme
 
@@ -94,3 +95,4 @@
 -   Export compile options to cpp generation for linking files{Mid}
 -   Fix ts type declaration leads to undefined variable in asignment {Mid}
 -   Add more ts types. llint, lluint, etc {Mid}
+-   optional params fix in JS\_ c++ methods {Low}
