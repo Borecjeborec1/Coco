@@ -13,16 +13,17 @@
 #include "./lib/nlohmann-json.hh"
 #include "./lib/operators/json-operators.hh"
 #include "./lib/operators/string-operators.hh"
+#include "./lib/types-methods/Array-Methods.hh"
+#include "./lib/types-methods/Boolean-Methods.hh"
+#include "./lib/types-methods/Number-Methods.hh"
+#include "./lib/types-methods/String-Methods.hh"
 
 
 
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto x = static_cast<int>(123) ; 
+  auto arr = std::string("test") ; 
 
- int y  = x ; 
-
-std::cout << (x + y) << '\n';
   return 0;
 }  
