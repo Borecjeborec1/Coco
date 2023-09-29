@@ -77,26 +77,3 @@ private:
 int Timer::nextTimerId = 1;
 std::map<int, bool> Timer::timers;
 std::atomic<bool> Timer::shouldExit(false);
-
-int main() {
-  int timeoutId = Timer::setTimeout(
-      []() { std::cout << "setTimeout executed." << std::endl; }, 2000);
-
-  int immediateId = Timer::setImmediate(
-      []() { std::cout << "setImmediate executed." << std::endl; });
-
-  int intervalId = Timer::setInterval([]() {
-    int count = 0;
-    std::cout << "setInterval executed (" << count << ")." << std::endl;
-    count++;
-    if (count >= 5) {
-    }
-  }, 1000);
-
-  std::cout << "test";
-  while (!Timer::shouldExit) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
-
-  return 0;
-}
