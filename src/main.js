@@ -221,9 +221,10 @@ function generateCpp(ast, compilingOptions) {
             return `${declarationType} ${declarations}; \n`;
         }
         case "VariableDeclarator": {
-            if (generateCpp(ast.id.typeAnnotation) && ast.init.raw) {
-                return `${generateCpp(ast.id)} = ${ast.init.raw} `;
-            }
+            if (ast.id.typeAnnotation)
+                if (generateCpp(ast.id.typeAnnotation) && ast.init.raw)
+                    return `${generateCpp(ast.id)} = ${ast.init.raw} `;
+
             return `${generateCpp(ast.id)} = ${generateCpp(ast.init)} `;
         }
         case "Identifier": {
