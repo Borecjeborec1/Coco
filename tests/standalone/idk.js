@@ -1,7 +1,8 @@
-const someVariable = 123;
-
 function sum(a, b) {
-    return a + b + someVariable;
+    return a + b;
+}
+function subst(a, b) {
+    return a - b;
 }
 
-exports.test = sum;
+module.exports = { sum, subst };

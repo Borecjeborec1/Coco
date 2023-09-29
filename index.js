@@ -48,7 +48,9 @@ class CocoCompiler {
         }
 
         try {
-            const code = fs.readFileSync(this.inputFile, "utf-8");
+            const code = fs
+                .readFileSync(this.inputFile, "utf-8")
+                .replace(/\\/g, "\\\\");
             const ast = acorn.Parser.extend(tsPlugin()).parse(code, {
                 sourceType: "module",
                 ecmaVersion: "latest",

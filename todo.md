@@ -15,7 +15,6 @@
 -   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
 -   bigint --> long long double {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
--   escape characters {Low}
 -   Typescript discovery {Low}
 -   need for custom c++ compiling flags (-liphlpapi -lws2_32) {Low}
 -   eval {Low}
@@ -100,3 +99,4 @@
 -   optional params fix in JS\_ c++ methods {Low}
 -   requires, linking files with exports.test{Mid}
 -   Object destructuring {Mid}
+-   escape characters {Low}
