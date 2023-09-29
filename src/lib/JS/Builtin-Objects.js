@@ -28,7 +28,7 @@ const STRING_FUNCTIONS = {
     trim: { name: "JS_trim", argCount: 0 },
     trimEnd: { name: "JS_trimEnd", argCount: 0 },
     trimStart: { name: "JS_trimStart", argCount: 0 },
-}
+};
 
 const NUMBER_FUNCTIONS = {
     toFixed: { name: "JS_toFixed", argCount: 1 },
@@ -41,12 +41,12 @@ const NUMBER_FUNCTIONS = {
     isNaN: { name: "JS_isNaN", argCount: 1 },
     // 'parseInt': { name: 'JS_parseInt', argCount: 2 },
     // 'parseFloat': { name: 'JS_parseFloat', argCount: 1 },
-}
+};
 
 const BOOLEAN_FUNCTIONS = {
     toString: { name: "JS_toString", argCount: 0 },
     valueOf: { name: "JS_valueOf", argCount: 0 },
-}
+};
 
 const ARRAY_FUNCTIONS = {
     concat: { name: "JS_concat", argCount: Infinity },
@@ -82,13 +82,116 @@ const ARRAY_FUNCTIONS = {
     toString: { name: "JS_toString", argCount: 0 },
     unshift: { name: "JS_unshift", argCount: 1 },
     values: { name: "JS_values", argCount: 0 },
-}
+};
 
 const BUILTIN_JS_FUNCTIONS = {
     ...BOOLEAN_FUNCTIONS,
     ...NUMBER_FUNCTIONS,
     ...STRING_FUNCTIONS,
     ...ARRAY_FUNCTIONS,
-}
+};
 
-module.exports = { BUILTIN_JS_FUNCTIONS }
+const VALID_USER_TYPES = {
+    int: "int",
+    lint: "long int",
+    llint: "long long int",
+    uint: "unsigned",
+    luint: "long unsigned",
+    lluint: "long long unsigned",
+    float: "double",
+    double: "double",
+    string: "std::string",
+    void: "void",
+    json: "nlohman::json",
+    boolean: "bool",
+};
+
+const IMPLEMENTED_JS_OBJECTS = {
+    JSON: "__JSON__",
+    Math: "__Math__",
+    Number: "__Number__",
+    Date: "__Date__",
+    String: "__String__",
+    Boolean: "__Boolean__",
+    Array: "__Array__",
+};
+
+const ARRAY_DATA_TYPES = [
+    "Array",
+    "Int8Array",
+    "Uint8Array",
+    "Uint8ClampedArray",
+    "Int16Array",
+    "Uint16Array",
+    "Int32Array",
+    "Uint32Array",
+    "BigInt64Array",
+    "BigUint64Array",
+    "Float32Array",
+    "Float64Array",
+];
+
+const IMPLEMENTED_DATE_METHODS = [
+    "toISOString",
+    "toString",
+    "toDateString",
+    "toTimeString",
+    "toJSON",
+    "getDate",
+    "getDay",
+    "getFullYear",
+    "getHours",
+    "getMilliseconds",
+    "getMinutes",
+    "getMonth",
+    "getSeconds",
+    "getTime",
+    "getTimezoneOffset",
+    "setFullYear",
+    "setMonth",
+    "setDate",
+    "setHours",
+    "setMinutes",
+    "setSeconds",
+    "setMilliseconds",
+    "toUTCString",
+    "toLocaleString",
+    "toLocaleDateString",
+    "toLocaleTimeString",
+];
+
+const ALLOWED_MODULES = {
+    path: "__path__",
+    os: "__os__",
+    fs: "__fs__",
+};
+
+const OBJECTS_WITH_STATIC_GLOBAL_METHODS = ["Date", "Array"]; // Array holding names that have static methods, that are also global, and custom user variable names for node modules
+const DEFAULT_IMPORTS = [
+    "nlohmann-json.hh",
+    "Global-functions.hh",
+    "Array-Methods.hh",
+    "Boolean-Methods.hh",
+    "String-Methods.hh",
+    "Number-Methods.hh",
+    "json-operators.hh",
+    "string-operators.hh",
+    "Array.hh",
+    "Bool.hh",
+    "Date.hh",
+    "JSON.hh",
+    "Math.hh",
+    "Number.hh",
+    "String.hh",
+];
+
+module.exports = {
+    BUILTIN_JS_FUNCTIONS,
+    DEFAULT_IMPORTS,
+    VALID_USER_TYPES,
+    IMPLEMENTED_JS_OBJECTS,
+    ARRAY_DATA_TYPES,
+    IMPLEMENTED_DATE_METHODS,
+    ALLOWED_MODULES,
+    OBJECTS_WITH_STATIC_GLOBAL_METHODS,
+};

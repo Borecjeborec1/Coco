@@ -3,173 +3,42 @@ const path = require("path");
 const acorn = require("acorn");
 const { tsPlugin } = require("acorn-typescript");
 
-const { BUILTIN_JS_FUNCTIONS } = require("./lib/JS/Builtin-functions.js");
-const VALID_USER_TYPES = {
-    int: "int",
-    lint: "long int",
-    llint: "long long int",
-    uint: "unsigned",
-    luint: "long unsigned",
-    lluint: "long long unsigned",
-    float: "double",
-    double: "double",
-    string: "std::string",
-    void: "void",
-    json: "nlohman::json",
-    boolean: "bool",
-};
+const {
+    BUILTIN_JS_FUNCTIONS,
+    DEFAULT_IMPORTS,
+    IMPLEMENTED_JS_OBJECTS,
+    ARRAY_DATA_TYPES,
+    IMPLEMENTED_DATE_METHODS,
+    ALLOWED_MODULES,
+    OBJECTS_WITH_STATIC_GLOBAL_METHODS,
+} = require("./lib/JS/Builtin-Objects.js");
+const {
+    addAutoIfNotTypedAlready,
+    isRegexString,
+    getAllFiles,
+    isModuleStatement,
+    generateRandomString,
+} = require("./lib/JS/Helper-functions.js");
 
-const IMPLEMENTED_JS_OBJECTS = {
-    JSON: "__JSON__",
-    Math: "__Math__",
-    Number: "__Number__",
-    Date: "__Date__",
-    String: "__String__",
-    Boolean: "__Boolean__",
-    Array: "__Array__",
-};
-
-const ARRAY_DATA_TYPES = [
-    "Array",
-    "Int8Array",
-    "Uint8Array",
-    "Uint8ClampedArray",
-    "Int16Array",
-    "Uint16Array",
-    "Int32Array",
-    "Uint32Array",
-    "BigInt64Array",
-    "BigUint64Array",
-    "Float32Array",
-    "Float64Array",
-];
-
-const IMPLEMENTED_DATE_METHODS = [
-    "toISOString",
-    "toString",
-    "toDateString",
-    "toTimeString",
-    "toJSON",
-    "getDate",
-    "getDay",
-    "getFullYear",
-    "getHours",
-    "getMilliseconds",
-    "getMinutes",
-    "getMonth",
-    "getSeconds",
-    "getTime",
-    "getTimezoneOffset",
-    "setFullYear",
-    "setMonth",
-    "setDate",
-    "setHours",
-    "setMinutes",
-    "setSeconds",
-    "setMilliseconds",
-    "toUTCString",
-    "toLocaleString",
-    "toLocaleDateString",
-    "toLocaleTimeString",
-];
-
-const ALLOWED_MODULES = {
-    path: "__path__",
-    os: "__os__",
-    fs: "__fs__",
-};
-
-const OBJECTS_WITH_STATIC_GLOBAL_METHODS = ["Date", "Array"]; // Array holding names that have static methods, that are also global, and custom user variable names for node modules
-const userDefinedVariableNames = [];
-const DEFAULT_IMPORTS = [
-    "nlohmann-json.hh",
-    "Global-functions.hh",
-    "Array-Methods.hh",
-    "Boolean-Methods.hh",
-    "String-Methods.hh",
-    "Number-Methods.hh",
-    "json-operators.hh",
-    "string-operators.hh",
-    "Array.hh",
-    "Bool.hh",
-    "Date.hh",
-    "JSON.hh",
-    "Math.hh",
-    "Number.hh",
-    "String.hh",
-];
-const neededImports = [];
 let config = {
     numberDataType: "int",
     outputBooleans: true,
     isModule: false,
     debug: false,
 };
+
+const userDefinedVariableNames = [];
+const neededImports = [];
+
+let linkedFilesContent = [];
+let linkedFilesName = [];
+
 function generateWholeCode(ast, compilingOptions) {
     config = { ...config, ...compilingOptions };
     const mainBody = generateCpp(ast);
     return compilingOptions.isModule ? mainBody : joinCppParts(mainBody);
 }
 
-let linkedFilesContent = [];
-let linkedFilesName = [];
-
-function mapUserType(type) {
-    return VALID_USER_TYPES[type];
-}
-
-function addAutoType(variable) {
-    return "auto " + variable;
-}
-
-function needAutoType(variable) {
-    return variable.length === 1;
-}
-
-function addAutoIfNotTypedAlready(variable) {
-    return needAutoType(variable) ? addAutoType(variable) : variable;
-}
-
-function isRegexString(value) {
-    const regexPattern = /^\/((?!\/).)+\/[gimsu]*$/;
-    return typeof value === "string" && regexPattern.test(value);
-}
-
-function getAllFiles(dir, fileList = []) {
-    const files = fs.readdirSync(dir);
-
-    files.forEach((file) => {
-        const filePath = path.join(dir, file);
-        if (fs.statSync(filePath).isDirectory()) {
-            getAllFiles(filePath, fileList);
-        } else {
-            fileList.push(filePath);
-        }
-    });
-
-    return fileList;
-}
-function isModuleStatement(init) {
-    return (
-        init.type === "CallExpression" &&
-        init.callee.type === "Identifier" &&
-        init.callee.name === "require" &&
-        init.arguments.length === 1 &&
-        init.arguments[0].type === "Literal"
-    );
-}
-function generateRandomString(length) {
-    if (config.debug) return "___DEBUGVAR___";
-    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    let randomString = "";
-
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * charset.length);
-        randomString += charset.charAt(randomIndex);
-    }
-
-    return randomString;
-}
 function generateCpp(ast, compilingOptions) {
     if (compilingOptions) config = { ...config, ...compilingOptions };
     try {
