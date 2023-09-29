@@ -524,6 +524,22 @@ describe("Generating loops", function () {
             expectedCppCode
         );
     });
+    it("should convert for loop with big numbers to C++ for loop with long long", function () {
+        const jsCode = `
+      for (let i = 0; i < 1000000000; i++) {
+        "loop body";
+      }
+    `;
+        const expectedCppCode = `
+      for (auto i = static_cast<long long int>(0); (i < static_cast<long long int>(1000000000)); i++) {
+        std::string("loop body");
+      }
+    `;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
 
     it("should convert for...in loop to C++ range-based for loop", function () {
         const jsCode = `
@@ -703,7 +719,7 @@ describe("Generating the ts data types", function () {
     });
 });
 
-describe.only("Generating the destructurable variable", function () {
+describe("Generating the destructurable variable", function () {
     it("should destructure simple object", function () {
         const jsCode = "let {x,y} =  idk(1,2);";
         const expectedCppCode = `auto ___DEBUGVAR___ = idk(static_cast<int>(1), static_cast<int>(2));

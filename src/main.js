@@ -234,24 +234,17 @@ function generateCpp(ast, compilingOptions) {
 
             if (ast.declarations[0].id.type === "ObjectPattern") {
                 const randomObjectName = generateRandomString(6);
-                console.log(
-                    "IDKDASD______ ",
-                    ast.declarations[0].id.properties
-                );
                 const destructured = ast.declarations[0].id.properties
                     .map((property) => {
                         const key = generateCpp(property.key);
-                        const value = generateCpp(property.value);
-                        if (
-                            !value &&
-                            property.value.type == "AssignmentPattern"
-                        ) {
-                            return `auto ${generateCpp(
-                                property.value.left
-                            )} = ${randomObjectName}["${key}"] ||${generateCpp(
+                        if (property.value.type == "AssignmentPattern") {
+                            const value = generateCpp(property.value.left);
+                            const defaultValue = generateCpp(
                                 property.value.right
-                            )};`;
+                            );
+                            return `auto ${value} = ${randomObjectName}["${key}"] ||${defaultValue};`;
                         }
+                        const value = generateCpp(property.value);
                         return `auto ${value} = ${randomObjectName}["${key}"];`;
                     })
                     .join("\n");
@@ -548,14 +541,18 @@ function generateCpp(ast, compilingOptions) {
             }
         }
         case "ForStatement": {
-            let init = generateCpp(ast.init).replace(
-                `static_cast<${config.numberDataType}>`,
-                "static_cast<long long>"
-            );
-            let test = generateCpp(ast.test).replace(
-                `static_cast<${config.numberDataType}>`,
-                "static_cast<long long>"
-            );
+            let init = generateCpp(ast.init);
+            let test = generateCpp(ast.test);
+            if (ast.test.right.raw.length > 7) {
+                init = init.replace(
+                    `static_cast<${config.numberDataType}>`,
+                    "static_cast<long long int>"
+                );
+                test = test.replace(
+                    `static_cast<${config.numberDataType}>`,
+                    "static_cast<long long int>"
+                );
+            }
             let update = generateCpp(ast.update);
             let body = generateCpp(ast.body);
             return `for (${init} ${test}; ${update}) { \n${body} \n } `;
