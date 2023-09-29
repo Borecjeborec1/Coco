@@ -66,7 +66,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("node/os");
         });
     });
-    describe.only("Given the FS NODE MODULE", function () {
+    describe("Given the FS NODE MODULE", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("node/fs");
         });

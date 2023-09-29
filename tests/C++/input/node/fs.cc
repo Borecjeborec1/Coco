@@ -19,10 +19,7 @@
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto x = static_cast<int>(123) ; 
-
- int y  = x ; 
-
-std::cout << (x + y) << '\n';
+  using fs = __fs__;
+std::cout << std::string("in fs") << '\n';
   return 0;
 }  

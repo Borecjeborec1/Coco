@@ -6,7 +6,13 @@ const { tsPlugin } = require("acorn-typescript");
 const { BUILTIN_JS_FUNCTIONS } = require("./lib/JS/Builtin-functions.js");
 const VALID_USER_TYPES = {
     int: "int",
+    lint: "long int",
+    llint: "long long int",
+    uint: "unsigned",
+    luint: "long unsigned",
+    lluint: "long long unsigned",
     float: "double",
+    double: "double",
     string: "std::string",
     void: "void",
     json: "nlohman::json",
@@ -169,7 +175,7 @@ function generateCpp(ast, compilingOptions) {
             const type = typeAnnotation
                 ? generateCpp(typeAnnotation.typeAnnotation)
                 : "";
-            const declarationType = mapUserType(type) ? "" : "auto"; //TODO: Handle const declaration
+            const declarationType = type ? "" : "auto"; //TODO: Handle const declaration
             if (
                 ast.declarations[0].init.type === "CallExpression" &&
                 ast.declarations[0].init.callee.type === "Identifier" &&
@@ -215,7 +221,7 @@ function generateCpp(ast, compilingOptions) {
             return `${declarationType} ${declarations}; \n`;
         }
         case "VariableDeclarator": {
-            if (ast.id.typeAnnotation) {
+            if (generateCpp(ast.id.typeAnnotation) && ast.init.raw) {
                 return `${generateCpp(ast.id)} = ${ast.init.raw} `;
             }
             return `${generateCpp(ast.id)} = ${generateCpp(ast.init)} `;
@@ -622,18 +628,18 @@ function generateCpp(ast, compilingOptions) {
             const body = generateCpp(ast.body);
             return `catch (${param}) { \n${body} } \n`;
         }
-        case "SpreadElement": {
-            const argument = generateCpp(ast.argument);
-            return `std:: copy(${argument}.begin(), ${argument}.end(), std:: back_inserter(${argument}_vector)); \n`;
-        }
-        case "RestElement": {
-            const argName = generateCpp(ast.argument);
-            const paramName = argName.startsWith("&")
-                ? argName.substring(1)
-                : argName;
-            return;
-            // return `std:: vector < ${getCppType(ast.argument.elements[0].type)}> ${paramName} _vector(${argName}); \n`;
-        }
+        // case "SpreadElement": {
+        //     const argument = generateCpp(ast.argument);
+        //     return `std:: copy(${argument}.begin(), ${argument}.end(), std:: back_inserter(${argument}_vector)); \n`;
+        // }
+        // case "RestElement": {
+        //     const argName = generateCpp(ast.argument);
+        //     const paramName = argName.startsWith("&")
+        //         ? argName.substring(1)
+        //         : argName;
+        //     return;
+        //     // return `std:: vector < ${getCppType(ast.argument.elements[0].type)}> ${paramName} _vector(${argName}); \n`;
+        // }
         case "TemplateLiteral": {
             const quasis = ast.quasis.map(generateCpp);
             const expressions = ast.expressions.map((expression) =>
@@ -659,35 +665,35 @@ function generateCpp(ast, compilingOptions) {
         }
         case "TSTypeReference": {
             const typeName = generateCpp(ast.typeName);
-            return mapUserType(typeName);
+            return mapUserType(typeName) || "";
         }
         case "TSAnyKeyword": {
             return "auto ";
         }
-        case "ClassDeclaration": {
-            const className = ast.id.name;
-            const classBody = ast.body.body.map(generateCpp).join("\n");
+        // case "ClassDeclaration": {
+        //     const className = ast.id.name;
+        //     const classBody = ast.body.body.map(generateCpp).join("\n");
 
-            return `class ${className} {\n${classBody}\n};`;
-        }
+        //     return `class ${className} {\n${classBody}\n};`;
+        // }
 
-        case "MethodDefinition": {
-            const methodName = ast.key.name;
-            const methodParams = ast.value.params
-                .map(generateCpp)
-                .map(addAutoIfNotTypedAlready)
-                .join(", ");
-            const methodBody = generateCpp(ast.value.body);
+        // case "MethodDefinition": {
+        //     const methodName = ast.key.name;
+        //     const methodParams = ast.value.params
+        //         .map(generateCpp)
+        //         .map(addAutoIfNotTypedAlready)
+        //         .join(", ");
+        //     const methodBody = generateCpp(ast.value.body);
 
-            if (ast.kind === "constructor") {
-                // // Constructor method
-                // console.log(ast.parent);
-                // return `${ast.parent.name}(${methodParams}) {\n${methodBody}\n}`;
-            } else {
-                // Regular method
-                return `auto ${methodName}(${methodParams}) {\n${methodBody}\n}`;
-            }
-        }
+        //     if (ast.kind === "constructor") {
+        //         // // Constructor method
+        //         // console.log(ast.parent);
+        //         // return `${ast.parent.name}(${methodParams}) {\n${methodBody}\n}`;
+        //     } else {
+        //         // Regular method
+        //         return `auto ${methodName}(${methodParams}) {\n${methodBody}\n}`;
+        //     }
+        // }
 
         // case "ImportDeclaration":
         //     // Extract the module specifier from the import statement

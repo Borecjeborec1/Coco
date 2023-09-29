@@ -2,6 +2,7 @@ const { expect, use } = require("chai");
 const chaiString = require("chai-string");
 const { generateCpp } = require("../../src/main"); // Adjust the path accordingly
 const acorn = require("acorn");
+const { tsPlugin } = require("acorn-typescript");
 
 use(chaiString);
 
@@ -637,6 +638,76 @@ describe("generating bitwise operations", function () {
     });
 });
 
+describe.only("generating the ts data types", function () {
+    it("should convert int types to C++ int", function () {
+        const jsInt = "let result:int = 123;";
+        const expectedInt = "int result = 123;";
+        const jsLongInt = "let result:lint = 123;";
+        const expectedLongInt = "long int result = 123;";
+        const jsLongLongInt = "let result:llint = 123;";
+        const expectedLongLongInt = "long long int result = 123;";
+
+        expect(translateToCppWithDefaults(jsInt)).to.equalIgnoreSpaces(
+            expectedInt
+        );
+        expect(translateToCppWithDefaults(jsLongInt)).to.equalIgnoreSpaces(
+            expectedLongInt
+        );
+        expect(translateToCppWithDefaults(jsLongLongInt)).to.equalIgnoreSpaces(
+            expectedLongLongInt
+        );
+    });
+    it("should convert uint types to C++ unsigned", function () {
+        const jsInt = "let result:uint = 123;";
+        const expectedInt = "unsigned result = 123;";
+        const jsLongInt = "let result:luint = 123;";
+        const expectedLongInt = "long unsigned result = 123;";
+        const jsLongLongInt = "let result:lluint = 123;";
+        const expectedLongLongInt = "long long unsigned result = 123;";
+
+        expect(translateToCppWithDefaults(jsInt)).to.equalIgnoreSpaces(
+            expectedInt
+        );
+        expect(translateToCppWithDefaults(jsLongInt)).to.equalIgnoreSpaces(
+            expectedLongInt
+        );
+        expect(translateToCppWithDefaults(jsLongLongInt)).to.equalIgnoreSpaces(
+            expectedLongLongInt
+        );
+    });
+    it("should convert float to C++ double", function () {
+        const jsCode = "let result:float = 123;";
+        const expectedCppCode = "double result = 123;";
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+    it("should convert double to C++ double", function () {
+        const jsCode = "let result:double = 123;";
+        const expectedCppCode = "double result = 123;";
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+    describe("and the type is not defined", function () {
+        it("should use auto", function () {
+            const jsCode = "let result:not_a_valid_type = 123;";
+            const expectedCppCode = "auto result =  static_cast<int>(123);";
+
+            expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+                expectedCppCode
+            );
+        });
+    });
+});
+
 function translateToCppWithDefaults(jsCode) {
-    return generateCpp(acorn.parse(jsCode), { numberDataType: "int" });
+    const ast = acorn.Parser.extend(tsPlugin()).parse(jsCode, {
+        sourceType: "module",
+        ecmaVersion: "latest",
+        locations: true,
+    });
+    return generateCpp(ast, { numberDataType: "int" });
 }

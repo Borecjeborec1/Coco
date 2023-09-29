@@ -92,3 +92,5 @@
 -   block npm modules {Low}
 -   Fix issue with same functions in global scope and built-in class scope (Date.toString gets called as JS_toString(Date)) {Mid}
 -   Export compile options to cpp generation for linking files{Mid}
+-   Fix ts type declaration leads to undefined variable in asignment {Mid}
+-   Add more ts types. llint, lluint, etc {Mid}
