@@ -1,12 +1,12 @@
 const { expect, use } = require("chai");
 const chaiString = require("chai-string");
-const { generateCpp } = require("../../src/main"); // Adjust the path accordingly
+const { generateCpp, generateRandomString } = require("../../src/main"); // Adjust the path accordingly
 const acorn = require("acorn");
 const { tsPlugin } = require("acorn-typescript");
 
 use(chaiString);
 
-describe("generating variable types", function () {
+describe("Generating variable types", function () {
     it("should convert let variables to C++ auto", function () {
         const jsCode = "let x = 42";
         const expectedCppCode = "auto x = static_cast<int>(42);";
@@ -33,7 +33,7 @@ describe("generating variable types", function () {
     });
 });
 
-describe("generating data types", function () {
+describe("Generating data types", function () {
     it("should convert positive number C++ int", function () {
         const variableValue = 42;
         const jsCode = `let x = ${variableValue};`;
@@ -72,7 +72,7 @@ describe("generating data types", function () {
     });
 });
 
-describe("generating objects and arrays", function () {
+describe("Generating objects and arrays", function () {
     it("should convert array C++ nlohmann::json", function () {
         const variableValue = `[12]`;
         const jsCode = `let x = ${variableValue};`;
@@ -113,7 +113,7 @@ describe("generating objects and arrays", function () {
     });
 });
 
-describe("generating function", function () {
+describe("Generating function", function () {
     describe("and declaring them", function () {
         it("should convert function declaration to C++ lambda", function () {
             const jsCode = "function add(a, b) { return a + b; }";
@@ -179,7 +179,7 @@ describe("generating function", function () {
     });
 });
 
-describe("generating operators and arithmetic expressions", function () {
+describe("Generating operators and arithmetic expressions", function () {
     it("should convert addition operator", function () {
         const jsCode = "const sum = a + b;";
         const expectedCppCode = "auto sum = (a + b);";
@@ -235,7 +235,7 @@ describe("generating operators and arithmetic expressions", function () {
     });
 });
 
-describe("generating assignment operators", function () {
+describe("Generating assignment operators", function () {
     it("should convert assignment operator", function () {
         const jsCode = "x = 42;";
         const expectedCppCode = "x = static_cast<int>(42);";
@@ -291,7 +291,7 @@ describe("generating assignment operators", function () {
     });
 });
 
-describe("generating comparison and logical operators", function () {
+describe("Generating comparison and logical operators", function () {
     it("should convert equality comparison operator", function () {
         const jsCode = "x === 42;";
         const expectedCppCode = "(x == static_cast<int>(42));";
@@ -374,7 +374,7 @@ describe("generating comparison and logical operators", function () {
     });
 });
 
-describe("generating conditional statements", function () {
+describe("Generating conditional statements", function () {
     it("should convert if statement without else", function () {
         const jsCode = "if (x > 10) { true; }";
         const expectedCppCode = "if ((x > static_cast<int>(10))) { true; }";
@@ -445,7 +445,7 @@ describe("generating conditional statements", function () {
     });
 });
 
-describe("generating switch statements", function () {
+describe("Generating switch statements", function () {
     it("should convert switch statement with cases", function () {
         const jsCode = `
       switch (x) {
@@ -507,7 +507,7 @@ describe("generating switch statements", function () {
     });
 });
 
-describe("generating loops", function () {
+describe("Generating loops", function () {
     it("should convert for loop to C++ for loop", function () {
         const jsCode = `
       for (let i = 0; i < 10; i++) {
@@ -561,7 +561,7 @@ describe("generating loops", function () {
     });
 });
 
-describe("generating While loops", function () {
+describe("Generating While loops", function () {
     it("should convert while loop to C++ while loop", function () {
         const jsCode = "while (x > 0) { x--; }";
         const expectedCppCode = "while ((x > static_cast<int>(0))) { x--; }";
@@ -582,7 +582,7 @@ describe("generating While loops", function () {
     });
 });
 
-describe("generating bitwise operations", function () {
+describe("Generating bitwise operations", function () {
     it("should convert bitwise AND operation to C++", function () {
         const jsCode = "const result = a & b;";
         const expectedCppCode = "auto result = (a & b);";
@@ -638,7 +638,7 @@ describe("generating bitwise operations", function () {
     });
 });
 
-describe.only("generating the ts data types", function () {
+describe("Generating the ts data types", function () {
     it("should convert int types to C++ int", function () {
         const jsInt = "let result:int = 123;";
         const expectedInt = "int result = 123;";
@@ -703,11 +703,42 @@ describe.only("generating the ts data types", function () {
     });
 });
 
+describe.only("Generating the destructurable variable", function () {
+    it("should destructure simple object", function () {
+        const jsCode = "let {x,y} =  idk(1,2);";
+        const expectedCppCode = `auto ___DEBUGVAR___ = idk(static_cast<int>(1), static_cast<int>(2));
+        auto x = ___DEBUGVAR___["x"];
+       auto y = ___DEBUGVAR___["y"];`;
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+
+    it("should destructure simple object with defaults", function () {
+        const jsCode = "let {x=100,y=100} =  idk(1,2);";
+        const expectedCppCode = `auto ___DEBUGVAR___ = idk(static_cast<int>(1), static_cast<int>(2));
+        auto x = ___DEBUGVAR___["x"]||static_cast<int>(100);
+       auto y = ___DEBUGVAR___["y"]||static_cast<int>(100);`;
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+    it("should destructure simple object and rename it", function () {
+        const jsCode = "let {x:a,y:b} =  idk(1,2);";
+        const expectedCppCode = `auto ___DEBUGVAR___ = idk(static_cast<int>(1), static_cast<int>(2));
+        auto a = ___DEBUGVAR___["x"];
+       auto b = ___DEBUGVAR___["y"];`;
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+});
+
 function translateToCppWithDefaults(jsCode) {
     const ast = acorn.Parser.extend(tsPlugin()).parse(jsCode, {
         sourceType: "module",
         ecmaVersion: "latest",
         locations: true,
     });
-    return generateCpp(ast, { numberDataType: "int" });
+    return generateCpp(ast, { numberDataType: "int", debug: true });
 }

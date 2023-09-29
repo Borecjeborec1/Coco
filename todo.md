@@ -5,12 +5,13 @@
 -   Async/await {High}
 -   this! {High}
 -   other data types (undefined/null/nan) {High}
--   requires, linking files {Mid}
+-   exporting files with exports = , module.exports. {Mid}
+-   TS imports, import from {Mid}
 -   RegExp Object {Mid}
 -   more cli params {Mid}
 -   Optimize compiling errors (missing nodemodule, wrong statements, etc) {Mid}
--   Object destructuring {Mid}
 -   AST types discovery {Mid}
+-   JS_methods (string, number, boolean) for nlohmann json. When called with array/object[value] {Mid}
 -   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
 -   bigint --> long long double {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
@@ -31,6 +32,7 @@
 -   cpu model and cpu speed in os module {Very Very Very Low}
 -   birth time in fs.stats {Very Very Very Low}
 -   Add groups to string JS_match {Very Very Very Low}
+-   Normalize string JS_match {Very Very Very Low}
 -   C++ Linking
 -   Readme
 
@@ -96,3 +98,5 @@
 -   Fix ts type declaration leads to undefined variable in asignment {Mid}
 -   Add more ts types. llint, lluint, etc {Mid}
 -   optional params fix in JS\_ c++ methods {Low}
+-   requires, linking files with exports.test{Mid}
+-   Object destructuring {Mid}

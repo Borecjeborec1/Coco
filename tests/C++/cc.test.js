@@ -21,7 +21,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("functions");
         });
     });
-    describe.only("Given all built-in ARRAY methods", function () {
+    describe("Given all built-in ARRAY methods", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("arrays");
         });

@@ -99,7 +99,12 @@ const DEFAULT_IMPORTS = [
     "String.hh",
 ];
 const neededImports = [];
-let config = { numberDataType: "int", outputBooleans: true, isModule: false };
+let config = {
+    numberDataType: "int",
+    outputBooleans: true,
+    isModule: false,
+    debug: false,
+};
 function generateWholeCode(ast, compilingOptions) {
     config = { ...config, ...compilingOptions };
     const mainBody = generateCpp(ast);
@@ -144,7 +149,27 @@ function getAllFiles(dir, fileList = []) {
 
     return fileList;
 }
+function isModuleStatement(init) {
+    return (
+        init.type === "CallExpression" &&
+        init.callee.type === "Identifier" &&
+        init.callee.name === "require" &&
+        init.arguments.length === 1 &&
+        init.arguments[0].type === "Literal"
+    );
+}
+function generateRandomString(length) {
+    if (config.debug) return "___DEBUGVAR___";
+    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    let randomString = "";
 
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        randomString += charset.charAt(randomIndex);
+    }
+
+    return randomString;
+}
 function generateCpp(ast, compilingOptions) {
     if (compilingOptions) config = { ...config, ...compilingOptions };
     try {
@@ -169,20 +194,9 @@ function generateCpp(ast, compilingOptions) {
         case "BlockStatement": {
             return ast.body.map(generateCpp).join("\n");
         }
+
         case "VariableDeclaration": {
-            const declarations = ast.declarations.map(generateCpp).join(", ");
-            const typeAnnotation = ast.declarations[0].id.typeAnnotation;
-            const type = typeAnnotation
-                ? generateCpp(typeAnnotation.typeAnnotation)
-                : "";
-            const declarationType = type ? "" : "auto"; //TODO: Handle const declaration
-            if (
-                ast.declarations[0].init.type === "CallExpression" &&
-                ast.declarations[0].init.callee.type === "Identifier" &&
-                ast.declarations[0].init.callee.name === "require" &&
-                ast.declarations[0].init.arguments.length === 1 &&
-                ast.declarations[0].init.arguments[0].type === "Literal"
-            ) {
+            if (isModuleStatement(ast.declarations[0].init)) {
                 const moduleName = ast.declarations[0].init.arguments[0].value;
                 const variableName = ast.declarations[0].id.name;
                 if (ALLOWED_MODULES[moduleName]) {
@@ -217,6 +231,40 @@ function generateCpp(ast, compilingOptions) {
                 linkedFilesName.push(variableName);
                 return "";
             }
+
+            if (ast.declarations[0].id.type === "ObjectPattern") {
+                const randomObjectName = generateRandomString(6);
+                console.log(
+                    "IDKDASD______ ",
+                    ast.declarations[0].id.properties
+                );
+                const destructured = ast.declarations[0].id.properties
+                    .map((property) => {
+                        const key = generateCpp(property.key);
+                        const value = generateCpp(property.value);
+                        if (
+                            !value &&
+                            property.value.type == "AssignmentPattern"
+                        ) {
+                            return `auto ${generateCpp(
+                                property.value.left
+                            )} = ${randomObjectName}["${key}"] ||${generateCpp(
+                                property.value.right
+                            )};`;
+                        }
+                        return `auto ${value} = ${randomObjectName}["${key}"];`;
+                    })
+                    .join("\n");
+                const rhs = generateCpp(ast.declarations[0].init);
+                return `auto ${randomObjectName} = ${rhs};\n ${destructured}`;
+            }
+
+            const declarations = ast.declarations.map(generateCpp).join(", ");
+            const typeAnnotation = ast.declarations[0].id.typeAnnotation;
+            const type = typeAnnotation
+                ? generateCpp(typeAnnotation.typeAnnotation)
+                : "";
+            const declarationType = type ? "" : "auto"; //TODO: Handle const declaration
 
             return `${declarationType} ${declarations}; \n`;
         }
@@ -759,4 +807,4 @@ int main(){
 `;
 }
 
-module.exports = { generateWholeCode, generateCpp };
+module.exports = { generateWholeCode, generateCpp, generateRandomString };

@@ -23,7 +23,12 @@
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto arr = std::string("test") ; 
-
+  auto returnxy = [](auto a, auto b) { 
+return nlohmann::json{{"x", a}, {"y", b}};  
+ };
+auto GtwAjb = returnxy(static_cast<int>(1), static_cast<int>(2));
+ auto x = GtwAjb["x"];
+auto y = GtwAjb["y"];
+std::cout << x << y << '\n';
   return 0;
 }  
