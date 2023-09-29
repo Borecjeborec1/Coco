@@ -4,4 +4,4 @@ dist/
 tempCodeRunnerFile.*
 *.exe
 tests/standalone/lib/
-tests//C++/input/node/lib/
+tests/C++/input/node/lib/
