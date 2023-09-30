@@ -77,31 +77,20 @@ function generateCpp(ast, compilingOptions) {
                     if (moduleName == "fs") newCppFlags += " -std=c++17 ";
                     return `using ${variableName} = ${ALLOWED_MODULES[moduleName]};`;
                 }
-                if (
-                    !fs.existsSync(
-                        path.join(path.dirname(config.cppFile), moduleName)
-                    )
-                ) {
-                    return "";
+                if (ast.declarations[0].id.type == "ObjectPattern") {
+                    const randomObjectName = generateRandomString(6);
+                    console.log(ast.declarations[0].id.properties);
+                    const destructured = ast.declarations[0].id.properties
+                        .map((identifier) => {
+                            const key = generateCpp(identifier.key);
+                            const value = generateCpp(identifier.value);
+                            return `auto ${value} = ${randomObjectName}::${key};`;
+                        })
+                        .join("\n");
+                    linkNewJsFile(moduleName, randomObjectName);
+                    return `${destructured}`;
                 }
-                const linkedFilePath = path.join(
-                    path.dirname(config.cppFile),
-                    moduleName
-                );
-                const linkedContent = fs.readFileSync(linkedFilePath, "utf-8");
-                const linkedAst = acorn.Parser.extend(tsPlugin()).parse(
-                    linkedContent,
-                    {
-                        sourceType: "module",
-                        ecmaVersion: "latest",
-                        locations: true,
-                    }
-                );
-                const linkedFileContent = generateWholeCode(linkedAst, {
-                    isModule: true,
-                });
-                linkedFilesContent.push(linkedFileContent + "\n");
-                linkedFilesName.push(variableName);
+                linkNewJsFile(moduleName, variableName);
                 return "";
             }
 
@@ -332,7 +321,8 @@ function generateCpp(ast, compilingOptions) {
             const propertyCode = ast.property.name;
             if (propertyCode === "length") return `${objectCode}.length()`;
             if (objectCode == "this") return propertyCode;
-            if (objectCode == "exports") return "auto " + propertyCode;
+            if (objectCode == "exports") return "// ";
+            if (objectCode == "module") return "// ";
             if (userDefinedVariableNames.includes(objectCode))
                 return `${objectCode}::${propertyCode}`;
             if (linkedFilesName.includes(objectCode)) {
@@ -605,6 +595,29 @@ function generateCpp(ast, compilingOptions) {
         case "TSAnyKeyword": {
             return "auto ";
         }
+        case "ImportDeclaration": {
+            const importPath = ast.source.value;
+
+            if (ast.specifiers[0].type == "ImportSpecifier") {
+                const randomObjectName = generateRandomString(6);
+                const destructured = ast.specifiers
+                    .map((identifier) => {
+                        const key = generateCpp(identifier.imported);
+                        const value = generateCpp(identifier.local);
+                        return `auto ${value} = ${randomObjectName}::${key};`;
+                    })
+                    .join("\n");
+                linkNewJsFile(importPath, randomObjectName);
+                return `${destructured}`;
+            }
+
+            const variableName = generateCpp(ast.specifiers[0].local);
+            linkNewJsFile(importPath, variableName);
+            return ``;
+        }
+        // case "ImportSpecifier":
+        // case "ImportDefaultSpecifier":
+
         // case "ClassDeclaration": {
         //     const className = ast.id.name;
         //     const classBody = ast.body.body.map(generateCpp).join("\n");
@@ -700,6 +713,24 @@ int main(){
   return 0;
 }  
 `;
+}
+
+function linkNewJsFile(fileName, namespaceName) {
+    if (!fs.existsSync(path.join(path.dirname(config.cppFile), fileName)))
+        return;
+
+    const linkedFilePath = path.join(path.dirname(config.cppFile), fileName);
+    const linkedContent = fs.readFileSync(linkedFilePath, "utf-8");
+    const linkedAst = acorn.Parser.extend(tsPlugin()).parse(linkedContent, {
+        sourceType: "module",
+        ecmaVersion: "latest",
+        locations: true,
+    });
+    const linkedFileContent = generateWholeCode(linkedAst, {
+        isModule: true,
+    });
+    linkedFilesContent.push(linkedFileContent + "\n");
+    linkedFilesName.push(namespaceName);
 }
 
 let newCppFlags = "";

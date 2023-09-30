@@ -774,6 +774,35 @@ describe("Generating the destructurable variable", function () {
     });
 });
 
+describe("Generating the export statements", function () {
+    it("should delete line with exports.something", function () {
+        const jsCode = "exports.test = some_function";
+        const expectedCppCode = ` //  = some_function;`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+    it("should delete line module.exports", function () {
+        const jsCode = "module.exports = {some_function}";
+        const expectedCppCode = ` //  = nlohmann::json{{"some_function", some_function}};`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+});
+
+describe.only("Generating the import statements", function () {
+    it("should delete line with exports.something", function () {
+        const jsCode = `import test from "./importFrom.js";`;
+        const expectedCppCode = ` //  = some_function;`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+});
 function translateToCppWithDefaults(jsCode) {
     const ast = acorn.Parser.extend(tsPlugin()).parse(jsCode, {
         sourceType: "module",

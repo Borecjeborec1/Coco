@@ -18,16 +18,25 @@
 #include "./lib/types-methods/Number-Methods.hh"
 #include "./lib/types-methods/String-Methods.hh"
 
-
+namespace test {
+auto sum = [](auto a, auto b) { return (a + b); };
+auto subst = [](auto a, auto b) { return (a - b); };
+//  = nlohmann::json{{"sum", sum}, {"subst", subst}};
+};
+namespace sfckZM {
+auto sum = [](auto a, auto b) { return (a + b); };
+auto subst = [](auto a, auto b) { return (a - b); };
+//  = nlohmann::json{{"sum", sum}, {"subst", subst}};
+};
 
 // Main Function (Have to be the only main function)
-int main(){
+int main() {
   std::cout.setf(std::ios::boolalpha);
-  auto x = nlohmann::json() ; 
 
-std::cout << x << '\n';
+  auto sum = sfckZM::summ || 5;
+  auto subst = sfckZM::subst;
+  std::cout << sum(static_cast<int>(1), static_cast<int>(2)) << '\n';
+  std::cout << test::sum(static_cast<int>(1), static_cast<int>(2)) << '\n';
 
-
-  
   return 0;
-}  
+}

@@ -5,8 +5,7 @@
 -   basic node modules {High}
 -   Async/await {High}
 -   this! {High}
--   exporting files with exports = , module.exports. {Mid}
--   TS imports, import from {Mid}
+-   TS exports {Mid}
 -   RegExp Object {Mid}
 -   more cli params {Mid}
 -   Optimize compiling errors (missing nodemodule, wrong statements, etc) {Mid}
@@ -30,6 +29,7 @@
 -   birth time in fs.stats {Very Very Very Low}
 -   Add groups to string JS_match {Very Very Very Low}
 -   Normalize string JS_match {Very Very Very Low}
+-   Default values in import statements {Very Very Very Low}
 -   Readme todos
 -   Readme possibilities
 -   Readme known bugs
@@ -105,3 +105,5 @@
 -   Timers - setInterval/setTimeout {Low}
 -   need for custom c++ compiling flags (-liphlpapi -lws2_32) {Low}
 -   other data types (undefined/null/nan) {High}
+-   exporting files with module.exports. {Mid}
+-   TS imports, import from {Mid}
