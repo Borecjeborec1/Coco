@@ -19,13 +19,13 @@ const {
     getAllFiles,
     isModuleStatement,
     generateRandomString,
+    mapUserType,
 } = require("./lib/JS/Helper-functions.js");
 
 let config = {
     numberDataType: "int",
     outputBooleans: true,
     isModule: false,
-    debug: false,
 };
 
 const userDefinedVariableNames = [];
@@ -71,7 +71,10 @@ function generateCpp(ast, compilingOptions) {
                 const variableName = ast.declarations[0].id.name;
                 if (ALLOWED_MODULES[moduleName]) {
                     userDefinedVariableNames.push(variableName);
-                    neededImports.push(variableName);
+                    neededImports.push(moduleName + ".hh");
+                    if (moduleName == "os")
+                        newCppFlags += " -liphlpapi -lws2_32 ";
+                    if (moduleName == "fs") newCppFlags += " -std=c++17 ";
                     return `using ${variableName} = ${ALLOWED_MODULES[moduleName]};`;
                 }
                 if (
@@ -147,6 +150,12 @@ function generateCpp(ast, compilingOptions) {
                     return `"${__dirname}"`;
                 case "__filename":
                     return `"${__filename}"`;
+                case "undefined":
+                    return "nlohmann::json()";
+                case "null":
+                    return "nlohmann::json()";
+                case "NaN":
+                    return "nlohmann::json()";
                 default:
                     return ast.name;
             }
@@ -177,6 +186,8 @@ function generateCpp(ast, compilingOptions) {
                 return `static_cast<${config.numberDataType}>(${ast.value})`;
             } else if (typeof ast.value === "boolean") {
                 return `${!!ast.value}`;
+            } else {
+                return "nlohmann::json()";
             }
             return `// Unknown type: ${JSON.stringify(ast)}`;
         }
@@ -691,4 +702,14 @@ int main(){
 `;
 }
 
-module.exports = { generateWholeCode, generateCpp, generateRandomString };
+let newCppFlags = "";
+
+function getCppFlags() {
+    return newCppFlags;
+}
+module.exports = {
+    generateWholeCode,
+    generateCpp,
+    generateRandomString,
+    getCppFlags,
+};

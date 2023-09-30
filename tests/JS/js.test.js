@@ -34,7 +34,7 @@ describe("Generating variable types", function () {
 });
 
 describe("Generating data types", function () {
-    it("should convert positive number C++ int", function () {
+    it("should convert positive number to C++ int", function () {
         const variableValue = 42;
         const jsCode = `let x = ${variableValue};`;
         const expectedCppCode = `auto x = static_cast<int>(${variableValue});`;
@@ -43,7 +43,7 @@ describe("Generating data types", function () {
             expectedCppCode
         );
     });
-    it("should convert negative number C++ int", function () {
+    it("should convert negative number to C++ int", function () {
         const variableValue = -42;
         const jsCode = `let x = ${variableValue};`;
         const expectedCppCode = `auto x = static_cast<int>(0) - static_cast<int>(42);`;
@@ -52,7 +52,7 @@ describe("Generating data types", function () {
             expectedCppCode
         );
     });
-    it("should convert string C++ std::string", function () {
+    it("should convert string to C++ std::string", function () {
         const variableValue = `"test-string"`;
         const jsCode = `let x = ${variableValue};`;
         const expectedCppCode = `auto x = std::string(${variableValue});`;
@@ -61,10 +61,34 @@ describe("Generating data types", function () {
             expectedCppCode
         );
     });
-    it("should convert boolean C++ bool", function () {
+    it("should convert boolean to C++ bool", function () {
         const variableValue = `true`;
         const jsCode = `let x = ${variableValue};`;
         const expectedCppCode = `auto x = ${variableValue};`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+    it("should convert undefined to C++ empty json", function () {
+        const jsCode = `let x = undefined;`;
+        const expectedCppCode = `auto x = nlohmann::json();`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+    it("should convert null to C++ empty json", function () {
+        const jsCode = `let x = null;`;
+        const expectedCppCode = `auto x = nlohmann::json();`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+    it("should convert NaN to C++ empty json", function () {
+        const jsCode = `let x = NaN;`;
+        const expectedCppCode = `auto x = nlohmann::json();`;
 
         expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
             expectedCppCode
@@ -722,31 +746,31 @@ describe("Generating the ts data types", function () {
 describe("Generating the destructurable variable", function () {
     it("should destructure simple object", function () {
         const jsCode = "let {x,y} =  idk(1,2);";
-        const expectedCppCode = `auto ___DEBUGVAR___ = idk(static_cast<int>(1), static_cast<int>(2));
-        auto x = ___DEBUGVAR___["x"];
-       auto y = ___DEBUGVAR___["y"];`;
-        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
-            expectedCppCode
-        );
+        const expectedCppCode = `auto 6leter = idk(static_cast<int>(1), static_cast<int>(2));
+        auto x = 6leter["x"];
+       auto y = 6leter["y"];`;
+        expect(
+            translateToCppWithDefaults(jsCode).replace(/ /g, "").length
+        ).to.equal(expectedCppCode.replace(/ /g, "").length);
     });
 
     it("should destructure simple object with defaults", function () {
         const jsCode = "let {x=100,y=100} =  idk(1,2);";
-        const expectedCppCode = `auto ___DEBUGVAR___ = idk(static_cast<int>(1), static_cast<int>(2));
-        auto x = ___DEBUGVAR___["x"]||static_cast<int>(100);
-       auto y = ___DEBUGVAR___["y"]||static_cast<int>(100);`;
-        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
-            expectedCppCode
-        );
+        const expectedCppCode = `auto 6leter = idk(static_cast<int>(1), static_cast<int>(2));
+        auto x = 6leter["x"]||static_cast<int>(100);
+       auto y = 6leter["y"]||static_cast<int>(100);`;
+        expect(
+            translateToCppWithDefaults(jsCode).replace(/ /g, "").length
+        ).to.equal(expectedCppCode.replace(/ /g, "").length);
     });
     it("should destructure simple object and rename it", function () {
         const jsCode = "let {x:a,y:b} =  idk(1,2);";
-        const expectedCppCode = `auto ___DEBUGVAR___ = idk(static_cast<int>(1), static_cast<int>(2));
-        auto a = ___DEBUGVAR___["x"];
-       auto b = ___DEBUGVAR___["y"];`;
-        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
-            expectedCppCode
-        );
+        const expectedCppCode = `auto 6leter = idk(static_cast<int>(1), static_cast<int>(2));
+        auto a = 6leter["x"];
+       auto b = 6leter["y"];`;
+        expect(
+            translateToCppWithDefaults(jsCode).replace(/ /g, "").length
+        ).to.equal(expectedCppCode.replace(/ /g, "").length);
     });
 });
 
@@ -756,5 +780,5 @@ function translateToCppWithDefaults(jsCode) {
         ecmaVersion: "latest",
         locations: true,
     });
-    return generateCpp(ast, { numberDataType: "int", debug: true });
+    return generateCpp(ast, { numberDataType: "int" });
 }

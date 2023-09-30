@@ -1,8 +1,8 @@
-# Coco: JavaScript to C++ Compiler
+# Coco: JavaScript to C++ Compiler v0.0.0
 
 ![Coco Logo](logo.png)
 
-Coco is a personal project created by a high school student that allows you to compile JavaScript code by translating it into C++. This innovative approach opens up exciting possibilities for integrating C++ with Node.js applications. Whether you're looking to improve performance, take advantage of C++ libraries, or explore new possibilities, Coco is here to help.
+Coco is a personal project created by a regular high school student that allows you to compile JavaScript code by translating it into C++. This approach opens up exciting possibilities for integrating C++ with Node.js applications. Whether you're looking to improve performance, take advantage of C++ libraries, or explore new possibilities, Coco is here to help.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Coco is a personal project created by a high school student that allows you to c
 
 ## Features
 
-Coco comes with a range of features designed to simplify the process of translating JavaScript into C++. Some of its key features include:
+JavaScript is a popular programming language, primarily known for its versatility and its role in web development. However, certain applications, especially those requiring high performance or low-level system interactions, may benefit from the capabilities of C++, a powerful systems programming language. Coco bridges the gap between these two worlds, offering the following advantages:
 
 -   **JavaScript to C++ Compilation**: Translate your JavaScript code into C++ for enhanced performance and integration possibilities.
 
@@ -35,9 +35,7 @@ Coco comes with a range of features designed to simplify the process of translat
 
 ## Usage
 
-Coco can be used to compile JavaScript code into C++ code with various options and settings. Here's how you can use Coco, along with the available command-line arguments:
-
-Coco provides a command-line interface (CLI) for translating JavaScript code to C++. Here's how to use it:
+Using Coco is straightforward. You can compile your JavaScript code to C++ by running the following command:
 
 ```shell
 coco <input_file.js>

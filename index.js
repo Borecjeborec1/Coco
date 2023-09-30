@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const { exec, spawn } = require("child_process");
 
-const { generateWholeCode } = require("./src/main.js");
+const { generateWholeCode, getCppFlags } = require("./src/main.js");
 
 async function executeCommand(command, errorMessage) {
     return new Promise((resolve, reject) => {
@@ -70,7 +70,8 @@ class CocoCompiler {
 
     async compile() {
         try {
-            const compileCommand = `g++ ${this.cppFile} -s -o ${this.outputFile} -O3 -ffast-math`;
+            const customFlagModifiers = getCppFlags();
+            const compileCommand = `g++ ${this.cppFile} -s -o ${this.outputFile} ${customFlagModifiers} -O3 -ffast-math`;
             await executeCommand(
                 compileCommand,
                 "Error compiling C++ with Coco"

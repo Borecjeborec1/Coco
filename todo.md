@@ -1,10 +1,10 @@
 #### TODO
 
 -   classes {Very High}
+-   C++ Linking {Very High}
 -   basic node modules {High}
 -   Async/await {High}
 -   this! {High}
--   other data types (undefined/null/nan) {High}
 -   exporting files with exports = , module.exports. {Mid}
 -   TS imports, import from {Mid}
 -   RegExp Object {Mid}
@@ -16,7 +16,6 @@
 -   bigint --> long long double {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 -   Typescript discovery {Low}
--   need for custom c++ compiling flags (-liphlpapi -lws2_32) {Low}
 -   eval {Low}
 -   Error Object {Low}
 -   Map {Low}
@@ -31,8 +30,11 @@
 -   birth time in fs.stats {Very Very Very Low}
 -   Add groups to string JS_match {Very Very Very Low}
 -   Normalize string JS_match {Very Very Very Low}
--   C++ Linking
--   Readme
+-   Readme todos
+-   Readme possibilities
+-   Readme known bugs
+-   Readme Sponsor button
+-   Create Coco Logo
 
 ###### In Future
 
@@ -101,3 +103,5 @@
 -   Object destructuring {Mid}
 -   escape characters {Low}
 -   Timers - setInterval/setTimeout {Low}
+-   need for custom c++ compiling flags (-liphlpapi -lws2_32) {Low}
+-   other data types (undefined/null/nan) {High}

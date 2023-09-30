@@ -14,7 +14,7 @@ async function main(_args) {
         if (runtimeOptions.timeOutput) {
             timeOperation("Building cpp", async () => await coco.buildCpp());
             timeOperation("Compiling cpp", async () => await coco.compile());
-            timeOperation("Running exe", async () => await coco.run());
+            // timeOperation("Running exe", async () => await coco.run());
             return;
         } else {
             await coco.buildCpp();

@@ -34,7 +34,6 @@ function isModuleStatement(init) {
     );
 }
 function generateRandomString(length) {
-    if (config.debug) return "___DEBUGVAR___";
     const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     let randomString = "";
 
