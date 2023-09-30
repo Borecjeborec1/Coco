@@ -5,7 +5,7 @@
 #include <chrono>
 #include <atomic>
 
-class Timer {
+class __Timer__ {
 public:
   static int setTimeout(std::function<void()> func, int delay) {
     int timerId = nextTimerId++;
@@ -74,6 +74,6 @@ private:
   }
 };
 
-int Timer::nextTimerId = 1;
-std::map<int, bool> Timer::timers;
-std::atomic<bool> Timer::shouldExit(false);
+int __Timer__::nextTimerId = 1;
+std::map<int, bool> __Timer__::timers;
+std::atomic<bool> __Timer__::shouldExit(false);

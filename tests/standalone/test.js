@@ -1,10 +1,11 @@
-setTimeout(() => console.log("setTimeout executed"), 2000);
+console.log("HELLO WORLD!");
+let x = setTimeout(() => console.log("setTimeout executed"), 2000);
 
-setImmediate(() => console.log("setImmidiate executed"));
+let y = setImmediate(() => console.log("setImmidiate executed"));
 
-setInterval(() => {
+let z = setInterval(() => {
     let count = 0;
-    console.log(("setInterval executed (" << count) << ").");
+    console.log("setInterval executed (" + count + ").");
     count++;
     if (count >= 5) {
     }

@@ -1,102 +1,52 @@
-#include <iostream>
-#include <functional>
-#include <map>
-#include <thread>
+
+
+// All new includes goes here
 #include <chrono>
-#include <atomic>
+#include <iostream>
+#include "./lib/Global-functions.hh"
+#include "./lib/native-classes/Array.hh"
+#include "./lib/native-classes/Date.hh"
+#include "./lib/native-classes/JSON.hh"
+#include "./lib/native-classes/Math.hh"
+#include "./lib/native-classes/Number.hh"
+#include "./lib/native-classes/String.hh"
+#include "./lib/nlohmann-json.hh"
+#include "./lib/operators/json-operators.hh"
+#include "./lib/operators/string-operators.hh"
+#include "./lib/Timer.hh"
+#include "./lib/types-methods/Array-Methods.hh"
+#include "./lib/types-methods/Boolean-Methods.hh"
+#include "./lib/types-methods/Number-Methods.hh"
+#include "./lib/types-methods/String-Methods.hh"
 
-class Timer {
-public:
-  static int setTimeout(std::function<void()> func, int delay) {
-    int timerId = nextTimerId++;
-    std::thread([func, delay, timerId]() {
-      std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-      if (timers.find(timerId) != timers.end()) {
-        func();
-        timers.erase(timerId);
-      }
-      checkAndExit();
-    }).detach();
-    timers[timerId] = true;
-    return timerId;
-  }
 
-  static int setImmediate(std::function<void()> func) {
-    int timerId = nextTimerId++;
-    std::thread([func, timerId]() {
-      if (timers.find(timerId) != timers.end()) {
-        func();
-        timers.erase(timerId);
-      }
-      checkAndExit();
-    }).detach();
-    timers[timerId] = true;
-    return timerId;
-  }
 
-  static int setInterval(std::function<void()> func, int interval) {
-    int timerId = nextTimerId++;
-    std::thread([func, interval, timerId]() {
-      while (timers.find(timerId) != timers.end()) {
-        func();
-        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
-      }
-      checkAndExit();
-    }).detach();
-    timers[timerId] = true;
-    return timerId;
-  }
+// Main Function (Have to be the only main function)
+int main(){
+  std::cout.setf(std::ios::boolalpha);
+  std::cout << std::string("HELLO WORLD!") << '\n';
+auto x = __Timer__::setTimeout([]() { std::cout << std::string("setTimeout executed") << '\n';
+return; } , static_cast<int>(2000)) ; 
 
-  static void clearTimeout(int timerId) {
-    timers.erase(timerId);
-    checkAndExit();
-  }
+auto y = __Timer__::setImmediate([]() { std::cout << std::string("setImmidiate executed") << '\n';
+return; } ) ; 
 
-  static void clearImmediate(int timerId) {
-    timers.erase(timerId);
-    checkAndExit();
-  }
+auto z = __Timer__::setInterval([]() { 
+auto count = static_cast<int>(0) ; 
 
-  static void clearInterval(int timerId) {
-    timers.erase(timerId);
-    checkAndExit();
-  }
+std::cout << ((std::string("setInterval executed (") + count) + std::string(").")) << '\n';
+count++ ;
+if ((count >= static_cast<int>(5))) {
 
-  static std::atomic<bool> shouldExit;
+} 
+ } , static_cast<int>(1000)) ; 
 
-private:
-  static int nextTimerId;
-  static std::map<int, bool> timers;
-  static void checkAndExit() {
-    if (timers.empty()) {
-      shouldExit = true;
-    }
-  }
-};
+std::cout << std::string("test") << '\n';
 
-int Timer::nextTimerId = 1;
-std::map<int, bool> Timer::timers;
-std::atomic<bool> Timer::shouldExit(false);
 
-int main() {
-  int timeoutId = Timer::setTimeout(
-      []() { std::cout << "setTimeout executed." << std::endl; }, 2000);
-
-  int immediateId = Timer::setImmediate(
-      []() { std::cout << "setImmediate executed." << std::endl; });
-
-  int intervalId = Timer::setInterval([]() {
-    int count = 0;
-    std::cout << "setInterval executed (" << count << ")." << std::endl;
-    count++;
-    if (count >= 5) {
-    }
-  }, 1000);
-
-  std::cout << "test";
-  while (!Timer::shouldExit) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  }
-
+    while (!__Timer__::shouldExit) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      };
+    
   return 0;
-}
+}  

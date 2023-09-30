@@ -82,8 +82,7 @@ class CocoCompiler {
     }
 
     async run(_returnResult = false) {
-        const outputPath = this.outputFile;
-        const childProcess = spawn(outputPath);
+        const childProcess = spawn(this.outputFile);
         let output = "";
 
         childProcess.stdout.on("data", (data) => {

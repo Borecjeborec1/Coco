@@ -18,7 +18,6 @@
 -   Typescript discovery {Low}
 -   need for custom c++ compiling flags (-liphlpapi -lws2_32) {Low}
 -   eval {Low}
--   Timers - setInterval/setTimeout {Low}
 -   Error Object {Low}
 -   Map {Low}
 -   Set {Low}
@@ -51,6 +50,7 @@
 -   Fix empty json key acessment {Mid}
 -   Fix constructor and prototype {Mid}
 -   Fix the module.exports {Mid}
+-   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
 
 #### FINISHED
 
@@ -100,3 +100,4 @@
 -   requires, linking files with exports.test{Mid}
 -   Object destructuring {Mid}
 -   escape characters {Low}
+-   Timers - setInterval/setTimeout {Low}

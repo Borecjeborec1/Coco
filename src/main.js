@@ -11,6 +11,7 @@ const {
     IMPLEMENTED_DATE_METHODS,
     ALLOWED_MODULES,
     OBJECTS_WITH_STATIC_GLOBAL_METHODS,
+    TIMER_FUNCTIONS,
 } = require("./lib/JS/Builtin-Objects.js");
 const {
     addAutoIfNotTypedAlready,
@@ -282,6 +283,14 @@ function generateCpp(ast, compilingOptions) {
                     let idk = ast.arguments.map(generateCpp).join(", ");
                     return `nlohmann::json{${idk}}`;
                 }
+            }
+
+            if (TIMER_FUNCTIONS.includes(ast.callee.name)) {
+                isTimerUsed = true;
+                neededImports.push("Timer.hh");
+                return `__Timer__::${callee}(${ast.arguments
+                    .map(generateCpp)
+                    .join(", ")})`;
             }
             return `${callee}(${ast.arguments.map(generateCpp).join(", ")})`;
         }
@@ -625,7 +634,7 @@ function generateCpp(ast, compilingOptions) {
             console.log(`Unsupported AST node type: ${ast.type} `);
     }
 }
-
+let isTimerUsed = false;
 function joinCppParts(mainBody = "") {
     const coutModifier = config.outputBooleans
         ? "std::cout.setf(std::ios::boolalpha);"
@@ -634,7 +643,6 @@ function joinCppParts(mainBody = "") {
 
     const allFiles = getAllFiles(__dirname + rootDirectory);
     const includeStatements = allFiles
-
         .filter(
             (filePath) =>
                 DEFAULT_IMPORTS.includes(path.basename(filePath)) ||
@@ -655,6 +663,13 @@ function joinCppParts(mainBody = "") {
                 ${linkedFilesContent[i]}
             };`;
     }
+    const continousLoop = isTimerUsed
+        ? `  while (!__Timer__::shouldExit) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      };
+    `
+        : "";
+
     return `
 
 // All new includes goes here
@@ -668,6 +683,9 @@ ${externalNamespaces}
 int main(){
   ${coutModifier}
   ${mainBody}
+
+
+  ${continousLoop}
   return 0;
 }  
 `;

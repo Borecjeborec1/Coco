@@ -185,6 +185,15 @@ const DEFAULT_IMPORTS = [
     "String.hh",
 ];
 
+const TIMER_FUNCTIONS = [
+    "setInterval",
+    "setImmediate",
+    "setTimeout",
+    "clearInterval",
+    "clearImmediate",
+    "clearTimeout",
+];
+
 module.exports = {
     BUILTIN_JS_FUNCTIONS,
     DEFAULT_IMPORTS,
@@ -194,4 +203,5 @@ module.exports = {
     IMPLEMENTED_DATE_METHODS,
     ALLOWED_MODULES,
     OBJECTS_WITH_STATIC_GLOBAL_METHODS,
+    TIMER_FUNCTIONS,
 };
