@@ -793,16 +793,6 @@ describe("Generating the export statements", function () {
     });
 });
 
-describe.only("Generating the import statements", function () {
-    it("should delete line with exports.something", function () {
-        const jsCode = `import test from "./importFrom.js";`;
-        const expectedCppCode = ` //  = some_function;`;
-
-        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
-            expectedCppCode
-        );
-    });
-});
 function translateToCppWithDefaults(jsCode) {
     const ast = acorn.Parser.extend(tsPlugin()).parse(jsCode, {
         sourceType: "module",

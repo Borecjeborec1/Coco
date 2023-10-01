@@ -8,7 +8,7 @@ const {
     DEFAULT_IMPORTS,
     IMPLEMENTED_JS_OBJECTS,
     ARRAY_DATA_TYPES,
-    IMPLEMENTED_DATE_METHODS,
+    IMPLEMENTED_OBJECT_METHODS,
     ALLOWED_MODULES,
     OBJECTS_WITH_STATIC_GLOBAL_METHODS,
     TIMER_FUNCTIONS,
@@ -320,6 +320,7 @@ function generateCpp(ast, compilingOptions) {
             const objectCode = generateCpp(ast.object);
             const propertyCode = ast.property.name;
             if (propertyCode === "length") return `${objectCode}.length()`;
+            if (propertyCode == "size") return `${objectCode}.size()`;
             if (objectCode == "this") return propertyCode;
             if (objectCode == "exports") return "// ";
             if (objectCode == "module") return "// ";
@@ -331,8 +332,10 @@ function generateCpp(ast, compilingOptions) {
             if (IMPLEMENTED_JS_OBJECTS[objectCode])
                 return `${IMPLEMENTED_JS_OBJECTS[objectCode]}::${propertyCode}`;
 
-            if (IMPLEMENTED_DATE_METHODS.includes(propertyCode))
-                return `${objectCode}.${propertyCode}`;
+            if (IMPLEMENTED_OBJECT_METHODS.includes(propertyCode))
+                return `${objectCode}.${
+                    propertyCode == "delete" ? "deleteKey" : propertyCode
+                }`;
             return `${objectCode}["${propertyCode}"]`;
         }
         case "IfStatement": {

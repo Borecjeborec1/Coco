@@ -17,8 +17,34 @@
 -   Typescript discovery {Low}
 -   eval {Low}
 -   Error Object {Low}
--   Map {Low}
 -   Set {Low}
+-   Readme todos
+-   Readme possibilities
+-   Readme known bugs
+-   Readme Sponsor button
+-   Create Coco Logo
+-   Release
+
+##### In Future
+
+-   var vs let {Mid}
+-   == vs === {Mid}
+
+##### Maybe in long long future
+
+-   no strict mode (using json for everything) HARD!!!
+
+##### Bugs
+
+-   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
+-   fix exists in callbacks (arr.filter((item) => item)) {Mid}
+-   Fix empty json key acessment {Mid}
+-   Fix constructor and prototype {Mid}
+-   Fix the module.exports {Mid}
+-   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
+
+###### Single methods Bugs
+
 -   fix num.toString(213) -> binary formats? {Very Low}
 -   fix double stars and other syntaxes (pointer problems) {Very Low}
 -   options argument inside toLocaleDateString {Very Low}
@@ -30,29 +56,6 @@
 -   Add groups to string JS_match {Very Very Very Low}
 -   Normalize string JS_match {Very Very Very Low}
 -   Default values in import statements {Very Very Very Low}
--   Readme todos
--   Readme possibilities
--   Readme known bugs
--   Readme Sponsor button
--   Create Coco Logo
-
-###### In Future
-
--   var vs let {Mid}
--   == vs === {Mid}
-
-###### Maybe in long long future
-
--   no strict mode (using json for everything) HARD!!!
-
-###### Bugs
-
--   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
--   fix exists in callbacks (arr.filter((item) => item)) {Mid}
--   Fix empty json key acessment {Mid}
--   Fix constructor and prototype {Mid}
--   Fix the module.exports {Mid}
--   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
 
 #### FINISHED
 
@@ -107,3 +110,4 @@
 -   other data types (undefined/null/nan) {High}
 -   exporting files with module.exports. {Mid}
 -   TS imports, import from {Mid}
+-   Map {Low}

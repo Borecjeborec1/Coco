@@ -114,6 +114,7 @@ const IMPLEMENTED_JS_OBJECTS = {
     String: "__String__",
     Boolean: "__Boolean__",
     Array: "__Array__",
+    Map: "__Map__",
 };
 
 const ARRAY_DATA_TYPES = [
@@ -160,6 +161,24 @@ const IMPLEMENTED_DATE_METHODS = [
     "toLocaleTimeString",
 ];
 
+const IMPLEMENTED_MAP_METHODS = [
+    "set",
+    "get",
+    "has",
+    "delete",
+    "clear",
+    "size",
+    "entries",
+    "keys",
+    "values",
+    "forEach",
+];
+
+const IMPLEMENTED_OBJECT_METHODS = [
+    ...IMPLEMENTED_DATE_METHODS,
+    ...IMPLEMENTED_MAP_METHODS,
+];
+
 const ALLOWED_MODULES = {
     path: "__path__",
     os: "__os__",
@@ -183,6 +202,7 @@ const DEFAULT_IMPORTS = [
     "Math.hh",
     "Number.hh",
     "String.hh",
+    "Map.hh",
 ];
 
 const TIMER_FUNCTIONS = [
@@ -200,7 +220,7 @@ module.exports = {
     VALID_USER_TYPES,
     IMPLEMENTED_JS_OBJECTS,
     ARRAY_DATA_TYPES,
-    IMPLEMENTED_DATE_METHODS,
+    IMPLEMENTED_OBJECT_METHODS,
     ALLOWED_MODULES,
     OBJECTS_WITH_STATIC_GLOBAL_METHODS,
     TIMER_FUNCTIONS,
