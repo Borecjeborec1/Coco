@@ -115,6 +115,7 @@ const IMPLEMENTED_JS_OBJECTS = {
     Boolean: "__Boolean__",
     Array: "__Array__",
     Map: "__Map__",
+    Set: "__Set__",
 };
 
 const ARRAY_DATA_TYPES = [
@@ -172,6 +173,7 @@ const IMPLEMENTED_MAP_METHODS = [
     "keys",
     "values",
     "forEach",
+    "add",
 ];
 
 const IMPLEMENTED_OBJECT_METHODS = [
@@ -203,6 +205,7 @@ const DEFAULT_IMPORTS = [
     "Number.hh",
     "String.hh",
     "Map.hh",
+    "Set.hh",
 ];
 
 const TIMER_FUNCTIONS = [

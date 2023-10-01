@@ -56,9 +56,14 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Array");
         });
     });
-    describe.only("Given the Map Class Object", function () {
+    describe("Given the Map Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Map");
+        });
+    });
+    describe.only("Given the Set Class Object", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("objects/Set");
         });
     });
     describe("Given the PATH NODE MODULE", function () {
