@@ -1,7 +1,6 @@
 #### TODO
 
 -   classes {Very High}
--   C++ Linking {Very High}
 -   basic node modules {High}
 -   Async/await {High}
 -   this! {High}
@@ -27,6 +26,7 @@
 
 -   var vs let {Mid}
 -   == vs === {Mid}
+-   Generated code clenup -> whitespaces, ;, indents, ... {Very Low}
 
 ##### Maybe in long long future
 
@@ -111,3 +111,4 @@
 -   Map {Low}
 -   Set {Low}
 -   Spread Operator {Mid}
+-   C++ Linking {Very High}

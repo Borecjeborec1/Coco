@@ -217,6 +217,7 @@ const TIMER_FUNCTIONS = [
     "clearImmediate",
     "clearTimeout",
 ];
+const ACCEPTED_ENDINGS_FOR_CC_LINKING = [".hh", ".cc", ".c", ".cpp", ".h"];
 
 module.exports = {
     BUILTIN_JS_FUNCTIONS,
@@ -228,4 +229,5 @@ module.exports = {
     ALLOWED_MODULES,
     OBJECTS_WITH_STATIC_GLOBAL_METHODS,
     TIMER_FUNCTIONS,
+    ACCEPTED_ENDINGS_FOR_CC_LINKING,
 };

@@ -12,6 +12,7 @@ const {
     ALLOWED_MODULES,
     OBJECTS_WITH_STATIC_GLOBAL_METHODS,
     TIMER_FUNCTIONS,
+    ACCEPTED_ENDINGS_FOR_CC_LINKING,
 } = require("./lib/JS/Builtin-Objects.js");
 const {
     addAutoIfNotTypedAlready,
@@ -70,6 +71,7 @@ function generateCpp(ast, compilingOptions) {
                 const moduleName = ast.declarations[0].init.arguments[0].value;
                 const variableName = ast.declarations[0].id.name;
                 if (ALLOWED_MODULES[moduleName]) {
+                    // Handle built-in node_modules
                     userDefinedVariableNames.push(variableName);
                     neededImports.push(moduleName + ".hh");
                     if (moduleName == "os")
@@ -723,16 +725,22 @@ function linkNewJsFile(fileName, namespaceName) {
         return;
 
     const linkedFilePath = path.join(path.dirname(config.cppFile), fileName);
-    const linkedContent = fs.readFileSync(linkedFilePath, "utf-8");
-    const linkedAst = acorn.Parser.extend(tsPlugin()).parse(linkedContent, {
-        sourceType: "module",
-        ecmaVersion: "latest",
-        locations: true,
-    });
-    const linkedFileContent = generateWholeCode(linkedAst, {
-        isModule: true,
-    });
-    linkedFilesContent.push(linkedFileContent + "\n");
+    let linkedContent = fs.readFileSync(linkedFilePath, "utf-8");
+    if (
+        !ACCEPTED_ENDINGS_FOR_CC_LINKING.some((ending) =>
+            fileName.toLowerCase().endsWith(ending)
+        )
+    ) {
+        const linkedAst = acorn.Parser.extend(tsPlugin()).parse(linkedContent, {
+            sourceType: "module",
+            ecmaVersion: "latest",
+            locations: true,
+        });
+        linkedContent = generateWholeCode(linkedAst, {
+            isModule: true,
+        });
+    }
+    linkedFilesContent.push(linkedContent + "\n");
     linkedFilesName.push(namespaceName);
 }
 
