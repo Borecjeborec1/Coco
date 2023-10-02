@@ -61,7 +61,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/Map");
         });
     });
-    describe.only("Given the Set Class Object", function () {
+    describe("Given the Set Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Set");
         });
@@ -79,6 +79,11 @@ describe("Given ALL JS methods", function () {
     describe("Given the FS NODE MODULE", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("node/fs");
+        });
+    });
+    describe.only("Given the child_process NODE MODULE", function () {
+        it("Should output same results as node", async function () {
+            await compileAndRunTest("node/child_process");
         });
     });
 });

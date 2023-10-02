@@ -1,0 +1,4 @@
+input/*.cc
+input/**/*.cc
+input/lib/
+input/*/lib/
