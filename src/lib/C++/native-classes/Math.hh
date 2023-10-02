@@ -1,10 +1,8 @@
 
-// Ignore imports
 #include <iostream>
 #include <cmath>
 #include <cstdarg>
 #include <limits>
-// Ignore imports end
 
 class __Math__
 {

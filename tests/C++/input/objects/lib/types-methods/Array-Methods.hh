@@ -1,9 +1,7 @@
-// Ignore imports
 #include <iostream>
 #include <vector>
 #include <string>
 #include "../nlohmann-json.hh"
-// Ignore imports end
 
 nlohmann::json JS_concat(const nlohmann::json &arr1,
                          const nlohmann::json &arr2) {

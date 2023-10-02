@@ -1,9 +1,7 @@
-// Ignore imports
 #include <string>
 #include <cmath>
 #include <sstream>
 #include <iomanip>
-// Ignore imports end
 
 double JS_valueOf(double value) { return static_cast<double>(value); }
 std::string JS_toFixed(double value, int decimalPlaces) {

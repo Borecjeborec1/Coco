@@ -1,6 +1,4 @@
-// Ignore imports
 #include <string>
-// Ignore imports end
 
 std::string operator+(const double &lhs, const std::string &rhs)
 {

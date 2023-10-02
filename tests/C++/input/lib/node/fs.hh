@@ -1,4 +1,3 @@
-// Ignore imports
 #include <fstream>
 #include <string>
 #include <functional>
@@ -8,7 +7,6 @@
 #include <random>
 #include "../nlohmann-json.hh"
 #include <thread>
-// Ignore imports end
 
 #ifdef _WIN32
 #include <windows.h>

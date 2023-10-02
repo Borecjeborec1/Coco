@@ -1,9 +1,7 @@
-// Ignore imports
 #include <string>
 #include <vector>
 #include <regex>
 #include "../nlohmann-json.hh"
-// Ignore imports end
 
 std::string JS_valueOf(std::string value) { return std::string(value); }
 

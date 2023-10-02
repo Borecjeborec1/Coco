@@ -17,10 +17,9 @@
 -   Typescript discovery {Low}
 -   eval {Low}
 -   Error Object {Low}
--   Readme todos
--   Readme possibilities
--   Readme known bugs
--   Readme Sponsor button
+-   Readme todos section
+-   Readme possibilities section
+-   Readme known bugs sections
 -   Create Coco Logo
 -   Release!!!!
 

@@ -1,10 +1,8 @@
-// Ignore imports
 #include <iostream>
 #include <sstream>
 #include <cmath>
 #include <iomanip>
 #include "./nlohmann-json.hh"
-// Ignore imports end
 
 bool isFinite(double value) { return std::isfinite(value); }
 

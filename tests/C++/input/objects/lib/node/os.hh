@@ -1,7 +1,5 @@
-// Ignore imports
 #include <string>
 #include "../nlohmann-json.hh"
-// Ignore imports end
 
 #ifdef _WIN32
 #include <WinSock2.h>
