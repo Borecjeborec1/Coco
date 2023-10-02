@@ -11,7 +11,7 @@
 -   Spread Operator {Mid}
 -   Optimize compiling errors (missing nodemodule, wrong statements, etc) {Mid}
 -   AST types discovery {Mid}
--   JS_methods (string, number, boolean) for nlohmann json. When called with array/object[value] {Mid}
+-   JS_methods (string, number, boolean) for nlohmann json. When called with array/object\[value\] {Mid}
 -   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
 -   bigint --> long long double {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
@@ -23,7 +23,7 @@
 -   Readme known bugs
 -   Readme Sponsor button
 -   Create Coco Logo
--   Release
+-   Release!!!!
 
 ##### In Future
 
