@@ -3,6 +3,7 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include "./nlohmann-json.hh"
 // Ignore imports end
 
 bool isFinite(double value) { return std::isfinite(value); }
@@ -116,4 +117,31 @@ std::string encodeURIComponent(const std::string &component)
     }
   }
   return encoded;
+}
+
+nlohmann::json __spreadOperator__(const nlohmann::json &source)
+{
+  if (source.is_object())
+  {
+    nlohmann::json result;
+
+    for (auto it = source.begin(); it != source.end(); ++it)
+    {
+      result[it.key()] = it.value();
+    }
+
+    return result;
+  }
+  else if (source.is_array())
+  {
+    return source;
+  }
+  else if (source.is_string() || source.is_number() || source.is_boolean())
+  {
+    return source;
+  }
+  else
+  {
+    return nlohmann::json();
+  }
 }

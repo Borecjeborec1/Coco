@@ -556,10 +556,10 @@ function generateCpp(ast, compilingOptions) {
             const body = generateCpp(ast.body);
             return `catch (${param}) { \n${body} } \n`;
         }
-        // case "SpreadElement": {
-        //     const argument = generateCpp(ast.argument);
-        //     return `std:: copy(${argument}.begin(), ${argument}.end(), std:: back_inserter(${argument}_vector)); \n`;
-        // }
+        case "SpreadElement": {
+            const argument = generateCpp(ast.argument);
+            return `__spreadOperator__(${argument})`;
+        }
         // case "RestElement": {
         //     const argName = generateCpp(ast.argument);
         //     const paramName = argName.startsWith("&")

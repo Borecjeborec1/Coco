@@ -19,14 +19,16 @@
 #include "./lib/types-methods/Number-Methods.hh"
 #include "./lib/types-methods/String-Methods.hh"
 
+
+
 // Main Function (Have to be the only main function)
-
-int main()
-{
+int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto x = nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3)};
+  auto x = nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3)} ; 
 
-  std::cout << x << '\n';
+std::cout << __spreadOperator__(x) << '\n';
 
+
+  
   return 0;
-}
+}  
