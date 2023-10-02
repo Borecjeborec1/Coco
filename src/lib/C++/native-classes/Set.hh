@@ -8,7 +8,13 @@ private:
 
 public:
     __Set__() {}
-
+    __Set__(const nlohmann::json &values)
+    {
+        for (const auto &value : values)
+        {
+            add(value);
+        }
+    }
     void add(const nlohmann::json &value)
     {
         data[value.dump()] = value;
@@ -83,6 +89,23 @@ public:
         {
             callback(pair.key(), pair.value());
         }
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const __Set__ &set)
+    {
+        os << "[";
+        bool first = true;
+        for (const auto &value : set.values())
+        {
+            if (!first)
+            {
+                os << ", ";
+            }
+            os << value;
+            first = false;
+        }
+        os << "]";
+        return os;
     }
 };
 

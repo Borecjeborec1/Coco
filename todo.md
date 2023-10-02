@@ -8,7 +8,6 @@
 -   TS exports {Mid}
 -   RegExp Object {Mid}
 -   more cli params {Mid}
--   Spread Operator {Mid}
 -   Optimize compiling errors (missing nodemodule, wrong statements, etc) {Mid}
 -   AST types discovery {Mid}
 -   JS_methods (string, number, boolean) for nlohmann json. When called with array/object\[value\] {Mid}
@@ -112,3 +111,4 @@
 -   TS imports, import from {Mid}
 -   Map {Low}
 -   Set {Low}
+-   Spread Operator {Mid}

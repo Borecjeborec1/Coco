@@ -24,9 +24,11 @@
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto x = nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3)} ; 
+  auto x = nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3), static_cast<int>(4), static_cast<int>(5)} ; 
 
-std::cout << __spreadOperator__(x) << '\n';
+auto y = __Set__ (x) ; 
+
+std::cout << y << '\n';
 
 
   
