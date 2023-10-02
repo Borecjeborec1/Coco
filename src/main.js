@@ -81,7 +81,6 @@ function generateCpp(ast, compilingOptions) {
                 }
                 if (ast.declarations[0].id.type == "ObjectPattern") {
                     const randomObjectName = generateRandomString(6);
-                    console.log(ast.declarations[0].id.properties);
                     const destructured = ast.declarations[0].id.properties
                         .map((identifier) => {
                             const key = generateCpp(identifier.key);
@@ -561,6 +560,9 @@ function generateCpp(ast, compilingOptions) {
         case "SpreadElement": {
             const argument = generateCpp(ast.argument);
             return `__spreadOperator__(${argument})`;
+        }
+        case "AwaitExpression": {
+            return generateCpp(ast.argument);
         }
         // case "RestElement": {
         //     const argName = generateCpp(ast.argument);

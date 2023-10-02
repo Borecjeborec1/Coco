@@ -59,6 +59,47 @@ Coco supports various configuration options that allow you to customize the comp
 
 -   `--useBigInt`: Specify the use of a `long long` data type for all the numbers in the generated C++ code if you dont want to anotate everything.
 
+#### Linking C++ Code to JavaScript
+
+Coco empowers you to seamlessly integrate C++ code into your JavaScript applications, allowing you to leverage the performance benefits and vast libraries of C++. Below is a more complex example demonstrating how to link C++ code to a JavaScript file:
+
+**JavaScript File (app.js):**
+
+```javascript
+const { calculateFibonacci } = require("./fibonacci.cpp");
+
+// Calculate and print the Fibonacci sequence
+const n = 10;
+const fibonacciSequence = calculateFibonacci(n);
+console.log(
+    `Fibonacci sequence of ${n} numbers: ${fibonacciSequence.join(", ")}`
+);
+```
+
+**C++ File (fibonacci.cpp):**
+
+```javascript
+#include <vector>
+
+// Function to calculate the Fibonacci sequence up to n numbers
+std::vector<int> calculateFibonacci(int n) {
+    std::vector<int> sequence;
+    if (n >= 1) sequence.push_back(0);
+    if (n >= 2) sequence.push_back(1);
+
+    for (int i = 2; i < n; ++i) {
+        int nextNumber = sequence[i - 1] + sequence[i - 2];
+        sequence.push_back(nextNumber);
+    }
+
+    return sequence;
+}
+```
+
+In this example, we have an app.js JavaScript file that requires and uses a C++ function calculateFibonacci defined in the fibonacci.cpp file. The C++ function calculates the Fibonacci sequence up to a specified number of terms and returns the result as an array. You can seamlessly run this JavaScript code, and Coco will handle the integration of the C++ code into your Node.js application.
+
+This powerful feature opens up endless possibilities for combining the strengths of both languages to create high-performance and feature-rich applications. Whether you need to optimize computationally-intensive tasks, utilize C++ libraries, or simply explore new capabilities, Coco has you covered.
+
 ## Example:
 
 Examples are not written yet. But you can look inside the translation tests in [tests/JS/js.test.js](./tests/JS/js.test.js).

@@ -1,8 +1,6 @@
 #### TODO
 
 -   classes {Very High}
--   basic node modules {High}
--   Async/await {High}
 -   this! {High}
 -   TS exports {Mid}
 -   RegExp Object {Mid}
@@ -26,6 +24,7 @@
 
 -   var vs let {Mid}
 -   == vs === {Mid}
+-   child_process.spawn() {Low} HARD!!!
 -   Generated code clenup -> whitespaces, ;, indents, ... {Very Low}
 
 ##### Maybe in long long future
@@ -112,3 +111,5 @@
 -   Set {Low}
 -   Spread Operator {Mid}
 -   C++ Linking {Very High}
+-   basic node modules {High}
+-   Async/await -> solved by removing them :D {High}
