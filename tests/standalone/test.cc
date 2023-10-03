@@ -19,19 +19,15 @@
 #include "./lib/types-methods/Number-Methods.hh"
 #include "./lib/types-methods/String-Methods.hh"
 
-
-
 // Main Function (Have to be the only main function)
-int main(){
+int main()
+{
   std::cout.setf(std::ios::boolalpha);
-  auto test = []() { 
-auto x = static_cast<int>(2) ; 
+  std::cout << sum(static_cast<int>(12), static_cast<int>(123)) << '\n';
+  auto sum = [](auto a, auto b)
+  {
+    return (a + b);
+  };
 
-return (static_cast<int>(1) + x);  
- };
-std::cout << test() << '\n';
-
-
-  
   return 0;
-}  
+}

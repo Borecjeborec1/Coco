@@ -1,6 +1,4 @@
-async function test() {
-    let x = await 2;
-    return 1 + x;
+console.log(sum(12, 123));
+function sum(a, b) {
+    return a + b;
 }
-
-console.log(test());

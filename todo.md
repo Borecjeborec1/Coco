@@ -2,6 +2,7 @@
 
 -   classes {Very High}
 -   this! {High}
+-   Scoping. Fc move to top of block, classes too probably{High}
 -   TS exports {Mid}
 -   RegExp Object {Mid}
 -   more cli params {Mid}
