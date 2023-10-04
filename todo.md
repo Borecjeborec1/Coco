@@ -9,7 +9,6 @@
 -   AST types discovery {Mid}
 -   JS_methods (string, number, boolean) for nlohmann json. When called with array/object\[value\] {Mid}
 -   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
--   bigint --> long long double {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 -   Typescript discovery {Low}
 -   eval {Low}
@@ -115,3 +114,4 @@
 -   Async/await -> solved by removing them :D {High}
 -   classes {Very High}
 -   this! {High}
+-   bigint --> long long {Low}

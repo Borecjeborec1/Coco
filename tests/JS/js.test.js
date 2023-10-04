@@ -94,6 +94,42 @@ describe("Generating data types", function () {
             expectedCppCode
         );
     });
+    it("should convert String constructor to C++ string", function () {
+        const jsCode = `let x = String("test");`;
+        const jsCodeWithClass = `let x = new String("test");`;
+        const expectedCppCode = `auto x = std::string(std::string("test"));`;
+        const expectedCppCodeWithClass = `auto x = std::string(std::string("test"));`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+        expect(
+            translateToCppWithDefaults(jsCodeWithClass)
+        ).to.equalIgnoreSpaces(expectedCppCodeWithClass);
+    });
+    it("should convert Number constructor to C++ number", function () {
+        const jsCode = `let x = Number(12);`;
+        const jsCodeWithClass = `let x = new Number(12);`;
+        const expectedCppCode = `auto x = static_cast<int>(static_cast<int>(12));`;
+        const expectedCppCodeWithClass = `auto x = static_cast<int>(static_cast<int>(12));`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+    it("should convert BigInt constructor to C++ long long", function () {
+        const jsCode = `let x = BigInt(12);`;
+        const jsCodeWithClass = `let x = new BigInt(12);`;
+        const expectedCppCode = `auto x = static_cast<long long>(12);`;
+        const expectedCppCodeWithClass = `auto x = static_cast<long long>(12);`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+        expect(
+            translateToCppWithDefaults(jsCodeWithClass)
+        ).to.equalIgnoreSpaces(expectedCppCodeWithClass);
+    });
 });
 
 describe("Generating objects and arrays", function () {

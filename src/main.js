@@ -178,6 +178,8 @@ function generateCpp(ast, compilingOptions) {
                 return `static_cast<${config.numberDataType}>(${ast.value})`;
             } else if (typeof ast.value === "boolean") {
                 return `${!!ast.value}`;
+            } else if (typeof ast.value == "bigint") {
+                return `static_cast<long long>(${ast.value})`;
             } else {
                 return "nlohmann::json()";
             }
@@ -282,6 +284,8 @@ function generateCpp(ast, compilingOptions) {
                     return `static_cast<${config.numberDataType}>(${generateCpp(
                         ast.arguments[0]
                     )})`;
+                } else if (constructorName === "BigInt") {
+                    return `static_cast<long long>(${ast.arguments[0].raw})`;
                 } else if (ARRAY_DATA_TYPES.includes(constructorName)) {
                     let idk = ast.arguments.map(generateCpp).join(", ");
                     return `nlohmann::json{${idk}}`;
@@ -530,6 +534,8 @@ function generateCpp(ast, compilingOptions) {
                 if (callee == "Number")
                     return `static_cast<${config.numberDataType}>(${args})`;
                 if (callee == "String") return `std::string(${args})`;
+                if (callee == "BigInt")
+                    return `static_cast<long long>(${ast.arguments[0].raw})`;
                 if (callee == "Boolean")
                     return `JS_CAST_ExclamationBoolean(JS_CAST_ExclamationBoolean(${args}))`;
                 if (ARRAY_DATA_TYPES.includes(callee)) {

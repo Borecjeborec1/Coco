@@ -19,29 +19,16 @@
 #include "./lib/types-methods/Number-Methods.hh"
 #include "./lib/types-methods/String-Methods.hh"
 
+
+
 // Main Function (Have to be the only main function)
-int main()
-{
+int main(){
   std::cout.setf(std::ios::boolalpha);
-  class mathLib
-  {
-  public:
-    nlohmann::json some_const;
-    nlohmann::json some_const2;
-    ;
-    mathLib()
-    {
-      some_const = static_cast<int>(1231);
-      some_const2 = static_cast<int>(1231);
-    }
-    nlohmann::json addConst(nlohmann::json x)
-    {
-      return (x + some_const);
-    }
-  };
-  auto idk = mathLib();
+  auto testBigInt = static_cast<long long>(1000000) ; 
 
-  std::cout << idk.addConst(static_cast<int>(123)) << '\n';
+std::cout << testBigInt << '\n';
 
+
+  
   return 0;
-}
+}  

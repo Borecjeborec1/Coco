@@ -116,6 +116,7 @@ const IMPLEMENTED_JS_OBJECTS = {
     Array: "__Array__",
     Map: "__Map__",
     Set: "__Set__",
+    BigInt: "__BigInt__",
 };
 
 const ARRAY_DATA_TYPES = [
