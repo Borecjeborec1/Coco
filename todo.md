@@ -1,9 +1,8 @@
 #### TODO
 
--   classes {Very High}
--   this! {High}
--   Scoping. Fc move to top of block, classes too probably{High}
+-   Scoping. Fc move to top of block, classes too probably {High}
 -   TS exports {Mid}
+-   MemberExpression logic cleanup {Mid}
 -   RegExp Object {Mid}
 -   more cli params {Mid}
 -   Optimize compiling errors (missing nodemodule, wrong statements, etc) {Mid}
@@ -114,3 +113,5 @@
 -   C++ Linking {Very High}
 -   basic node modules {High}
 -   Async/await -> solved by removing them :D {High}
+-   classes {Very High}
+-   this! {High}

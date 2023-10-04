@@ -21,6 +21,7 @@ const {
     isModuleStatement,
     generateRandomString,
     mapUserType,
+    addJSONIfNotTypedAlready,
 } = require("./lib/JS/Helper-functions.js");
 
 let config = {
@@ -34,6 +35,7 @@ const neededImports = [];
 
 let linkedFilesContent = [];
 let linkedFilesName = [];
+let classVariablesDefinedByUser = [];
 
 function generateWholeCode(ast, compilingOptions) {
     config = { ...config, ...compilingOptions };
@@ -337,6 +339,8 @@ function generateCpp(ast, compilingOptions) {
                 return `${objectCode}.${
                     propertyCode == "delete" ? "deleteKey" : propertyCode
                 }`;
+            if (classVariablesDefinedByUser.includes(propertyCode))
+                return `${objectCode}.${propertyCode}`;
             return `${objectCode}["${propertyCode}"]`;
         }
         case "IfStatement": {
@@ -625,30 +629,49 @@ function generateCpp(ast, compilingOptions) {
         // case "ImportSpecifier":
         // case "ImportDefaultSpecifier":
 
-        // case "ClassDeclaration": {
-        //     const className = ast.id.name;
-        //     const classBody = ast.body.body.map(generateCpp).join("\n");
+        case "ClassDeclaration": {
+            const className = ast.id.name;
+            const constructorMethod = ast.body.body.filter(
+                (method) => method.kind == "constructor"
+            )[0];
+            const nonConstructorMethods = ast.body.body.filter(
+                (method) => method.kind != "constructor"
+            );
+            const classBody = nonConstructorMethods.map(generateCpp).join("\n");
+            const classContructor = generateCpp(constructorMethod);
+            const variableNames = classContructor
+                .match(/([a-zA-Z_]\w*)\s*=/g)
+                .map((match) => match.replace(/\s*=/, "").trim());
 
-        //     return `class ${className} {\n${classBody}\n};`;
-        // }
+            const typedVariables = variableNames
+                .map((v) => "nlohmann::json " + v + ";")
+                .join("\n");
+            const methodNames = nonConstructorMethods.map(
+                (node) => node.key.name
+            );
 
-        // case "MethodDefinition": {
-        //     const methodName = ast.key.name;
-        //     const methodParams = ast.value.params
-        //         .map(generateCpp)
-        //         .map(addAutoIfNotTypedAlready)
-        //         .join(", ");
-        //     const methodBody = generateCpp(ast.value.body);
+            classVariablesDefinedByUser.push(...variableNames, ...methodNames);
+            return `class ${className} {
+                public:
+                ${typedVariables};
+                ${className}(){
+                    ${classContructor}
+                }
+                ${classBody}
+                };`;
+        }
 
-        //     if (ast.kind === "constructor") {
-        //         // // Constructor method
-        //         // console.log(ast.parent);
-        //         // return `${ast.parent.name}(${methodParams}) {\n${methodBody}\n}`;
-        //     } else {
-        //         // Regular method
-        //         return `auto ${methodName}(${methodParams}) {\n${methodBody}\n}`;
-        //     }
-        // }
+        case "MethodDefinition": {
+            const methodName = ast.key.name;
+            const methodParams = ast.value.params
+                .map(generateCpp)
+                .map(addJSONIfNotTypedAlready)
+                .join(", ");
+            const methodBody = generateCpp(ast.value.body);
+            if (ast.kind == "constructor") return methodBody;
+
+            return `nlohmann::json ${methodName}(${methodParams}) {\n${methodBody}\n}`;
+        }
 
         // case "ImportDeclaration":
         //     // Extract the module specifier from the import statement

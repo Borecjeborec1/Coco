@@ -5,6 +5,10 @@ function addAutoIfNotTypedAlready(variable) {
     return variable.length === 1 ? "auto " + variable : variable;
 }
 
+function addJSONIfNotTypedAlready(variable) {
+    return variable.length === 1 ? "nlohmann::json " + variable : variable;
+}
+
 function isRegexString(value) {
     const regexPattern = /^\/((?!\/).)+\/[gimsu]*$/;
     return typeof value === "string" && regexPattern.test(value);
@@ -56,4 +60,5 @@ module.exports = {
     isModuleStatement,
     generateRandomString,
     mapUserType,
+    addJSONIfNotTypedAlready,
 };

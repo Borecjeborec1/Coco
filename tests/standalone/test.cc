@@ -23,11 +23,25 @@
 int main()
 {
   std::cout.setf(std::ios::boolalpha);
-  std::cout << sum(static_cast<int>(12), static_cast<int>(123)) << '\n';
-  auto sum = [](auto a, auto b)
+  class mathLib
   {
-    return (a + b);
+  public:
+    nlohmann::json some_const;
+    nlohmann::json some_const2;
+    ;
+    mathLib()
+    {
+      some_const = static_cast<int>(1231);
+      some_const2 = static_cast<int>(1231);
+    }
+    nlohmann::json addConst(nlohmann::json x)
+    {
+      return (x + some_const);
+    }
   };
+  auto idk = mathLib();
+
+  std::cout << idk.addConst(static_cast<int>(123)) << '\n';
 
   return 0;
 }
