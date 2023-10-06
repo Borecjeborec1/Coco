@@ -163,20 +163,19 @@ public:
     else
     {
       dir = path;
-      base = path; // Set base to path if there's no separator
+      base = path;
     }
 
     size_t rootEnd = 0;
     if (isAbsolute(path))
     {
-      // Check for Windows-style drive letter
       if (path.size() > 2 && path[1] == ':' && (path[2] == '/' || path[2] == '\\'))
       {
-        rootEnd = 3; // Include drive letter and slash (e.g., "C:/")
+        rootEnd = 3;
       }
       else
       {
-        rootEnd = 1; // Just a single slash for other absolute paths
+        rootEnd = 1;
       }
     }
 
@@ -307,7 +306,6 @@ private:
 
   static void joinInternal(std::string &result)
   {
-    // Do nothing, this is the base case
   }
 };
 
