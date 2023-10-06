@@ -200,7 +200,7 @@ const DEFAULT_IMPORTS = [
     "json-operators.hh",
     "string-operators.hh",
     "Array.hh",
-    "Bool.hh",
+    "Boolean.hh",
     "Date.hh",
     "JSON.hh",
     "Math.hh",

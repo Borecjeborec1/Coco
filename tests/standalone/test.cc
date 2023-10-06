@@ -5,6 +5,7 @@
 #include <iostream>
 #include "./lib/Global-functions.hh"
 #include "./lib/native-classes/Array.hh"
+#include "./lib/native-classes/Boolean.hh"
 #include "./lib/native-classes/Date.hh"
 #include "./lib/native-classes/JSON.hh"
 #include "./lib/native-classes/Map.hh"
@@ -24,15 +25,9 @@
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  class TestClass {
-                public:
-                nlohmann::json idk;;
-                TestClass(){
-                    idk = static_cast<int>(12);
-                }
-                
-                };
-std::cout << std::string("heyo") << '\n';
+  auto some_obj = nlohmann::json{} ; 
+
+std::cout << some_obj["test"] << '\n';
 
 
   

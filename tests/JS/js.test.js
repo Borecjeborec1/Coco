@@ -173,7 +173,7 @@ describe("Generating objects and arrays", function () {
     });
 });
 
-describe.only("Generating Classes", function () {
+describe("Generating Classes", function () {
     it("should convert empty class syntax to c++ class syntax", function () {
         const jsCode = `class TestClass{
 }`;

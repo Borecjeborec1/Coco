@@ -1,4 +1,2 @@
-class TestClass {
-    constructor() {}
-}
-console.log("heyo");
+const some_obj = {};
+console.log(some_obj.prototype.test);

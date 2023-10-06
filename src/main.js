@@ -331,11 +331,13 @@ function generateCpp(ast, compilingOptions) {
             if (objectCode == "this") return propertyCode;
             if (objectCode == "exports") return "// ";
             if (objectCode == "module") return "// ";
+            if (propertyCode == "constructor") return `${objectCode}`;
+            if (propertyCode == "prototype") return `${objectCode}`;
             if (userDefinedVariableNames.includes(objectCode))
                 return `${objectCode}::${propertyCode}`;
-            if (linkedFilesName.includes(objectCode)) {
+            if (linkedFilesName.includes(objectCode))
                 return `${objectCode}::${propertyCode}`;
-            }
+
             if (IMPLEMENTED_JS_OBJECTS[objectCode])
                 return `${IMPLEMENTED_JS_OBJECTS[objectCode]}::${propertyCode}`;
 

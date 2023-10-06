@@ -46,7 +46,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("objects/String");
         });
     });
-    describe("Given the Bool Class Object", function () {
+    describe.only("Given the Bool Class Object", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("objects/Bool");
         });
@@ -81,7 +81,7 @@ describe("Given ALL JS methods", function () {
             await compileAndRunTest("node/fs");
         });
     });
-    describe.only("Given the child_process NODE MODULE", function () {
+    describe("Given the child_process NODE MODULE", function () {
         it("Should output same results as node", async function () {
             await compileAndRunTest("node/child_process");
         });

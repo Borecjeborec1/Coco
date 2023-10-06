@@ -7,12 +7,12 @@
 -   more cli params {Mid}
 -   Optimize compiling errors (missing nodemodule, wrong statements, etc) {Mid}
 -   AST types discovery {Mid}
--   JS_methods (string, number, boolean) for nlohmann json. When called with array/object\[value\] {Mid}
--   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
+-   JS_methods (string, number, boolean) for nlohmann json. When called with array/object\[value\] (only for the duplicate methods for more types) {Mid}
 -   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
 -   Typescript discovery {Low}
 -   eval {Low}
 -   Error Object {Low}
+-   Weak Map/Set {Low}
 -   Readme todos section
 -   Readme possibilities section
 -   Readme known bugs sections
@@ -34,8 +34,6 @@
 
 -   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
--   Fix empty json key acessment {Mid}
--   Fix constructor and prototype {Mid}
 -   Fix the module.exports {Mid}
 -   Handle empty mapping in translation. (classes with no methods, etc) {Mid}
 -   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
@@ -116,3 +114,6 @@
 -   classes {Very High}
 -   this! {High}
 -   bigint --> long long {Low}
+-   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
+-   Fix empty json key acessment {Mid}
+-   Fix constructor and prototype {Mid}
