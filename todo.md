@@ -37,6 +37,7 @@
 -   Fix empty json key acessment {Mid}
 -   Fix constructor and prototype {Mid}
 -   Fix the module.exports {Mid}
+-   Handle empty mapping in translation. (classes with no methods, etc) {Mid}
 -   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
 
 ###### Single methods Bugs

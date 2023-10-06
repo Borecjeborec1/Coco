@@ -173,6 +173,90 @@ describe("Generating objects and arrays", function () {
     });
 });
 
+describe.only("Generating Classes", function () {
+    it("should convert empty class syntax to c++ class syntax", function () {
+        const jsCode = `class TestClass{
+}`;
+        const expectedCppCode = `class TestClass {
+            public:
+            TestClass(){
+
+            }
+            };`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+
+    it("should convert class syntax with constructor to c++ class syntax", function () {
+        const jsCode = `class TestClass{
+constructor(){
+
+}
+}`;
+        const expectedCppCode = `class TestClass {
+            public:
+            TestClass(){
+
+            }
+            };`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+
+    it("should convert class syntax with constructor and some methods to c++ class syntax", function () {
+        const jsCode = `class TestClass{
+constructor(){
+
+}
+sum(a,b){
+    return a+b
+}
+}`;
+        const expectedCppCode = `class TestClass {
+            public:
+            TestClass(){
+
+            }
+            nlohmann::json sum(nlohmann::json a, nlohmann::json b) {
+return (a + b);
+}
+            };`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+
+    it("should convert class with props and methods to c++ class syntax", function () {
+        const jsCode = `class TestClass{
+constructor(){
+    this.constant = 12;
+}
+sum(a,b){
+    return a+b+this.constant
+}
+}`;
+        const expectedCppCode = `class TestClass {
+            public:
+            nlohmann::json constant;
+            TestClass(){
+                constant = static_cast<int>(12);
+            }
+            nlohmann::json sum(nlohmann::json a, nlohmann::json b) {
+return ((a + b) + constant);
+}
+            };`;
+
+        expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
+            expectedCppCode
+        );
+    });
+});
+
 describe("Generating function", function () {
     describe("and declaring them", function () {
         it("should convert function declaration to C++ lambda", function () {

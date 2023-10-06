@@ -24,9 +24,15 @@
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  auto testBigInt = static_cast<long long>(1000000) ; 
-
-std::cout << testBigInt << '\n';
+  class TestClass {
+                public:
+                nlohmann::json idk;;
+                TestClass(){
+                    idk = static_cast<int>(12);
+                }
+                
+                };
+std::cout << std::string("heyo") << '\n';
 
 
   

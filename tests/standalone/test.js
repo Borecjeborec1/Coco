@@ -1,2 +1,4 @@
-const testBigInt = 1000000n;
-console.log(testBigInt);
+class TestClass {
+    constructor() {}
+}
+console.log("heyo");

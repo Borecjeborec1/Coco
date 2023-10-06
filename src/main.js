@@ -527,6 +527,9 @@ function generateCpp(ast, compilingOptions) {
             return "continue;\n";
         case "ThisExpression":
             return "this";
+        case "ChainExpression": {
+            return generateCpp(ast.expression);
+        }
         case "NewExpression": {
             const callee = generateCpp(ast.callee);
             const args = ast.arguments.map((a) => generateCpp(a)).join(", ");
@@ -637,17 +640,23 @@ function generateCpp(ast, compilingOptions) {
 
         case "ClassDeclaration": {
             const className = ast.id.name;
-            const constructorMethod = ast.body.body.filter(
+            const classBody = ast.body.body;
+            const constructorMethod = classBody.filter(
                 (method) => method.kind == "constructor"
             )[0];
-            const nonConstructorMethods = ast.body.body.filter(
+            const nonConstructorMethods = classBody.filter(
                 (method) => method.kind != "constructor"
             );
-            const classBody = nonConstructorMethods.map(generateCpp).join("\n");
+            const classMethods = nonConstructorMethods
+                .map(generateCpp)
+                .join("\n");
             const classContructor = generateCpp(constructorMethod);
-            const variableNames = classContructor
-                .match(/([a-zA-Z_]\w*)\s*=/g)
-                .map((match) => match.replace(/\s*=/, "").trim());
+            const variableNamesMatched =
+                classContructor.match(/([a-zA-Z_]\w*)\s*=/g) || [];
+
+            const variableNames = variableNamesMatched.map((match) =>
+                match.replace(/\s*=/, "").trim()
+            );
 
             const typedVariables = variableNames
                 .map((v) => "nlohmann::json " + v + ";")
@@ -659,11 +668,11 @@ function generateCpp(ast, compilingOptions) {
             classVariablesDefinedByUser.push(...variableNames, ...methodNames);
             return `class ${className} {
                 public:
-                ${typedVariables};
+                ${typedVariables}
                 ${className}(){
                     ${classContructor}
                 }
-                ${classBody}
+                ${classMethods}
                 };`;
         }
 
