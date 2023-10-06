@@ -2,13 +2,10 @@
 
 -   Scoping. Fc move to top of block, classes too probably {High}
 -   TS exports {Mid}
--   MemberExpression logic cleanup {Mid}
 -   RegExp Object {Mid}
 -   more cli params {Mid}
 -   Optimize compiling errors (missing nodemodule, wrong statements, etc) {Mid}
--   AST types discovery {Mid}
--   JS_methods (string, number, boolean) for nlohmann json. When called with array/object\[value\] (only for the duplicate methods for more types) {Mid}
--   omptimize the c++ lib files (double->int, double->typename, etc) {Low}
+-   JS_methods for nlohmann json. (only for the duplicate methods for more types) {Mid}
 -   Typescript discovery {Low}
 -   eval {Low}
 -   Error Object {Low}
@@ -117,3 +114,4 @@
 -   Finish unfinished ast type handling (SpreadElement, Catch, ...) {Mid}
 -   Fix empty json key acessment {Mid}
 -   Fix constructor and prototype {Mid}
+-   AST types discovery {Mid}
