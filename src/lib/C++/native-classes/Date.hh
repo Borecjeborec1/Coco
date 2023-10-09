@@ -544,16 +544,7 @@ long long JS_valueOf(__Date__ value) { return value.valueOf(); }
 
 std::string JS_toString(long long value)
 {
-  std::ostringstream stream;
-  if (std::fmod(value, 1.0) == 0.0)
-  {
-    stream << static_cast<long long>(value);
-  }
-  else
-  {
-    stream << value;
-  }
-  return stream.str();
+  std::to_string(value);
 }
 
 long long JS_valueOf(long long value) { return value; }

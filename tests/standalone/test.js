@@ -1,15 +1,26 @@
-const iterations = 1e8; // 10^8
-
-console.time("Nodejs");
-let sum = 0;
-for (let i = 1; i <= iterations; i++) {
-    sum += i;
+function factorialRecursive(n) {
+    if (n === 0) return 1;
+    return n * factorialRecursive(n - 1);
 }
 
-let x = 12;
-let y = "12";
-console.log(x == y);
-console.log(x === y);
-console.timeEnd("Nodejs");
+function factorialIterative(n) {
+    let result = 1;
+    for (let i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
 
-console.log("Sum:", sum);
+const numberToCalculate = 10000;
+
+console.time("Recursive");
+for (let i = 0; i < 100000; i++) {
+    factorialRecursive(numberToCalculate);
+}
+console.timeEnd("Recursive");
+
+console.time("Iterative");
+for (let i = 0; i < 100000; i++) {
+    factorialIterative(numberToCalculate);
+}
+console.timeEnd("Iterative");

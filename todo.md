@@ -21,6 +21,7 @@
 -   var vs let {Mid}
 -   child_process.spawn() {Low} HARD!!!
 -   Generated code clenup -> whitespaces, ;, indents, ... {Very Low}
+-   == vs === {Mid}
 
 ##### Maybe in long long future
 
@@ -115,4 +116,3 @@
 -   Fix empty json key acessment {Mid}
 -   Fix constructor and prototype {Mid}
 -   AST types discovery {Mid}
--   == vs === {Mid}

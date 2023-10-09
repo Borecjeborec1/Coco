@@ -43,6 +43,23 @@ function generateWholeCode(ast, compilingOptions) {
     return compilingOptions.isModule ? mainBody : joinCppParts(mainBody);
 }
 
+const storedConsoleTimeIds = {};
+
+function handleCoutStatements(_methodName, _args, _id) {
+    if (_methodName == "time") {
+        const randomIdentifier = generateRandomString(6);
+        storedConsoleTimeIds[randomIdentifier] = _id;
+        return `auto ${randomIdentifier} = std::chrono::high_resolution_clock::now();`;
+    }
+    if (_methodName === "timeEnd") {
+        let referedRandomIdentifier = getKeyByValue(storedConsoleTimeIds, _id);
+        return `
+std::cout << "${_id}: " << (std::chrono::duration_cast<std::chrono::milliseconds>(
+std::chrono::high_resolution_clock::now() - ${referedRandomIdentifier})).count() << "ms" << std::endl;
+`;
+    }
+}
+
 function generateCpp(ast, compilingOptions) {
     if (compilingOptions) config = { ...config, ...compilingOptions };
     try {
@@ -187,18 +204,11 @@ function generateCpp(ast, compilingOptions) {
         case "BinaryExpression": {
             const lhs = generateCpp(ast.left);
             const rhs = generateCpp(ast.right);
-            if (ast.operator === "**") {
-                return `std::pow(${lhs}, ${rhs})`;
-            } else if (ast.operator === "==") {
-                return `(JS_toString(${lhs}) == JS_toString(${rhs}))`;
-            } else if (ast.operator === "!=") {
-                return `(JS_toString(${lhs}) != JS_toString(${rhs}))`;
-            } else if (ast.operator === "===") {
-                return `(typeid(${lhs}) == typeid(${rhs}) && JS_toString(${lhs}) == JS_toString(${rhs}))`;
-                return `(${lhs} == ${rhs})`;
-            } else if (ast.operator === "!==") {
-                return `(typeid(${lhs}) != typeid(${rhs}) || JS_toString(${lhs}) != JS_toString(${rhs}))`;
-            }
+            if (ast.operator === "**") return `std::pow(${lhs}, ${rhs})`;
+            if (ast.operator === "==") return `(${lhs} == ${rhs})`;
+            if (ast.operator === "!=") return `(${lhs} != ${rhs})`;
+            if (ast.operator === "===") return `(${lhs} == ${rhs})`;
+            if (ast.operator === "!==") return `(${lhs} != ${rhs})`;
 
             return `(${generateCpp(ast.left)} ${ast.operator} ${generateCpp(
                 ast.right
@@ -221,27 +231,22 @@ function generateCpp(ast, compilingOptions) {
                         ast.callee.object.name === "console"
                     ) {
                         let args = ast.arguments.map(generateCpp).join(" << ");
-                        let typeOfCout =
-                            ast.callee.property.name === "error"
-                                ? "cerr"
-                                : "cout";
-                        if (ast.callee.property.name === "time") {
-                            const label = ast.expression.arguments[0].value;
-                            return `auto ${label} = std::chrono::high_resolution_clock::now();\n return;`;
+                        const coutType = ast.callee.property.name;
+                        console.log("HEREEREE");
+                        if (coutType === "time" || coutType === "timeEnd") {
+                            const coutMethod =
+                                ast.expression.callee.property.name;
+                            const coutStringIdentifier =
+                                ast.expression.arguments[0].value;
+                            return handleCoutStatements(
+                                coutMethod,
+                                args,
+                                coutStringIdentifier
+                            );
                         }
-
-                        if (ast.callee.property.name === "timeEnd") {
-                            const label = ast.arguments[0].value;
-                            return `
-              auto end_time = std::chrono::high_resolution_clock::now();
-              auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                  end_time - ${label});
-            
-              std::cout << "${label}: " << duration.count() << "ms" << std::endl;
-              return;
-              `;
-                        }
-                        return `std::${typeOfCout} << ${args} << '\\n';\nreturn;`;
+                        if (coutType == "error")
+                            return `std::cerr << ${args} << '\\n';`;
+                        return `std::${typeOfCout} << ${args} << '\\n';`;
                     }
                 }
 
@@ -314,14 +319,11 @@ function generateCpp(ast, compilingOptions) {
                     .join(", ")}) { \n${generateCpp(ast.body)} \n } `;
 
             const returnBody = generateCpp(ast.body);
-            const returnString = returnBody.includes("return;")
-                ? `${returnBody}`
-                : `return ${returnBody};`;
 
             return `[](${ast.params
                 .map(generateCpp)
                 .map((el) => "auto " + el)
-                .join(", ")}) { ${returnString} } `;
+                .join(", ")}) { return ${returnBody} } `;
         }
         case "MemberExpression": {
             const objectCode = generateCpp(ast.object);
@@ -412,26 +414,24 @@ function generateCpp(ast, compilingOptions) {
                 ast.expression.callee.type === "MemberExpression" &&
                 ast.expression.callee.object.name === "console"
             ) {
-                let args = ast.expression.arguments
-                    .map(generateCpp)
-                    .join(" << ");
-                let typeOfCout = "cout";
-                if (ast.expression.callee.property.name === "time") {
-                    const label = ast.expression.arguments[0].value;
-                    return `auto ${label} = std::chrono::high_resolution_clock::now();`;
-                } else if (ast.expression.callee.property.name === "timeEnd") {
-                    const label = ast.expression.arguments[0].value;
-                    return `
-          auto end_time = std::chrono::high_resolution_clock::now();
-          auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-              end_time - ${label});
-        
-          std::cout << "${label}: " << duration.count() << "ms" << std::endl;
-          `;
-                } else if (ast.expression.callee.property.name === "error") {
-                    typeOfCout = "cerr";
+                const coutType = ast.expression.callee.property.name;
+                if (coutType == "time" || coutType == "timeEnd") {
+                    const args = ast.expression.arguments
+                        .map(generateCpp)
+                        .join(" << ");
+                    const coutMethod = ast.expression.callee.property.name;
+                    const coutStringIdentifier =
+                        ast.expression.arguments[0].value;
+                    return handleCoutStatements(
+                        coutMethod,
+                        args,
+                        coutStringIdentifier
+                    );
                 }
-                return `std::${typeOfCout} << ${args} << '\\n';`;
+
+                if (coutType === "error")
+                    return `std::cerr << ${args} << '\\n';`;
+                return `std::cout << ${args} << '\\n';`;
             } else {
                 return generateCpp(ast.expression) + ";";
             }
@@ -794,3 +794,7 @@ module.exports = {
     generateRandomString,
     getCppFlags,
 };
+
+function getKeyByValue(object, value) {
+    return Object.keys(object).find((key) => object[key] === value);
+}

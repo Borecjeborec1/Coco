@@ -20,36 +20,47 @@
 #include "./lib/types-methods/Number-Methods.hh"
 #include "./lib/types-methods/String-Methods.hh"
 
-
-
 // Main Function (Have to be the only main function)
-int main(){
+int main()
+{
   std::cout.setf(std::ios::boolalpha);
-  auto iterations = static_cast<int>(100000000) ; 
+  std::function<long long(long long)> factorialRecursive = [&](auto n)
+  {
+    if ((JS_toString(n)) == (JS_toString(static_cast<long long>(0))))
+    {
+      return static_cast<long long>(1);
+    }
+    return (n * factorialRecursive((n - static_cast<long long>(1))));
+  };
+  auto factorialIterative = [](auto n)
+  {
+    auto result = static_cast<long long>(1);
 
-auto Nodejs = std::chrono::high_resolution_clock::now();
-auto sum = static_cast<int>(0) ; 
+    for (auto i = static_cast<long long>(2);
+         (i <= n); i++)
+    {
+      result *= i;
+    }
+    return result;
+  };
+  auto numberToCalculate = static_cast<long long>(10000);
+  auto ojbSZo = std::chrono::high_resolution_clock::now();
+  for (auto i = static_cast<long long>(0);
+       (i < static_cast<long long>(100000)); i++)
+  {
+    factorialIterative(numberToCalculate);
+  }
 
-for (auto i = static_cast<long long int>(1) ; 
- (i <= iterations); i++ ) { 
-sum = sum + i; 
- } 
-auto x = static_cast<int>(12) ; 
+  std::cout << "Iterative: " << (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - ojbSZo)).count() << "ms" << std::endl;
 
-auto y = std::string("12") ; 
+  auto qgXBpx = std::chrono::high_resolution_clock::now();
+  for (auto i = static_cast<long long>(0);
+       (i < static_cast<long long>(100000)); i++)
+  {
+    factorialRecursive(numberToCalculate);
+  }
 
-std::cout << (JS_toString(x) == JS_toString(y)) << '\n';
-std::cout << (typeid(x) == typeid(y) && JS_toString(x) == JS_toString(y)) << '\n';
+  std::cout << "Recursive: " << (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - qgXBpx)).count() << "ms" << std::endl;
 
-          auto end_time = std::chrono::high_resolution_clock::now();
-          auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-              end_time - Nodejs);
-        
-          std::cout << "Nodejs: " << duration.count() << "ms" << std::endl;
-          
-std::cout << std::string("Sum:") << sum << '\n';
-
-
-  
   return 0;
-}  
+}
