@@ -180,25 +180,25 @@ function generateCpp(ast, compilingOptions) {
                 return `${!!ast.value}`;
             } else if (typeof ast.value == "bigint") {
                 return `static_cast<long long>(${ast.value})`;
-            } else {
-                return "nlohmann::json()";
             }
-            return `// Unknown type: ${JSON.stringify(ast)}`;
+            return `nlohmann::json() // Unknown type: ${JSON.stringify(ast)}`;
         }
 
         case "BinaryExpression": {
+            const lhs = generateCpp(ast.left);
+            const rhs = generateCpp(ast.right);
             if (ast.operator === "**") {
-                const left = generateCpp(ast.left);
-                const right = generateCpp(ast.right);
-                return `std::pow(${left}, ${right})`;
+                return `std::pow(${lhs}, ${rhs})`;
+            } else if (ast.operator === "==") {
+                return `(JS_toString(${lhs}) == JS_toString(${rhs}))`;
+            } else if (ast.operator === "!=") {
+                return `(JS_toString(${lhs}) != JS_toString(${rhs}))`;
             } else if (ast.operator === "===") {
-                return `(${generateCpp(ast.left)} == ${generateCpp(
-                    ast.right
-                )})`;
-            } else if (ast.operator === "!==")
-                return `(${generateCpp(ast.left)} != ${generateCpp(
-                    ast.right
-                )})`;
+                return `(typeid(${lhs}) == typeid(${rhs}) && JS_toString(${lhs}) == JS_toString(${rhs}))`;
+                return `(${lhs} == ${rhs})`;
+            } else if (ast.operator === "!==") {
+                return `(typeid(${lhs}) != typeid(${rhs}) || JS_toString(${lhs}) != JS_toString(${rhs}))`;
+            }
 
             return `(${generateCpp(ast.left)} ${ast.operator} ${generateCpp(
                 ast.right
@@ -325,7 +325,9 @@ function generateCpp(ast, compilingOptions) {
         }
         case "MemberExpression": {
             const objectCode = generateCpp(ast.object);
-            const propertyCode = ast.property.name;
+            const propertyCode = ast.property.raw
+                ? ast.property.raw
+                : ast.property.name;
             if (propertyCode === "length") return `${objectCode}.length()`;
             if (propertyCode == "size") return `${objectCode}.size()`;
             if (objectCode == "this") return propertyCode;
@@ -347,7 +349,8 @@ function generateCpp(ast, compilingOptions) {
                 }`;
             if (classVariablesDefinedByUser.includes(propertyCode))
                 return `${objectCode}.${propertyCode}`;
-            return `${objectCode}["${propertyCode}"]`;
+            console.log("HEREEE", ast);
+            return `${objectCode}[${propertyCode}]`;
         }
         case "IfStatement": {
             let result = `if (${generateCpp(ast.test)}) {\n${generateCpp(
@@ -436,16 +439,10 @@ function generateCpp(ast, compilingOptions) {
         case "ForStatement": {
             let init = generateCpp(ast.init);
             let test = generateCpp(ast.test);
-            if (ast.test.right.raw.length > 7) {
-                init = init.replace(
-                    `static_cast<${config.numberDataType}>`,
-                    "static_cast<long long int>"
-                );
-                test = test.replace(
-                    `static_cast<${config.numberDataType}>`,
-                    "static_cast<long long int>"
-                );
-            }
+            init = init.replace(
+                `static_cast<${config.numberDataType}>`,
+                "static_cast<long long int>"
+            );
             let update = generateCpp(ast.update);
             let body = generateCpp(ast.body);
             return `for (${init} ${test}; ${update}) { \n${body} \n } `;

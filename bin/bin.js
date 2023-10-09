@@ -66,9 +66,14 @@ function parseArguments(_args) {
                 break;
 
             case "--useFloat":
-            case "--useBigInt":
                 compilingOptions.numberDataType = "double";
-
+                break;
+            case "--useBigInt":
+                compilingOptions.numberDataType = "long long int";
+                break;
+            case "--useInt":
+                compilingOptions.numberDataType = "int";
+                break;
             default:
                 buildingOptions.inputFile = arg;
                 break;

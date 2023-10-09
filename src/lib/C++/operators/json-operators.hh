@@ -306,3 +306,39 @@ nlohmann::json operator/(const nlohmann::json &lhs, nlohmann::json &rhs)
   }
   return nlohmann::json();
 }
+
+long long operator+(const long long &lhs, const nlohmann::json &rhs)
+{
+  return lhs + rhs.get<long long>();
+  return nlohmann::json();
+}
+
+long long operator-(const long long &lhs, const nlohmann::json &rhs)
+{
+  return lhs - rhs.get<long long>();
+  return nlohmann::json();
+}
+
+long long operator*(const long long &lhs, const nlohmann::json &rhs)
+{
+  return lhs * rhs.get<long long>();
+  return nlohmann::json();
+}
+
+long long operator%(const long long &lhs, const nlohmann::json &rhs)
+{
+  if (rhs != 0)
+  {
+    return lhs % rhs.get<long long>();
+  }
+  return nlohmann::json();
+}
+
+long long operator/(const long long &lhs, nlohmann::json &rhs)
+{
+  if (rhs != 0)
+  {
+    return lhs / rhs.get<long long>();
+  }
+  return nlohmann::json();
+}

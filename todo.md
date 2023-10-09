@@ -19,7 +19,6 @@
 ##### In Future
 
 -   var vs let {Mid}
--   == vs === {Mid}
 -   child_process.spawn() {Low} HARD!!!
 -   Generated code clenup -> whitespaces, ;, indents, ... {Very Low}
 
@@ -34,6 +33,7 @@
 -   Fix the module.exports {Mid}
 -   Handle empty mapping in translation. (classes with no methods, etc) {Mid}
 -   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
+-   Fix nonstrings inside console.time {Mid}
 
 ###### Single methods Bugs
 
@@ -115,3 +115,4 @@
 -   Fix empty json key acessment {Mid}
 -   Fix constructor and prototype {Mid}
 -   AST types discovery {Mid}
+-   == vs === {Mid}
