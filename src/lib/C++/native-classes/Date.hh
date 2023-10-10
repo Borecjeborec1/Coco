@@ -544,7 +544,7 @@ long long JS_valueOf(__Date__ value) { return value.valueOf(); }
 
 std::string JS_toString(long long value)
 {
-  std::to_string(value);
+  return std::to_string(value);
 }
 
 long long JS_valueOf(long long value) { return value; }

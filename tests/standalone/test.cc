@@ -20,47 +20,48 @@
 #include "./lib/types-methods/Number-Methods.hh"
 #include "./lib/types-methods/String-Methods.hh"
 
+
+
 // Main Function (Have to be the only main function)
-int main()
-{
+int main(){
   std::cout.setf(std::ios::boolalpha);
-  std::function<long long(long long)> factorialRecursive = [&](auto n)
-  {
-    if ((JS_toString(n)) == (JS_toString(static_cast<long long>(0))))
-    {
-      return static_cast<long long>(1);
-    }
-    return (n * factorialRecursive((n - static_cast<long long>(1))));
-  };
-  auto factorialIterative = [](auto n)
-  {
-    auto result = static_cast<long long>(1);
-
-    for (auto i = static_cast<long long>(2);
-         (i <= n); i++)
-    {
-      result *= i;
-    }
-    return result;
-  };
-  auto numberToCalculate = static_cast<long long>(10000);
-  auto ojbSZo = std::chrono::high_resolution_clock::now();
-  for (auto i = static_cast<long long>(0);
-       (i < static_cast<long long>(100000)); i++)
-  {
-    factorialIterative(numberToCalculate);
-  }
-
-  std::cout << "Iterative: " << (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - ojbSZo)).count() << "ms" << std::endl;
-
-  auto qgXBpx = std::chrono::high_resolution_clock::now();
-  for (auto i = static_cast<long long>(0);
-       (i < static_cast<long long>(100000)); i++)
-  {
-    factorialRecursive(numberToCalculate);
-  }
-
-  std::cout << "Recursive: " << (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - qgXBpx)).count() << "ms" << std::endl;
-
-  return 0;
+  std::function<int(int)> factorialRecursive = [&](auto n) { 
+if ((n == static_cast<int>(0))) {
+return static_cast<int>(1); 
 }
+return (n * factorialRecursive((n - static_cast<int>(1))));  
+ };
+auto factorialIterative = [](auto n) { 
+auto result = static_cast<int>(1) ; 
+
+for (auto i = static_cast<long long int>(2) ; 
+ (i <= n); i++ ) { 
+result *= i; 
+ } 
+return result;  
+ };
+auto numberToCalculate = static_cast<int>(10000) ; 
+
+auto WAUqQm = std::chrono::high_resolution_clock::now();
+for (auto i = static_cast<long long int>(0) ; 
+ (i < static_cast<int>(100000)); i++ ) { 
+factorialRecursive(numberToCalculate); 
+ } 
+
+std::cout << "Recursive: " << (std::chrono::duration_cast<std::chrono::milliseconds>(
+std::chrono::high_resolution_clock::now() - WAUqQm)).count() << "ms" << std::endl;
+
+auto cPUown = std::chrono::high_resolution_clock::now();
+for (auto i = static_cast<long long int>(0) ; 
+ (i < static_cast<int>(100000)); i++ ) { 
+factorialIterative(numberToCalculate); 
+ } 
+
+std::cout << "Iterative: " << (std::chrono::duration_cast<std::chrono::milliseconds>(
+std::chrono::high_resolution_clock::now() - cPUown)).count() << "ms" << std::endl;
+
+
+
+  
+  return 0;
+}  

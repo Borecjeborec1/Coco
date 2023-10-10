@@ -79,6 +79,9 @@ function generateCpp(ast, compilingOptions) {
                 .map(addAutoIfNotTypedAlready)
                 .join(", ");
             const body = generateCpp(ast.body);
+            if (body.includes(`${funcName}(`))
+                return `std::function<${config.numberDataType}(${config.numberDataType})> ${funcName} = [&](${params}) { \n${body} \n };`;
+
             return `auto ${funcName} = [](${params}) { \n${body} \n };`;
         }
         case "BlockStatement": {

@@ -1,6 +1,7 @@
 #### TODO
 
 -   Scoping. Fc move to top of block, classes too probably {High}
+-   Recursive Functions for different data types{High}
 -   TS exports {Mid}
 -   RegExp Object {Mid}
 -   more cli params {Mid}
@@ -116,3 +117,4 @@
 -   Fix empty json key acessment {Mid}
 -   Fix constructor and prototype {Mid}
 -   AST types discovery {Mid}
+-   Recursive Lambdas {High}
