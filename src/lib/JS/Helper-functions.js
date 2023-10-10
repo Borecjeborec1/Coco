@@ -2,11 +2,13 @@ const fs = require("fs");
 const path = require("path");
 const { VALID_USER_TYPES } = require("./Builtin-Objects.js");
 function addAutoIfNotTypedAlready(variable) {
-    return variable.length === 1 ? "auto " + variable : variable;
+    return variable.split(" ").length === 1 ? "auto " + variable : variable;
 }
 
 function addJSONIfNotTypedAlready(variable) {
-    return variable.length === 1 ? "nlohmann::json " + variable : variable;
+    return variable.split(" ").length === 1
+        ? "nlohmann::json " + variable
+        : variable;
 }
 
 function isRegexString(value) {

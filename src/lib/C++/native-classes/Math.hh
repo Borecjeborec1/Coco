@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cstdarg>
 #include <limits>
-
 class __Math__
 {
 public:
@@ -123,6 +122,7 @@ public:
 
     static double random()
     {
+        srand(time(NULL));
         return (double)rand() / RAND_MAX;
     }
 

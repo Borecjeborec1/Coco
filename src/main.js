@@ -28,6 +28,7 @@ let config = {
     numberDataType: "int",
     outputBooleans: true,
     isModule: false,
+    mockedRandom: true,
 };
 
 const userDefinedVariableNames = [];
@@ -79,6 +80,7 @@ function generateCpp(ast, compilingOptions) {
                 .map(addAutoIfNotTypedAlready)
                 .join(", ");
             const body = generateCpp(ast.body);
+            console.log("PARAMS? ", params);
             if (body.includes(`${funcName}(`))
                 return `std::function<${config.numberDataType}(${config.numberDataType})> ${funcName} = [&](${params}) { \n${body} \n };`;
 
@@ -207,6 +209,8 @@ function generateCpp(ast, compilingOptions) {
         case "BinaryExpression": {
             const lhs = generateCpp(ast.left);
             const rhs = generateCpp(ast.right);
+            if (ast.operator === "%")
+                return `(static_cast<int>(${lhs}) % static_cast<int>(${rhs}))`;
             if (ast.operator === "**") return `std::pow(${lhs}, ${rhs})`;
             if (ast.operator === "==") return `(${lhs} == ${rhs})`;
             if (ast.operator === "!=") return `(${lhs} != ${rhs})`;
@@ -235,7 +239,6 @@ function generateCpp(ast, compilingOptions) {
                     ) {
                         let args = ast.arguments.map(generateCpp).join(" << ");
                         const coutType = ast.callee.property.name;
-                        console.log("HEREEREE");
                         if (coutType === "time" || coutType === "timeEnd") {
                             const coutMethod =
                                 ast.expression.callee.property.name;
@@ -354,7 +357,6 @@ function generateCpp(ast, compilingOptions) {
                 }`;
             if (classVariablesDefinedByUser.includes(propertyCode))
                 return `${objectCode}.${propertyCode}`;
-            console.log("HEREEE", ast);
             return `${objectCode}[${propertyCode}]`;
         }
         case "IfStatement": {
@@ -418,10 +420,10 @@ function generateCpp(ast, compilingOptions) {
                 ast.expression.callee.object.name === "console"
             ) {
                 const coutType = ast.expression.callee.property.name;
+                const args = ast.expression.arguments
+                    .map(generateCpp)
+                    .join(" << ");
                 if (coutType == "time" || coutType == "timeEnd") {
-                    const args = ast.expression.arguments
-                        .map(generateCpp)
-                        .join(" << ");
                     const coutMethod = ast.expression.callee.property.name;
                     const coutStringIdentifier =
                         ast.expression.arguments[0].value;
@@ -593,10 +595,13 @@ function generateCpp(ast, compilingOptions) {
                 generateCpp(expression)
             );
             let result = ``;
-
-            for (let i = 0; i < expressions.length; i++) {
-                result += `${quasis[i]},  `;
-                result += `${expressions[i]},  `;
+            let greaterLoopI =
+                expressions.length > quasis.length
+                    ? expressions.length
+                    : quasis.length;
+            for (let i = 0; i < greaterLoopI; i++) {
+                if (quasis[i]) result += `${quasis[i]},  `;
+                if (expressions[i]) result += `${expressions[i]},  `;
             }
             return `JS_join(nlohmann::json{${result}},"")`;
         }
@@ -709,6 +714,9 @@ let isTimerUsed = false;
 function joinCppParts(mainBody = "") {
     const coutModifier = config.outputBooleans
         ? "std::cout.setf(std::ios::boolalpha);"
+        : "";
+    const randomNumberModifier = config.mockedRandom
+        ? "srand ( time(NULL) );"
         : "";
     const rootDirectory = "/lib/C++";
 

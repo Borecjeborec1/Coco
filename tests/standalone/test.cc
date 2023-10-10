@@ -42,23 +42,23 @@ return result;
  };
 auto numberToCalculate = static_cast<int>(10000) ; 
 
-auto WAUqQm = std::chrono::high_resolution_clock::now();
+auto NdoMvQ = std::chrono::high_resolution_clock::now();
 for (auto i = static_cast<long long int>(0) ; 
  (i < static_cast<int>(100000)); i++ ) { 
 factorialRecursive(numberToCalculate); 
  } 
 
 std::cout << "Recursive: " << (std::chrono::duration_cast<std::chrono::milliseconds>(
-std::chrono::high_resolution_clock::now() - WAUqQm)).count() << "ms" << std::endl;
+std::chrono::high_resolution_clock::now() - NdoMvQ)).count() << "ms" << std::endl;
 
-auto cPUown = std::chrono::high_resolution_clock::now();
+auto yPbwSs = std::chrono::high_resolution_clock::now();
 for (auto i = static_cast<long long int>(0) ; 
  (i < static_cast<int>(100000)); i++ ) { 
 factorialIterative(numberToCalculate); 
  } 
 
 std::cout << "Iterative: " << (std::chrono::duration_cast<std::chrono::milliseconds>(
-std::chrono::high_resolution_clock::now() - cPUown)).count() << "ms" << std::endl;
+std::chrono::high_resolution_clock::now() - yPbwSs)).count() << "ms" << std::endl;
 
 
 
