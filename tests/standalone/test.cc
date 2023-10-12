@@ -25,41 +25,11 @@
 // Main Function (Have to be the only main function)
 int main(){
   std::cout.setf(std::ios::boolalpha);
-  std::function<int(int)> factorialRecursive = [&](auto n) { 
-if ((n == static_cast<int>(0))) {
-return static_cast<int>(1); 
-}
-return (n * factorialRecursive((n - static_cast<int>(1))));  
- };
-auto factorialIterative = [](auto n) { 
-auto result = static_cast<int>(1) ; 
+  auto idkArr = nlohmann::json{static_cast<int>(1), static_cast<int>(2), static_cast<int>(3), static_cast<int>(0), nlohmann::json(), static_cast<int>(21)} ; 
 
-for (auto i = static_cast<long long int>(2) ; 
- (i <= n); i++ ) { 
-result *= i; 
- } 
-return result;  
- };
-auto numberToCalculate = static_cast<int>(10000) ; 
+auto test = JS_filter(idkArr, [](auto item) { return item!= 0 && item!= nlohmann::json(); } ) ; 
 
-auto NdoMvQ = std::chrono::high_resolution_clock::now();
-for (auto i = static_cast<long long int>(0) ; 
- (i < static_cast<int>(100000)); i++ ) { 
-factorialRecursive(numberToCalculate); 
- } 
-
-std::cout << "Recursive: " << (std::chrono::duration_cast<std::chrono::milliseconds>(
-std::chrono::high_resolution_clock::now() - NdoMvQ)).count() << "ms" << std::endl;
-
-auto yPbwSs = std::chrono::high_resolution_clock::now();
-for (auto i = static_cast<long long int>(0) ; 
- (i < static_cast<int>(100000)); i++ ) { 
-factorialIterative(numberToCalculate); 
- } 
-
-std::cout << "Iterative: " << (std::chrono::duration_cast<std::chrono::milliseconds>(
-std::chrono::high_resolution_clock::now() - yPbwSs)).count() << "ms" << std::endl;
-
+std::cout << test << '\n';
 
 
   

@@ -80,10 +80,8 @@ function generateCpp(ast, compilingOptions) {
                 .map(addAutoIfNotTypedAlready)
                 .join(", ");
             const body = generateCpp(ast.body);
-            console.log("PARAMS? ", params);
             if (body.includes(`${funcName}(`))
                 return `std::function<${config.numberDataType}(${config.numberDataType})> ${funcName} = [&](${params}) { \n${body} \n };`;
-
             return `auto ${funcName} = [](${params}) { \n${body} \n };`;
         }
         case "BlockStatement": {
@@ -244,7 +242,7 @@ function generateCpp(ast, compilingOptions) {
                                 ast.expression.callee.property.name;
                             const coutStringIdentifier =
                                 ast.expression.arguments[0].value;
-                            return handleCoutStatements(
+                            handleCoutStatements(
                                 coutMethod,
                                 args,
                                 coutStringIdentifier
@@ -318,18 +316,16 @@ function generateCpp(ast, compilingOptions) {
                 .map((el) => "auto " + el)
                 .join(", ")}) { \n${generateCpp(ast.body)} \n } `;
         case "ArrowFunctionExpression": {
-            if (ast.body.type === "BlockStatement")
-                return `[](${ast.params
-                    .map(generateCpp)
-                    .map((el) => "auto " + el)
-                    .join(", ")}) { \n${generateCpp(ast.body)} \n } `;
-
-            const returnBody = generateCpp(ast.body);
-
-            return `[](${ast.params
+            const params = ast.params
                 .map(generateCpp)
                 .map((el) => "auto " + el)
-                .join(", ")}) { return ${returnBody} } `;
+                .join(", ");
+            const returnBody = generateCpp(ast.body);
+            if (ast.body.type === "BlockStatement")
+                return `[](${params}) { \n${returnBody} \n } `;
+            if (ast.body.type == "Identifier" && params.includes(returnBody))
+                return `[](${params}) { return ${returnBody}!= 0 && ${returnBody}!= nlohmann::json(); } `;
+            return `[](${params}) { return ${returnBody}; } `;
         }
         case "MemberExpression": {
             const objectCode = generateCpp(ast.object);
@@ -694,18 +690,6 @@ function generateCpp(ast, compilingOptions) {
 
             return `nlohmann::json ${methodName}(${methodParams}) {\n${methodBody}\n}`;
         }
-
-        // case "ImportDeclaration":
-        //     // Extract the module specifier from the import statement
-        //     const importPath = ast.source.value;
-
-        //     // Resolve the file path to the actual file location
-        //     const resolvedImportPath = resolveFilePath(importPath);
-        //     console.log("IN IMPORT");
-        //     // Generate the C++ #include statement using the .hh extension
-        //     const includeStatement = `#include "${resolvedImportPath}.hh"`;
-
-        //     return includeStatement;
         default:
             console.log(`Unsupported AST node type: ${ast.type} `);
     }

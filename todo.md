@@ -30,7 +30,6 @@
 
 ##### Bugs
 
--   fix exists in callbacks (arr.filter((item) => item)) {Mid}
 -   Fix the module.exports {Mid}
 -   Handle empty mapping in translation. (classes with no methods, etc) {Mid}
 -   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
@@ -118,3 +117,4 @@
 -   AST types discovery {Mid}
 -   Recursive Lambdas {High}
 -   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
+-   fix exists in callbacks (arr.filter((item) => item)) {Mid}

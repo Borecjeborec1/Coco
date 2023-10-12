@@ -117,19 +117,16 @@ nlohmann::json JS_filter(const nlohmann::json &arr, Callable callback)
 
   for (const auto &element : arr)
   {
-    bool satisfiesCallback = false;
     try
     {
-      satisfiesCallback = callback(element);
+      if (callback(element))
+      {
+        result.push_back(element);
+      }
     }
     catch (const std::exception &ex)
     {
       continue;
-    }
-
-    if (satisfiesCallback)
-    {
-      result.push_back(element);
     }
   }
 
