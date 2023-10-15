@@ -22,6 +22,7 @@ const {
     generateRandomString,
     mapUserType,
     addJSONIfNotTypedAlready,
+    handleUnsupportedLine,
 } = require("./lib/JS/Helper-functions.js");
 
 let config = {
@@ -61,6 +62,16 @@ std::chrono::high_resolution_clock::now() - ${referedRandomIdentifier})).count()
     }
 }
 
+function isConsoleStatement(ast) {
+    if (ast.callee.object)
+        return (
+            ast.callee.type === "MemberExpression" &&
+            ast.callee.property &&
+            ast.callee.object.name === "console"
+        );
+    return false;
+}
+
 function generateCpp(ast, compilingOptions) {
     if (compilingOptions) config = { ...config, ...compilingOptions };
     try {
@@ -87,7 +98,6 @@ function generateCpp(ast, compilingOptions) {
         case "BlockStatement": {
             return ast.body.map(generateCpp).join("\n");
         }
-
         case "VariableDeclaration": {
             if (isModuleStatement(ast.declarations[0].init)) {
                 const moduleName = ast.declarations[0].init.arguments[0].value;
@@ -101,19 +111,27 @@ function generateCpp(ast, compilingOptions) {
                     if (moduleName == "fs") newCppFlags += " -std=c++17 ";
                     return `using ${variableName} = ${ALLOWED_MODULES[moduleName]};`;
                 }
-                if (ast.declarations[0].id.type == "ObjectPattern") {
-                    const randomObjectName = generateRandomString(6);
-                    const destructured = ast.declarations[0].id.properties
-                        .map((identifier) => {
-                            const key = generateCpp(identifier.key);
-                            const value = generateCpp(identifier.value);
-                            return `auto ${value} = ${randomObjectName}::${key};`;
-                        })
-                        .join("\n");
-                    linkNewJsFile(moduleName, randomObjectName);
-                    return `${destructured}`;
+                if (fileExists(moduleName)) {
+                    if (ast.declarations[0].id.type == "ObjectPattern") {
+                        const randomObjectName = generateRandomString(6);
+                        const destructured = ast.declarations[0].id.properties
+                            .map((identifier) => {
+                                const key = generateCpp(identifier.key);
+                                const value = generateCpp(identifier.value);
+                                return `auto ${value} = ${randomObjectName}::${key};`;
+                            })
+                            .join("\n");
+                        linkNewJsFile(moduleName, randomObjectName);
+                        return `${destructured}`;
+                    }
+                    linkNewJsFile(moduleName, variableName);
+                    console.log("here");
+                    return "";
                 }
-                linkNewJsFile(moduleName, variableName);
+
+                handleUnsupportedLine(
+                    `Some line was not handled correctly. Expected to be a moduleStatement but was not linking builtin module or existing file. Problem with variable ${variableName}`
+                );
                 return "";
             }
 
@@ -154,9 +172,9 @@ function generateCpp(ast, compilingOptions) {
             return `${generateCpp(ast.id)} = ${generateCpp(ast.init)} `;
         }
         case "Identifier": {
-            if (ast.typeAnnotation) {
+            if (ast.typeAnnotation)
                 return `${generateCpp(ast.typeAnnotation)} ${ast.name} `;
-            }
+
             switch (ast.name) {
                 case "__dirname":
                     return `"${__dirname}"`;
@@ -173,9 +191,8 @@ function generateCpp(ast, compilingOptions) {
             }
         }
         case "Literal": {
-            if (ast.typeAnnotation) {
-                return ast.value.toString();
-            }
+            if (ast.typeAnnotation) return ast.value.toString();
+
             if (isRegexString(ast.value)) {
                 const [, pattern, flags] = ast.value
                     .toString()
@@ -192,18 +209,20 @@ function generateCpp(ast, compilingOptions) {
 
                 return `std::regex("${pattern}", ${regexFlags})`;
             }
-            if (typeof ast.value === "string") {
+            if (typeof ast.value === "string")
                 return `std::string("${ast.value}")`;
-            } else if (typeof ast.value === "number") {
+            if (typeof ast.value === "number")
                 return `static_cast<${config.numberDataType}>(${ast.value})`;
-            } else if (typeof ast.value === "boolean") {
-                return `${!!ast.value}`;
-            } else if (typeof ast.value == "bigint") {
+            if (typeof ast.value === "boolean") return `${!!ast.value}`;
+            if (typeof ast.value == "bigint")
                 return `static_cast<long long>(${ast.value})`;
-            }
+            if (ast.raw == "null") return "nlohmann::json() ";
+
+            handleUnsupportedLine(
+                `Some line was not handled correctly. Type of the literal was not one of those handled. Defaulting to empty json instead. Problematic value: ${ast.value}`
+            );
             return `nlohmann::json() // Unknown type: ${JSON.stringify(ast)}`;
         }
-
         case "BinaryExpression": {
             const lhs = generateCpp(ast.left);
             const rhs = generateCpp(ast.right);
@@ -230,28 +249,21 @@ function generateCpp(ast, compilingOptions) {
                 ast.callee.object
             ) {
                 if (ast.callee.object.name === "console") {
-                    if (
-                        ast.type === "CallExpression" &&
-                        ast.callee.type === "MemberExpression" &&
-                        ast.callee.object.name === "console"
-                    ) {
-                        let args = ast.arguments.map(generateCpp).join(" << ");
-                        const coutType = ast.callee.property.name;
-                        if (coutType === "time" || coutType === "timeEnd") {
-                            const coutMethod =
-                                ast.expression.callee.property.name;
-                            const coutStringIdentifier =
-                                ast.expression.arguments[0].value;
-                            handleCoutStatements(
-                                coutMethod,
-                                args,
-                                coutStringIdentifier
-                            );
-                        }
-                        if (coutType == "error")
-                            return `std::cerr << ${args} << '\\n';`;
-                        return `std::${typeOfCout} << ${args} << '\\n';`;
+                    let args = ast.arguments.map(generateCpp).join(" << ");
+                    const coutType = ast.callee.property.name;
+                    if (coutType === "time" || coutType === "timeEnd") {
+                        const coutMethod = ast.expression.callee.property.name;
+                        const coutStringIdentifier =
+                            ast.expression.arguments[0].value;
+                        handleCoutStatements(
+                            coutMethod,
+                            args,
+                            coutStringIdentifier
+                        );
                     }
+                    if (coutType == "error")
+                        return `std::cerr << ${args} << '\\n';`;
+                    return `std::${typeOfCout} << ${args} << '\\n';`;
                 }
 
                 let jsFunction = BUILTIN_JS_FUNCTIONS[ast.callee.property.name];
@@ -275,9 +287,8 @@ function generateCpp(ast, compilingOptions) {
                             return `${name}(${args})`;
 
                         return `${name}(${variableName}, ${args})`;
-                    } else {
-                        return `${name}(${variableName})`;
                     }
+                    return `${name}(${variableName})`;
                 }
             }
 
@@ -343,10 +354,8 @@ function generateCpp(ast, compilingOptions) {
                 return `${objectCode}::${propertyCode}`;
             if (linkedFilesName.includes(objectCode))
                 return `${objectCode}::${propertyCode}`;
-
             if (IMPLEMENTED_JS_OBJECTS[objectCode])
                 return `${IMPLEMENTED_JS_OBJECTS[objectCode]}::${propertyCode}`;
-
             if (IMPLEMENTED_OBJECT_METHODS.includes(propertyCode))
                 return `${objectCode}.${
                     propertyCode == "delete" ? "deleteKey" : propertyCode
@@ -433,18 +442,29 @@ function generateCpp(ast, compilingOptions) {
                 if (coutType === "error")
                     return `std::cerr << ${args} << '\\n';`;
                 return `std::cout << ${args} << '\\n';`;
-            } else {
-                return generateCpp(ast.expression) + ";";
             }
+            return generateCpp(ast.expression) + ";";
         }
         case "ForStatement": {
             let init = generateCpp(ast.init);
             let test = generateCpp(ast.test);
-            init = init.replace(
-                `static_cast<${config.numberDataType}>`,
-                "static_cast<long long int>"
-            );
             let update = generateCpp(ast.update);
+
+            if (ast.test.right)
+                if (ast.test.right.value > 1_000_000) {
+                    init = init.replace(
+                        `static_cast<${config.numberDataType}>`,
+                        "static_cast<long long int>"
+                    );
+                    test = test.replace(
+                        `static_cast<${config.numberDataType}>`,
+                        "static_cast<long long int>"
+                    );
+                    update = update.replace(
+                        `static_cast<${config.numberDataType}>`,
+                        "static_cast<long long int>"
+                    );
+                }
             let body = generateCpp(ast.body);
             return `for (${init} ${test}; ${update}) { \n${body} \n } `;
         }
@@ -461,7 +481,6 @@ function generateCpp(ast, compilingOptions) {
             const right = generateCpp(ast.right);
             const body = generateCpp(ast.body);
             if (ast.left.declarations[0].id.elements) {
-                // array of keys inside loop
                 const index = ast.left.declarations[0].id.elements[0].name;
                 const value = ast.left.declarations[0].id.elements[1].name;
                 return `
@@ -754,9 +773,12 @@ int main(){
 `;
 }
 
+function fileExists(fileName) {
+    return fs.existsSync(path.join(path.dirname(config.cppFile), fileName));
+}
+
 function linkNewJsFile(fileName, namespaceName) {
-    if (!fs.existsSync(path.join(path.dirname(config.cppFile), fileName)))
-        return;
+    if (!fileExists) return;
 
     const linkedFilePath = path.join(path.dirname(config.cppFile), fileName);
     let linkedContent = fs.readFileSync(linkedFilePath, "utf-8");

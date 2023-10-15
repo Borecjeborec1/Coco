@@ -1,5 +1,3 @@
-const idkArr = [1, 2, 3, 0, undefined, 21];
+const dd = require("./ikd.js");
 
-let test = idkArr.filter((item) => item);
-
-console.log(test);
+console.log(dd(1, 3));

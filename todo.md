@@ -20,20 +20,19 @@
 ##### In Future
 
 -   var vs let {Mid}
--   child_process.spawn() {Low} HARD!!!
+-   child_process.spawn() {Low} HARD!
 -   Generated code clenup -> whitespaces, ;, indents, ... {Very Low}
 -   == vs === {Mid}
+-   Dynamic imports {Mid}
 
 ##### Maybe in long long future
 
--   no strict mode (using json for everything) HARD!!!
+-   no "strict" mode HARD!!!
 
 ##### Bugs
 
 -   Fix the module.exports {Mid}
--   Handle empty mapping in translation. (classes with no methods, etc) {Mid}
 -   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
--   Fix nonstrings inside console.time {Mid}
 
 ###### Single methods Bugs
 
@@ -118,3 +117,5 @@
 -   Recursive Lambdas {High}
 -   Handle % operator for doubles (error: invalid operands of types 'float' and 'float' to binary 'operator%') {Low}
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
+-   Handle empty mapping in translation. (classes with no methods, etc) {Mid}
+-   Fix nonstrings inside console.time {Mid}

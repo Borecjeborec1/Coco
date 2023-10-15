@@ -55,6 +55,10 @@ function mapUserType(type) {
     return VALID_USER_TYPES[type];
 }
 
+function handleUnsupportedLine(msg) {
+    console.log(msg);
+}
+
 module.exports = {
     addAutoIfNotTypedAlready,
     isRegexString,
@@ -63,4 +67,5 @@ module.exports = {
     generateRandomString,
     mapUserType,
     addJSONIfNotTypedAlready,
+    handleUnsupportedLine,
 };

@@ -362,7 +362,8 @@ describe("Generating operators and arithmetic expressions", function () {
 
     it("should convert modulo operator", function () {
         const jsCode = "const remainder = x % y;";
-        const expectedCppCode = "auto remainder = (x % y);";
+        const expectedCppCode =
+            "auto remainder =  (static_cast<int>(x) % static_cast<int>(y));";
 
         expect(translateToCppWithDefaults(jsCode)).to.equalIgnoreSpaces(
             expectedCppCode
