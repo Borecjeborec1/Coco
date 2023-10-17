@@ -23,7 +23,7 @@ const {
     mapUserType,
     addJSONIfNotTypedAlready,
     handleUnsupportedLine,
-} = require("./lib/JS/Helper-functions.js");
+} = require("./lib/JS/utils.js");
 
 let config = {
     numberDataType: "int",
