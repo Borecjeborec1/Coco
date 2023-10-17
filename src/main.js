@@ -596,14 +596,10 @@ function generateCpp(ast, compilingOptions) {
         case "AwaitExpression": {
             return generateCpp(ast.argument);
         }
-        // case "RestElement": {
-        //     const argName = generateCpp(ast.argument);
-        //     const paramName = argName.startsWith("&")
-        //         ? argName.substring(1)
-        //         : argName;
-        //     return;
-        //     // return `std:: vector < ${getCppType(ast.argument.elements[0].type)}> ${paramName} _vector(${argName}); \n`;
-        // }
+        case "RestElement": {
+            const argument = generateCpp(ast.argument);
+            return `__spreadOperator__(${argument})`;
+        }
         case "TemplateLiteral": {
             const quasis = ast.quasis.map(generateCpp);
             const expressions = ast.expressions.map((expression) =>
@@ -657,9 +653,6 @@ function generateCpp(ast, compilingOptions) {
             linkNewJsFile(importPath, variableName);
             return ``;
         }
-        // case "ImportSpecifier":
-        // case "ImportDefaultSpecifier":
-
         case "ClassDeclaration": {
             const className = ast.id.name;
             const classBody = ast.body.body;
