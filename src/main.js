@@ -125,7 +125,6 @@ function generateCpp(ast, compilingOptions) {
                         return `${destructured}`;
                     }
                     linkNewJsFile(moduleName, variableName);
-                    console.log("here");
                     return "";
                 }
 
@@ -757,6 +756,7 @@ ${externalNamespaces}
 // Main Function (Have to be the only main function)
 int main(){
   ${coutModifier}
+  ${randomNumberModifier}
   ${mainBody}
 
 

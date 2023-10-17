@@ -1,4 +1,3 @@
-#include <iostream>
 #include <cmath>
 
 class __BigInt__

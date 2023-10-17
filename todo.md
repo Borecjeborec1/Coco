@@ -10,7 +10,7 @@
 -   Typescript discovery {Low}
 -   eval {Low}
 -   Error Object {Low}
--   Weak Map/Set {Low}
+-   Weak Map/Set {Very Low}
 -   Readme todos section
 -   Readme possibilities section
 -   Readme known bugs sections
@@ -19,11 +19,11 @@
 
 ##### In Future
 
--   var vs let {Mid}
--   child_process.spawn() {Low} HARD!
--   Generated code clenup -> whitespaces, ;, indents, ... {Very Low}
--   == vs === {Mid}
--   Dynamic imports {Mid}
+-   var vs let
+-   child_process.spawn() HARD!
+-   Generated code clenup -> whitespaces, ;, indents, ...
+-   == vs ===
+-   Dynamic imports
 
 ##### Maybe in long long future
 
@@ -31,8 +31,7 @@
 
 ##### Bugs
 
--   Fix the module.exports {Mid}
--   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once. {Mid}
+-   Fix bug with running async code. nodejs spawns waits for end of the exe and then output all at once.
 
 ###### Single methods Bugs
 
@@ -119,3 +118,4 @@
 -   fix exists in callbacks (arr.filter((item) => item)) {Mid}
 -   Handle empty mapping in translation. (classes with no methods, etc) {Mid}
 -   Fix nonstrings inside console.time {Mid}
+-   Fix the module.exports

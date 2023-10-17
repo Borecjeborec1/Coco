@@ -1,10 +1,10 @@
-#include <iostream>
 #include <limits>
 #include <cmath>
 #include <string>
 #include <cstdint>
 
-class __Number__ {
+class __Number__
+{
 public:
   static const double EPSILON;
   static const double MAX_VALUE;
@@ -17,7 +17,8 @@ public:
 
   static double parseFloat(const std::string &str) { return std::stod(str); }
 
-  static int32_t parseInt(const std::string &str, int radix = 10) {
+  static int32_t parseInt(const std::string &str, int radix = 10)
+  {
     return std::stoi(str, 0, radix);
   }
 
@@ -25,7 +26,8 @@ public:
 
   static bool isInteger(double num) { return std::trunc(num) == num; }
 
-  static bool isSafeInteger(double num) {
+  static bool isSafeInteger(double num)
+  {
     return isInteger(num) && num >= MIN_SAFE_INTEGER && num <= MAX_SAFE_INTEGER;
   }
 };
