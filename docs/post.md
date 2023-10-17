@@ -2,16 +2,11 @@
 
 _TL;DR: Random developer created js "translator" into the c++. Now he craves for some github stars. Repo link: GITHUB_REPO_LINK_
 
-About half a year ago I´ve started this project, to be able to use js as a fast language for some CP (Competetive programming) projects. As time went on... bun vs node wars ... decided to publish it. So here it is.
+In a world where JavaScript meets C++, I, a random developer, embarked on a quest to create something extraordinary. Why? Because GitHub stars are the new currency, of course! [Repo Link: GITHUB_REPO_LINK]
 
-Coco is a rly simply written translator that translates js code to c++. Nearly every living object (except some humans) can understand its source code.
+About six months ago, I had a genius idea. I wanted to turn JavaScript into a speed demon for my competitive programming projects. As time passed, it became a bun vs. Node showdown, and now I'm releasing my creation to the wild.
 
--   Briefly how it translates
--   Advantages
-    -   Compiled
-    -   Speed
-    -   Linking c++ code (shwocase some GUI)
-    -   Some node modules built in
+Meet Coco, your new best friend. It's a translator, a bridge, a magic wand – call it what you want. Coco takes your JS code and turns it into C++. It's so simple that even your pet rock could understand the source code (well, most of it).
 
 Oh, you thought Node.js was fast? Well, think again! We present to you the future of JavaScript development, and it's so fast that even the speed of light is struggling to keep up.
 
